@@ -1,8 +1,11 @@
 package gui
 
+import storage.ENV
 import utils.extensions.sizeTo
 import java.awt.Color
 import java.awt.Component
+import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.event.MouseEvent
@@ -11,44 +14,55 @@ import java.awt.event.MouseMotionListener
 import javax.swing.BoxLayout
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.border.Border
 import javax.swing.border.EmptyBorder
 
-class TabLabel(
+class LabelButton(
         val title: String,
-        private val listener: ActionListener
+        private val listener: ActionListener,
+        private val defaultBackground: Color = ENV.dark,
+        private val defaultSelected: Color = ENV.darkSelected,
+        foreground: Color = ENV.foreground,
+        width: Int = HARD_WIDTH,
+        height: Int = HARD_HEIGHT,
+        borderObj: Border = EmptyBorder(0, 20, 0, 0),
+        private val artist: (Graphics2D) -> Unit = {}
 ) : JPanel(), MouseListener, MouseMotionListener {
   private val label = JLabel(title)
 
   init {
-    sizeTo(HARD_WIDTH, HARD_HEIGHT)
+    sizeTo(width, height)
 
-    border = EmptyBorder(0, 20, 0, 0)
+    border = borderObj
     layout = BoxLayout(this, BoxLayout.LINE_AXIS)
-    background = colorNormal
+    background = defaultBackground
     addMouseListener(this)
-    label.foreground = Color.WHITE
+    label.foreground = foreground
     label.alignmentX = Component.CENTER_ALIGNMENT
     label.alignmentY = Component.CENTER_ALIGNMENT
     add(label)
   }
 
   companion object {
-    val colorNormal = Color(27, 28, 27)
-    val colorSelected = Color(70, 71, 71)
     const val HARD_WIDTH = 220
     const val HARD_HEIGHT = 59
   }
 
+  override fun paint(g: Graphics?) {
+    super.paint(g)
+    (g as Graphics2D?)?.let(artist)
+  }
+
   override fun mouseEntered(e: MouseEvent) {
-    background = colorSelected
+    background = defaultSelected
   }
 
   override fun mouseMoved(e: MouseEvent) {
-    background = colorSelected
+    background = defaultSelected
   }
 
   override fun mouseExited(e: MouseEvent) {
-    background = colorNormal
+    background = defaultBackground
   }
 
   override fun mouseClicked(e: MouseEvent) {}

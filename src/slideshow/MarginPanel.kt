@@ -3,6 +3,7 @@ package slideshow
 import storage.ENV
 import utils.extensions.createdAt
 import utils.extensions.formattedFileSize
+import utils.extensions.imageCount
 import utils.inheritors.Geometry
 import java.awt.Color
 import java.awt.Font
@@ -11,7 +12,6 @@ import java.text.SimpleDateFormat
 
 class MarginPanel(private val app: Projector) : Geometry {
   private var lines = arrayListOf<String>()
-  override val geometryType = "slideshow.MarginPanel"
   private val formatter = SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss")
   private val font = Font(ENV.fontName, Font.PLAIN, 16)
   override fun build(xOffset: Int, yOffset: Int): Geometry {
@@ -21,7 +21,7 @@ class MarginPanel(private val app: Projector) : Geometry {
   override fun paint(g: Graphics?) {
     g?.color = Color.red
     g?.font = font
-    val currentPlaylist = app.library!![app.index.primary]
+    val currentPlaylist = app.library[app.index.primary]
     lines = arrayListOf()
 
     addFolderName()
@@ -40,14 +40,14 @@ class MarginPanel(private val app: Projector) : Geometry {
 
   private fun addFolderName() {
     if (!ENV.showMarginFolderName) return
-    lines.add(app.index.current!!.file.parentFile.name)
+    lines.add(app.index.current.file.parentFile.name)
   }
 
   private fun addFileName() {
     if (!ENV.showMarginFileName) return
-    var currentLine = app.index.current!!.file.name
-    repeat(app.imageGeometryCount - 1) { idx ->
-      currentLine += " & ${(app.index + (idx + 1)).current!!.file.name}"
+    var currentLine = app.index.current.file.name
+    repeat(app.geometry.imageCount - 1) {
+      currentLine += " & ${(app.index + (it + 1)).current.file.name}"
     }
 
     lines.add(currentLine)
@@ -56,8 +56,8 @@ class MarginPanel(private val app: Projector) : Geometry {
   private fun addFileCount() {
     if (!ENV.showMarginFileCount) return
     var currentLine = "${app.index.secondary + 1}"
-    repeat(app.imageGeometryCount - 1) { idx ->
-      currentLine += " & ${app.index.secondary + 2 + idx}"
+    repeat(app.geometry.imageCount - 1) {
+      currentLine += " & ${app.index.secondary + 2 + it}"
     }
 
     lines.add("$currentLine / ${app.index.maxSecondary}")

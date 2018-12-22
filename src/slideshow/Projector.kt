@@ -4,15 +4,17 @@ import storage.ENV
 import utils.extensions.CACHED_FILE
 import utils.extensions.CACHE_FULL_IMAGE
 import utils.extensions.CACHE_RESIZED_IMAGE
+import utils.extensions.always
 import utils.extensions.blindObserver
+import utils.extensions.cache
+import utils.extensions.catalogs
 import utils.extensions.chooseBestDisplayMode
 import utils.extensions.dimension
-import utils.extensions.lazyCache
-import utils.extensions.listMatchingDirectories
+import utils.extensions.imageCount
 import utils.extensions.superGC
 import utils.extensions.vprintln
-import utils.inheritors.Geometry
 import utils.inheritors.FullScreenFrame
+import utils.inheritors.Geometry
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.GraphicsEnvironment
@@ -24,39 +26,39 @@ import javax.swing.Timer
 import kotlin.math.abs
 import kotlin.math.max
 
-
+/**
+ * @property geometry Array<Geometry>
+ * @property index ImageIndex The current image in the library being displayed
+ * @property _index ImageIndex? The private cache for index
+ * @property library List<Catalog> The list of Catalogs loaded by the program
+ * @property _library List<Catalog>? The private cache for library
+ * @property device GraphicsDevice
+ * @property handler EventHandler
+ * @property marginPanel MarginPanel
+ * @property timer Timer
+ */
 class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
   // Properties
   ///////////////////////////////////////
 
-  var focus: CachedImage?      by blindObserver(null, ::project)
-  private var idx: ImageIndex?        by lazyCache { ImageIndex(library!!) }
-  val index: ImageIndex
-    get() = idx!!
-  private var itemCount: Int?          by lazyCache { library!!.map { it.size }.sum() }
-  private var geometry by blindObserver(arrayOf<Geometry>(), ::render)
-  var library: List<Playlist>? by lazyCache {
-    File(ENV.root).listMatchingDirectories().map { Playlist(it, this) }.sorted()
-  }
+  var geometry by blindObserver(arrayOf<Geometry>(), ::render)
+  val index: ImageIndex by always { _index!! }
+  val library: List<Catalog> by always { _library!! }
+
+  private var _index: ImageIndex? by cache { ImageIndex(library) }
+  private var _library: List<Catalog>? by cache { File(ENV.root).catalogs }
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val handler = EventHandler(this)
-  private var timer = Timer(ENV.speed, handler)
   private val marginPanel = MarginPanel(this)
-  val imageGeometryCount: Int
-    get() = geometry.count { it.geometryType == "slideshow.CachedImage" }
+  private var timer = Timer(ENV.speed, handler)
 
   init {
+    if (!device.isFullScreenSupported) throw IllegalArgumentException("Non full-screen modes not yet supported")
+
     // Short-circuit if playlist is empty or if full screen is not possible
-    if (itemCount == 0) {
-      println("No images found to display!")
-      System.exit(1)
-    }
-    if (!device.isFullScreenSupported) {
-      println("Full screen mode not supported")
-      System.exit(1)
-    }
+    if (library.map { it.size }.sum() == 0) throw IllegalArgumentException("No images found to display!")
 
     // Set up Listeners
     defaultCloseOperation = JFrame.DO_NOTHING_ON_CLOSE
@@ -82,8 +84,10 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     // Draw initial black background
     drawPage {}
 
-    // Update caching states of nearby images
-    updateCaching()
+    // IMPORTANT!! Register the screen size globally
+    ENV.screenDimension = size
+
+    project()
   }
 
   fun exit(status: Int = 0) {
@@ -91,24 +95,12 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     System.exit(status)
   }
 
-  override fun iterator() = ImageIndex(library!!)
-
-  private fun clearCaches(): Int {
-    drawPage {}
-    val prim = index.primary
-    idx = null
-    focus = null
-    geometry = arrayOf()
-    itemCount = null
-    library = null
-    superGC(50)
-    return prim
-  }
+  override fun iterator() = ImageIndex(library)
 
   override fun toString(): String = "<slideshow.Projector: ${hashCode()}>"
 
   ///////////////////////////////////////
-  // Draw Logic
+  // Draw Logic Helpers
   ///////////////////////////////////////
 
   private fun wipeScreen(g: Graphics, color: Color = Color.BLACK) {
@@ -126,45 +118,51 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     g.dispose()
   }
 
-  private fun render() {
-    drawPage { g ->
-      geometry.forEach { it.paint(g) }
-    }
-  }
+  ///////////////////////////////////////
+  // Draw Logic
+  ///////////////////////////////////////
+  // Order of operations:
+  // - The index is modified and project() is called
+  // - project() recalculates the geometry array which triggers...
+  // - render() draws all geometry to a screen and triggers...
+  // - updateCaching() which re-evaluates the caching states of buffered images
+  ///////////////////////////////////////
 
   private fun project() {
-    if (focus == null) return
-    if (itemCount!! > 1 && ENV.paneled && index.secondary < index.maxSecondary!! - 1) {
+    if (ENV.paneled && index.secondary < index.maxSecondary - 1) {
       val next = index + 1
-      val margin = (size.width - index.current!!.width - next.current!!.width) / 2
+      val margin = (size.width - index.current.width - next.current.width) / 2
       if (margin >= 0) {
         geometry = arrayOf(
-          index.current!!.build(size.width - margin - index.current!!.width),
-          next.current!!.build(margin),
+          index.current.build(size.width - margin - index.current.width),
+          next.current.build(margin),
           marginPanel.build(margin)
         )
         return
       }
     }
     geometry = arrayOf(
-      index.current!!.build((size.width / 2) - (index.current!!.width / 2)),
-      marginPanel.build((size.width - index.current!!.width) / 2)
+      index.current.build((size.width / 2) - (index.current.width / 2)),
+      marginPanel.build((size.width - index.current.width) / 2)
     )
   }
 
+  private fun render() {
+    drawPage { g -> geometry.forEach { it.paint(g) } }
+    if (geometry.isNotEmpty()) updateCaching()
+  }
+
   fun updateCaching() {
-    focus = index.current
     val cacheFront = index - max(0, index.secondary - ENV.intraPlaylistVision)
     while (cacheFront.hasNext()) {
-      val diff = cacheFront.compareTo(index)
-      val offset = abs(diff)
+      val offset = abs(cacheFront.compareTo(index))
       when {
-        offset < ENV.imageBufferCapacity     -> cacheFront.current!!.cacheLevel = CACHE_RESIZED_IMAGE
-        offset < ENV.imageBufferCapacity + 1 -> cacheFront.current!!.cacheLevel = CACHE_FULL_IMAGE
-        diff > ENV.intraPlaylistVision       -> return
-        else                                 -> cacheFront.current!!.cacheLevel = CACHED_FILE
+        offset < ENV.imageBufferCapacity     -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
+        offset < ENV.imageBufferCapacity + 1 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
+        offset > ENV.intraPlaylistVision     -> return
+        else                                 -> cacheFront.current.cacheLevel = CACHED_FILE
       }
-      cacheFront.increment(1)
+      cacheFront.next()
     }
   }
 
@@ -173,37 +171,42 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
 
   fun dumbNext() {
-    index.increment(1)
-    updateCaching()
+    index += 1
+    project()
   }
 
   fun previous() {
-    index.decrement(1)
-    updateCaching()
+    index -= 1
+    project()
   }
 
   fun next() {
-    index.increment(imageGeometryCount)
-    updateCaching()
+    index += geometry.imageCount
+    project()
   }
 
   fun prev() {
+    index -= 1
     if (ENV.paneled) {
-      index.decrement(2)
-    } else {
-      index.decrement(1)
+      var realestate = width - index.current.width
+      var lookahead = index - 1
+      while (realestate >= lookahead.current.width && lookahead.primary == index.primary) {
+        index -= 1
+        realestate -= index.current.width
+        lookahead = index - 1
+      }
     }
-    updateCaching()
+    project()
   }
 
   fun nextFolder() {
     index.jump(1)
-    updateCaching()
+    project()
   }
 
   fun prevFolder() {
     index.jump(-1)
-    updateCaching()
+    project()
   }
 
   fun toggleTimer() {
@@ -215,7 +218,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     }
   }
 
-  private fun softJump(target: Int) =
+  private fun softJump(target: Int) {
     when (index.maxPrimary) {
       0            -> exit()
       in 0..target -> {
@@ -225,42 +228,54 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
         index.primary = target
       }
     }
+    project()
+  }
 
   ///////////////////////////////////////
   // File Helpers
   ///////////////////////////////////////
 
-  fun deleteCurrentDirectory() {
-    val targetPosition = index.primary
-    val target = library!![targetPosition].file
-    vprintln("Deleting Folder: ${target.absolutePath}")
-    clearCaches()
 
-    target.deleteRecursively()
+  private inline fun purgeCatalog(
+    targetPosition: Int,
+    jumpPosition: Int = targetPosition,
+    crossinline operation: (File) -> Unit
+  ) {
+
+    drawPage {}
+
+    try {
+      val target = library[targetPosition].file
+
+      _index = null
+      _library = library.filter { !it.path.startsWith(target.absolutePath) }
+      geometry = arrayOf()
+
+      operation(target)
+    } catch (err: Exception) {
+      throw err
+    }
+
     superGC(50)
 
-    // Reset library, index & caches
-    softJump(targetPosition)
-    updateCaching()
-    vprintln("Jumping to index $index")
+    softJump(jumpPosition)
+  }
+
+  fun deleteCurrentDirectory() {
+    purgeCatalog(index.primary) {
+      vprintln("Deleting Folder: ${it.absolutePath}")
+      it.deleteRecursively()
+    }
   }
 
   fun archiveCurrentDirectory() {
-    val targetPosition = index.primary
-    val target = library!![targetPosition].file
-    val newPath = File("${ENV.archive}\\${target.name}").toPath()
-    vprintln("Moving Folder: ${target.absolutePath} --> $newPath")
-    if (Files.exists(newPath, LinkOption.NOFOLLOW_LINKS)) {
-      vprintln("Target Path already exists! No action taken!")
-      return
+    purgeCatalog(index.primary) {
+      val newPath = File("${ENV.archive}\\${it.name}").toPath()
+      vprintln("Moving Folder: ${it.absolutePath} --> $newPath")
+      if (Files.exists(newPath, LinkOption.NOFOLLOW_LINKS))
+        vprintln("Target Path already exists! No action taken!")
+      else
+        Files.move(it.toPath(), newPath)
     }
-    clearCaches()
-
-    Files.move(target.toPath(), newPath)
-    superGC(50)
-
-    // Reset library, index & caches
-    softJump(targetPosition)
-    updateCaching()
   }
 }

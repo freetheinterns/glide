@@ -25,6 +25,7 @@ hs_err_pid*
 # IntelliJ files and folders
 *.idea
 .idea*
+out/
 
 # Project specific
 *.java.object

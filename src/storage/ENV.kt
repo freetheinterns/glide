@@ -17,12 +17,13 @@ import storage.ENV.showMarginFolderCount
 import storage.ENV.showMarginFolderName
 import storage.ENV.speed
 import storage.ENV.verbose
-import storage.schemas.ENVSchema
-import utils.inheritors.Persistable
+import java.awt.Color
+import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import java.awt.Image
 import java.io.File
 import javax.swing.UIManager
+import kotlin.properties.Delegates
 
 /**
  * A global object (static) that is used to persist & access settings for this program
@@ -50,8 +51,10 @@ import javax.swing.UIManager
  *
  * @property imagePattern
  */
-object ENV : Persistable<ENVSchema>() {
-  override val persistedLocation = File("environment.java.object")
+object ENV : FileMap("environment", -1) {
+  init {
+    load()
+  }
 
   const val ALPHABETICAL = "Alphabetical"
   const val FILE_COUNT = "# of Files"
@@ -69,48 +72,36 @@ object ENV : Persistable<ENVSchema>() {
   )
   val FONT_FAMILIES: Array<String> = GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
 
-  var archive: String = File("~\\Pictures\\archive").absolutePath
-  var fontName: String = UIManager.getFont("Button.font").fontName
-  var ordering: String = FILE_COUNT
-  var root: String = "~\\Pictures"
+  var screenDimension: Dimension by Delegates.notNull()
 
-  var direction: Boolean = true
-  var paneled: Boolean = true
-  var verbose: Boolean = true
+  var background by fileData(Color(15, 15, 15))
+  var foreground by fileData(Color(0, 0, 0))
+  var dark by fileData(Color(27, 28, 27))
+  var darkSelected by fileData(Color(70, 71, 71))
+  var darkHighlight by fileData(Color(103, 102, 100))
+  var exitRed by fileData(Color(232, 17, 35))
 
-  var showFooterFileNumber: Boolean = true
-  var showMarginFileCount: Boolean = true
-  var showMarginFileName: Boolean = true
-  var showMarginFolderCount: Boolean = true
-  var showMarginFolderName: Boolean = true
+  var archive: String by fileData(File("~\\Pictures\\archive").absolutePath)
+  var fontName: String by fileData(UIManager.getFont("Button.font").fontName)
+  var ordering by fileData(FILE_COUNT)
+  var root by fileData("~\\Pictures")
 
-  var imageBufferCapacity: Int = 2
-  var intraPlaylistVision: Int = 50
-  var scaling: Int = Image.SCALE_AREA_AVERAGING
-  var speed: Int = 2500
+  var direction by fileData(true)
+  var paneled by fileData(true)
+  var verbose by fileData(true)
 
-  var debounce: Long = 200L
+  var showFooterFileNumber by fileData(true)
+  var showMarginFileCount by fileData(true)
+  var showMarginFileName by fileData(true)
+  var showMarginFolderCount by fileData(true)
+  var showMarginFolderName by fileData(true)
 
-  var imagePattern: Regex = "^.+\\.(jpg|png|gif|bmp)$".toRegex(RegexOption.IGNORE_CASE)
+  var imageBufferCapacity by fileData(2)
+  var intraPlaylistVision by fileData(50)
+  var scaling by fileData(Image.SCALE_AREA_AVERAGING)
+  var speed by fileData(2500)
 
-  override fun toSerializedInstance() = ENVSchema(
-    archive,
-    fontName,
-    ordering,
-    root,
-    direction,
-    paneled,
-    verbose,
-    showFooterFileNumber,
-    showMarginFileCount,
-    showMarginFileName,
-    showMarginFolderCount,
-    showMarginFolderName,
-    imageBufferCapacity,
-    intraPlaylistVision,
-    scaling,
-    speed,
-    debounce,
-    imagePattern
-  )
+  var debounce by fileData(200L)
+
+  var imagePattern by fileData("^.+\\.(jpg|png|gif|bmp)$".toRegex(RegexOption.IGNORE_CASE))
 }

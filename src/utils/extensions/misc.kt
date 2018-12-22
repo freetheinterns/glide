@@ -1,11 +1,25 @@
 package utils.extensions
 
+import slideshow.CachedImage
+import utils.inheritors.Geometry
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseEvent.BUTTON1
 import java.awt.event.MouseEvent.BUTTON2
 import java.awt.event.MouseEvent.BUTTON3
 import java.text.DecimalFormat
+
+
+///////////////////////////////////////
+// DataStructure Extensions
+///////////////////////////////////////
+
+
+val Array<Geometry>.imageCount: Int
+  get() = this.count { it::class == CachedImage::class }
+
+val <K, V> Map<K, V>.reversed: HashMap<V, K>
+  get() = HashMap<V, K>().also { newMap -> entries.forEach { newMap[it.value] = it.key } }
 
 
 ///////////////////////////////////////
@@ -35,7 +49,7 @@ val Long.formattedFileSize: String
 ///////////////////////////////////////
 
 val KeyEvent.string: String
-  get() = "<Key: $keyChar #$keyCode>"
+  get() = "<Key: ${KeyEvent.getKeyText(keyCode)} ($keyChar) #$keyCode>"
 
 val MouseEvent.buttonString: String
   get() = when (button) {

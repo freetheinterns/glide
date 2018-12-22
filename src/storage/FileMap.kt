@@ -1,10 +1,11 @@
 package storage
 
 import storage.schemas.FileMapSchema
-import utils.extensions.vprintln
 import utils.inheritors.Persistable
 import java.io.File
 import java.io.Serializable
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 /**
  * This class implements a HashMap of Serializable content that can be saved to a file for persistence
@@ -13,10 +14,10 @@ import java.io.Serializable
  * @property validEntryWindow Long for the number of milliseconds and entry will be valid for
  * @property mapData HashMap<Serializable, TimestampedEntry> that will be persisted
  */
-class FileMap(
-        override val persistedLocation: File,
-        private val validEntryWindow: Long = 86400000L // One Day
-) : Persistable<FileMapSchema>(), Serializable {
+open class FileMap(
+  name: String,
+  private val validEntryWindow: Long = 86400000L // One Day
+) : Persistable<FileMapSchema>(File("$name.java.object")) {
   var mapData = hashMapOf<Serializable, TimestampedEntry>()
 
   /**
@@ -33,23 +34,27 @@ class FileMap(
     // If no value is cached, invoke cacheMiss
     cached ?: return put(target, cacheMiss())
 
-    // If the cached item is expired, then invoke cacheMiss
-    if (System.currentTimeMillis() - cached.createdAt > validEntryWindow) {
-      vprintln("STALE Cache HIT for $target")
-      return put(target, cacheMiss())
-    }
-
-    vprintln("Cache HIT for $target")
-    @Suppress("UNCHECKED_CAST")
-    return cached.data as T
+    // If the cached item is expired then invoke cacheMiss, otherwise cast the cached data
+    return if (cached.isExpired) put(target, cacheMiss()) else
+      @Suppress("UNCHECKED_CAST") (cached.data as T)
   }
 
   fun <T : Serializable?> put(target: Serializable, value: T): T {
-    vprintln("Cache WRITE for $target")
-    mapData[target] = TimestampedEntry(value)
+    //    vprintln("Cache WRITE for $target")
+    mapData[target] = TimestampedEntry(value, validEntryWindow)
     save()
     return value
   }
+
+  inline fun <reified T : Serializable> fileData(default: T) =
+    object : ReadWriteProperty<FileMap, T> {
+      override fun getValue(thisRef: FileMap, property: KProperty<*>) =
+        thisRef.get(property.name) { default }
+
+      override fun setValue(thisRef: FileMap, property: KProperty<*>, value: T) {
+        thisRef.put(property.name, value)
+      }
+    }
 
   override fun toSerializedInstance() = FileMapSchema(mapData)
 }

@@ -1,8 +1,7 @@
 package slideshow
 
+import async.Lock
 import storage.ENV
-import utils.extensions.CACHE_RESIZED_IMAGE
-import utils.extensions.shouldThrottle
 import utils.extensions.string
 import utils.extensions.vprintln
 import java.awt.Image
@@ -37,22 +36,19 @@ class EventHandler(private val app: Projector) :
   private val tabAction = { app.nextFolder() }
   private val upArrowAction = { app.dumbNext() }
   private val sbutton = {
-    if (ENV.scaling == Image.SCALE_AREA_AVERAGING) {
-      ENV.scaling = Image.SCALE_DEFAULT
-    } else {
-      ENV.scaling *= 2
-    }
-    app.focus!!.sizedImage = null
-    app.focus!!.cacheLevel = CACHE_RESIZED_IMAGE
-    val next = (app.index + 1).current
-    next?.sizedImage = null
-    next?.cacheLevel = CACHE_RESIZED_IMAGE
-    app.focus = null
+    ENV.scaling =
+            if (ENV.scaling == Image.SCALE_AREA_AVERAGING)
+              Image.SCALE_DEFAULT
+            else
+              ENV.scaling * 2
+    vprintln("Updating scaling to: ${ENV.scaling}")
+    app.index.current.rerender()
+    app.index.next().rerender()
     app.updateCaching()
   }
 
   private fun handleKey(code: KeyEvent) {
-    if (shouldThrottle("ks-${code.keyCode}", ENV.debounce)) return
+    if (Lock(code.string).throttle(ENV.debounce)) return
     vprintln(code.string)
 
     when (code.keyCode) {
@@ -74,9 +70,11 @@ class EventHandler(private val app: Projector) :
   override fun mousePressed(e: MouseEvent) {
     vprintln(e.string)
     when (e.button) {
-      leftMouseButton -> app.next()
-      //      rightMouseButton  -> app.menu.show(e.component, e.x, e.y)
-      //      middleMouseButton -> app.menu.show(e.component, e.x, e.y)
+      leftMouseButton   -> app.next()
+      rightMouseButton  -> {
+      }
+      middleMouseButton -> {
+      }
     }
   }
 

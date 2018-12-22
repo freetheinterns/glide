@@ -1,5 +1,6 @@
 package utils.extensions
 
+import slideshow.Catalog
 import storage.ENV
 import java.io.File
 import java.io.FileFilter
@@ -13,12 +14,11 @@ import java.nio.file.attribute.BasicFileAttributes
 // File Extensions
 ///////////////////////////////////////
 
+val File.catalogs: List<Catalog>
+  get() = this.listMatchingDirectories().map(::Catalog).sorted()
+
 fun File.listMatchingDirectories(): List<File> {
   return this.listFiles(DirectoryFilter()).toList()
-}
-
-fun File.firstNotMatchingDirectory(): File {
-  return this.listFiles(InverseDirectoryFilter()).first()
 }
 
 fun File.listImages(): List<File> {
@@ -48,25 +48,12 @@ fun File.readObject(): Any {
 ///////////////////////////////////////
 
 class DirectoryFilter : FileFilter {
-  override fun accept(path: File): Boolean {
-    if (!path.isDirectory) return false
-    return try {
-      path.absolutePath != ENV.archive
+  override fun accept(path: File) =
+    try {
+      path.isDirectory && path.absolutePath != ENV.archive && File(path.absolutePath).listImages().isNotEmpty()
     } catch (ex: Exception) {
       false
     }
-  }
-}
-
-class InverseDirectoryFilter : FileFilter {
-  override fun accept(path: File): Boolean {
-    if (!path.isDirectory) return false
-    return try {
-      path.absolutePath == ENV.archive
-    } catch (ex: Exception) {
-      false
-    }
-  }
 }
 
 class ImagesFilter : FileFilter {

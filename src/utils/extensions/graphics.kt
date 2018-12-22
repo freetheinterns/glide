@@ -1,5 +1,7 @@
 package utils.extensions
 
+import java.awt.Color
+import java.awt.Component
 import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.Font
@@ -9,6 +11,7 @@ import java.awt.Image
 import java.awt.Insets
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.SpringLayout
 
 
 ///////////////////////////////////////
@@ -37,6 +40,20 @@ fun GraphicsDevice.chooseBestDisplayMode() {
   }
 }
 
+
+///////////////////////////////////////
+// Layout Extensions
+///////////////////////////////////////
+
+fun SpringLayout.glue(face: String, root: Component, anchor: Component, padding: Int = 0) =
+  putConstraint(face, root, padding, face, anchor)
+
+///////////////////////////////////////
+// Color Extensions
+///////////////////////////////////////
+
+val Color.invert: Color
+  get() = Color(255 - red, 255 - green, 255 - blue)
 
 ///////////////////////////////////////
 // Image Extensions

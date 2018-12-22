@@ -3,7 +3,7 @@ package utils.extensions
 import storage.ENV
 import java.awt.DisplayMode
 import java.util.*
-import kotlin.properties.Delegates
+import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
@@ -51,28 +51,6 @@ fun superGC(timeout: Long = 100) {
   }
 }
 
-val THROTTLE_MAP = hashMapOf<Any, Long>()
-
-/**
- * Determines if the provided key has a record that occurred within the millisecondWindow time window
- *
- * @param key Any instance that will be used as a key to track events
- * @param millisecondWindow Long for the milliseconds since the last event that will indicate a hit
- * @return Boolean indicating if the millisecond window overlaps with the last recorded event
- */
-fun shouldThrottle(key: Any, millisecondWindow: Long): Boolean {
-  val now = System.currentTimeMillis()
-  if (key !in THROTTLE_MAP) {
-    THROTTLE_MAP[key] = now
-    return false
-  } else if (now - THROTTLE_MAP[key]!! < millisecondWindow) {
-    return true
-  }
-  THROTTLE_MAP[key] = now
-  return false
-}
-
-fun vprint(obj: Any?) = if (ENV.verbose) print(obj) else null
 fun vprintln(obj: Any?) = if (ENV.verbose) println(obj) else null
 
 
@@ -86,21 +64,25 @@ fun vprintln(obj: Any?) = if (ENV.verbose) println(obj) else null
 val <T : Any> T.string: String
   get() = this.toString()
 
+
+inline fun <T> always(crossinline getter: () -> T) = object : ReadOnlyProperty<Any, T> {
+  override fun getValue(thisRef: Any, property: KProperty<*>): T {
+    return getter()
+  }
+}
+
 /**
  * Implements a cached property with an inline block
+ * Also satisfies the NotNull promise on access
  *
  * @param cacheMiss () -> T called when property is fetched and cache is null
  * @return ReadWriteProperty<Any, T> that calls cacheMiss appropriately
  */
-inline fun <T> lazyCache(crossinline cacheMiss: () -> T) = object : ReadWriteProperty<Any, T> {
+inline fun <T> cache(crossinline cacheMiss: () -> T) = object : ReadWriteProperty<Any, T> {
   private var value: T? = null
-    get() {
-      if (field == null)
-        field = cacheMiss()
-      return field
-    }
 
   override fun getValue(thisRef: Any, property: KProperty<*>): T {
+    value = value ?: cacheMiss()
     return value ?: throw AssertionError("Value set to null by another thread")
   }
 
@@ -109,21 +91,31 @@ inline fun <T> lazyCache(crossinline cacheMiss: () -> T) = object : ReadWritePro
   }
 }
 
-//
 /**
- * An observable delegate function that triggers callBack when the observed property changes value
+ * An observable delegate function that triggers callBack when the observed property changes value.
+ * Also satisfies the NotNull promise on access
  *
- * @param initialValue T of the property
- * @param callBack () -> Unit called when the property changes value
+ * @param initialValue T? of the property
+ * @param callBack () -> Unit called after the property changes value
  * @return ReadWriteProperty<Any?, T> that triggers callBack appropriately
  */
-inline fun <T> blindObserver(
-        initialValue: T,
-        crossinline callBack: () -> Unit
-): ReadWriteProperty<Any?, T> =
-  Delegates.observable(initialValue) { _, old, new ->
-    if (old != new) callBack()
+inline fun <reified T> blindObserver(
+  initialValue: T? = null,
+  crossinline callBack: () -> Unit
+) = object : ReadWriteProperty<Any?, T> {
+  private var value: T? = initialValue
+
+  override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+    if (null is T) return value as T  // Short circuit null check if T is a nullable type
+    return value ?: throw IllegalStateException("Property ${property.name} should be initialized before get.")
   }
+
+  override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+    val trigger = this.value != value
+    this.value = value
+    if (trigger) callBack()
+  }
+}
 
 ///////////////////////////////////////
 // Reflection Extensions

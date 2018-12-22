@@ -1,106 +1,61 @@
 package slideshow
 
+import utils.extensions.always
 import utils.extensions.blindObserver
-import utils.extensions.lazyCache
+import utils.extensions.cache
 import utils.extensions.string
+import java.lang.Math.abs
 
 class ImageIndex(
-        private val library: List<Playlist>
+  private val library: List<Catalog>,
+  playlistIndex: Int = 0,
+  slideIndex: Int = 0
 ) : ListIterator<CachedImage>, Comparable<ImageIndex> {
-  var current: CachedImage? by lazyCache { library[primary][secondary] }
-  var maxSecondary: Int?         by lazyCache { library[primary].size }
-  var secondary by blindObserver(0) { current = null }
-  var maxPrimary by lazyCache { library.size }
-  var primary by blindObserver(0) { maxSecondary = null; current = null; secondary = 0 }
+  private var _current: CachedImage? by cache { library[primary][secondary] }
+  private var _maxSecondary: Int? by cache { library[primary].size }
 
-  private val copy: ImageIndex
-    get() {
-      val cpy = ImageIndex(library)
-      cpy.primary = primary
-      cpy.secondary = secondary
-      return cpy
-    }
+  val current: CachedImage by always { _current!! }
+  var primary by blindObserver(playlistIndex) { _maxSecondary = null; _current = null; secondary = 0 }
+  var secondary by blindObserver(slideIndex) { _current = null }
+  var maxPrimary by cache { library.size }
+  val maxSecondary: Int by always { _maxSecondary!! }
+  val copy by always { ImageIndex(library, primary, secondary) }
 
-  override fun next(): CachedImage {
-    var nextPrimary = primary
-    secondary += 1
-    if (secondary >= maxSecondary!!) {
-      nextPrimary += 1
-      if (nextPrimary >= maxPrimary) throw NoSuchElementException("End of slideshow.Playlist")
+  fun walk(steps: Int): ImageIndex {
+    repeat(abs(steps)) {
+      secondary += steps / abs(steps)
+      if (secondary >= maxSecondary) {
+        primary += 1
+        if (primary >= maxPrimary)
+          primary = 0
+      } else if (secondary < 0) {
+        primary -= 1
+        if (primary < 0)
+          primary = maxPrimary - 1
+        secondary = maxSecondary - 1
+      }
     }
-    primary = nextPrimary
-    return current!!
+    return this
   }
 
-  override fun previous(): CachedImage {
-    var nextPrimary = primary
-    secondary -= 1
-    if (secondary < 0) {
-      nextPrimary -= 1
-      if (nextPrimary < 0) throw NoSuchElementException("End of slideshow.Playlist")
-      primary = nextPrimary
-      secondary = maxSecondary!! - 1
-      return current!!
-    }
-    primary = nextPrimary
-    return current!!
-  }
-
-  operator fun inc(): ImageIndex {
-    next(); return this
-  }
-
-  operator fun dec(): ImageIndex {
-    previous(); return this
-  }
-
-  operator fun plus(inc: Int) = copy.increment(inc)
-  operator fun minus(inc: Int) = copy.decrement(inc)
-
-
-  override fun hasNext() = primary < maxPrimary - 1 || secondary < maxSecondary!! - 1
-  override fun hasPrevious() = primary > 0 || secondary > 0
-  override fun nextIndex() = primary + 1
-  override fun previousIndex() = primary - 1
-  override fun hashCode() = string.hashCode()
-  override fun toString() = "$primary-$secondary-${library.hashCode()}"
-
-  override fun compareTo(other: ImageIndex) =
-    when (primary) {
-      other.primary -> secondary - other.secondary
-      else          -> (primary - other.primary) * 1000
-    }
-
-  override fun equals(other: Any?) =
-    when (other) {
-      is ImageIndex -> primary == other.primary && secondary == other.secondary
-      else                    -> super.equals(other)
-    }
-
-  fun increment(inc: Int): ImageIndex {
-    repeat(inc, {
-      try {
-        next()
-      } catch (ex: NoSuchElementException) {
+  fun iterate(steps: Int): CachedImage {
+    secondary += steps
+    if (secondary >= maxSecondary) {
+      primary += 1
+      if (primary >= maxPrimary) {
+        primary = maxPrimary - 1
+        secondary = maxSecondary - 1
+        throw NoSuchElementException("End of slideshow.Catalog")
+      }
+    } else if (secondary < 0) {
+      primary -= 1
+      if (primary < 0) {
         primary = 0
+        throw NoSuchElementException("End of slideshow.Catalog")
       }
-    })
-    return this
-  }
-
-  fun decrement(inc: Int): ImageIndex {
-    repeat(inc, {
-      try {
-        previous()
-      } catch (ex: NoSuchElementException) {
-        setToLastPosition()
-      }
-    })
-    return this
-  }
-
-  private fun setToLastPosition() {
-    primary = maxPrimary - 1; secondary = maxSecondary!! - 1
+      secondary = maxSecondary - 1
+    }
+    return current
   }
 
   fun jump(inc: Int): ImageIndex {
@@ -109,4 +64,36 @@ class ImageIndex(
     if (primary < 0) primary = maxPrimary - 1
     return this
   }
+
+  override fun next() = iterate(1)
+  override fun previous() = iterate(-1)
+  operator fun inc() = this + 1
+  operator fun dec() = this - 1
+  operator fun plus(inc: Int) = copy.walk(inc)
+  operator fun minus(inc: Int) = copy.walk(-inc)
+  operator fun plusAssign(inc: Int) {
+    walk(inc)
+  }
+
+  operator fun minusAssign(inc: Int) {
+    walk(-inc)
+  }
+
+  override fun hasNext() = primary < maxPrimary - 1 || secondary < maxSecondary - 1
+  override fun hasPrevious() = primary > 0 || secondary > 0
+  override fun nextIndex() = primary + 1
+  override fun previousIndex() = primary - 1
+
+  override fun hashCode() = string.hashCode()
+  override fun toString() = "$primary-$secondary-${library.hashCode()}"
+  override fun compareTo(other: ImageIndex) =
+    when (primary) {
+      other.primary -> secondary - other.secondary
+      else          -> (primary - other.primary) * 1000
+    }
+  override fun equals(other: Any?) =
+    when (other) {
+      is ImageIndex -> primary == other.primary && secondary == other.secondary
+      else          -> super.equals(other)
+    }
 }

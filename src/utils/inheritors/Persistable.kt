@@ -1,5 +1,6 @@
 package utils.inheritors
 
+import async.Lock
 import utils.extensions.properties
 import utils.extensions.readObject
 import utils.extensions.setAttribute
@@ -18,11 +19,9 @@ import java.io.Serializable
  *   - E.G. data class Example(val a: Int) : Persistable<Example>
  *   - In this case, properties inherited from this class will not be persisted
  * @property persistedLocation File for persisting data
- * @property writeLock Boolean indicating if it is currently dangerous to save the object
  */
-abstract class Persistable<T : Serializable> : Serializable {
-  abstract val persistedLocation: File
-  open var writeLock = false
+abstract class Persistable<T : Serializable>(private val persistedLocation: File) : Serializable {
+  val lock = Lock(this.hashCode())
 
   private companion object {
     private val persistablePropertyNames = Persistable::class.properties.map { x -> x.name }
@@ -31,7 +30,7 @@ abstract class Persistable<T : Serializable> : Serializable {
   /**
    * @param other T instance that will be copied into the current instance
    */
-  open fun copyAttributesFrom(other: T) {
+  open fun updateWith(other: T) {
     val hasReflectiveProperties = other is Persistable<*>
 
     for (item in other::class.properties) {
@@ -49,9 +48,7 @@ abstract class Persistable<T : Serializable> : Serializable {
   /**
    * Serializes this instance and saves it to the file
    */
-  open fun save() {
-    if (writeLock) return
-    //    println("Writing to ${persistedLocation.absolutePath} WITH: ${toSerializedInstance()}")
+  open fun save() = lock.softTry {
     persistedLocation.writeObject(toSerializedInstance())
   }
 
@@ -60,17 +57,11 @@ abstract class Persistable<T : Serializable> : Serializable {
    * @suppress an unchecked cast to T when the file is read
    */
   open fun load() {
-    val oldLock = writeLock
-
-    try {
-      writeLock = true
-      if (persistedLocation.createNewFile()) return
-      @Suppress("UNCHECKED_CAST")
-      copyAttributesFrom(persistedLocation.readObject() as T)
-    } catch (ex: Throwable) {
-      ex.printStackTrace()
-    } finally {
-      writeLock = oldLock
+    lock.block {
+      if (!persistedLocation.createNewFile()) {
+        @Suppress("UNCHECKED_CAST")
+        updateWith(persistedLocation.readObject() as T)
+      }
     }
   }
 }
