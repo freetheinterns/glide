@@ -18,6 +18,8 @@ import utils.inheritors.Geometry
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.GraphicsEnvironment
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.LinkOption
@@ -33,7 +35,6 @@ import kotlin.math.max
  * @property library List<Catalog> The list of Catalogs loaded by the program
  * @property _library List<Catalog>? The private cache for library
  * @property device GraphicsDevice
- * @property handler EventHandler
  * @property marginPanel MarginPanel
  * @property timer Timer
  */
@@ -45,26 +46,35 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   var geometry by blindObserver(arrayOf<Geometry>(), ::render)
   val index: ImageIndex by always { _index!! }
   val library: List<Catalog> by always { _library!! }
+  var scaling: Int = ENV.scaling
+    set(value) {
+      vprintln("Updating scaling to: ${ENV.scaling}")
+      ENV.scaling = value
+      index.current.rerender()
+      index.copy.next().rerender()
+      updateCaching()
+    }
 
   private var _index: ImageIndex? by cache { ImageIndex(library) }
   private var _library: List<Catalog>? by cache { File(ENV.root).catalogs }
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
-  private val handler = EventHandler(this)
   private val marginPanel = MarginPanel(this)
-  private var timer = Timer(ENV.speed, handler)
+  private var timer = Timer(ENV.speed, EventHandler)
 
   init {
     if (!device.isFullScreenSupported) throw IllegalArgumentException("Non full-screen modes not yet supported")
 
-    // Short-circuit if playlist is empty or if full screen is not possible
-    if (library.map { it.size }.sum() == 0) throw IllegalArgumentException("No images found to display!")
-
     // Set up Listeners
     defaultCloseOperation = JFrame.DO_NOTHING_ON_CLOSE
-    addWindowListener(handler)
-    addMouseListener(handler)
-    addKeyListener(handler)
+    addWindowListener(object : WindowAdapter() {
+      override fun windowClosed(e: WindowEvent?) {
+        super.windowClosed(e)
+        exit()
+      }
+    })
+    addMouseListener(EventHandler)
+    addKeyListener(EventHandler)
     timer.initialDelay = ENV.speed
 
     // Set up JFrame
@@ -84,8 +94,11 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     // Draw initial black background
     drawPage {}
 
-    // IMPORTANT!! Register the screen size globally
-    ENV.screenDimension = size
+    // IMPORTANT!! Register the screen globally
+    ENV.projector = this
+
+    // Short-circuit if playlist is empty or if full screen is not possible
+    if (library.map { it.size }.sum() == 0) throw IllegalArgumentException("No images found to display!")
 
     project()
   }
@@ -97,7 +110,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
   override fun iterator() = ImageIndex(library)
 
-  override fun toString(): String = "<slideshow.Projector: ${hashCode()}>"
+  override fun toString(): String = "<Projector: ${hashCode()}>"
 
   ///////////////////////////////////////
   // Draw Logic Helpers
@@ -152,7 +165,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     if (geometry.isNotEmpty()) updateCaching()
   }
 
-  fun updateCaching() {
+  private fun updateCaching() {
     val cacheFront = index - max(0, index.secondary - ENV.intraPlaylistVision)
     while (cacheFront.hasNext()) {
       val offset = abs(cacheFront.compareTo(index))

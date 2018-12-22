@@ -20,7 +20,7 @@ import java.io.Serializable
  *   - In this case, properties inherited from this class will not be persisted
  * @property persistedLocation File for persisting data
  */
-abstract class Persistable<T : Serializable>(private val persistedLocation: File) : Serializable {
+abstract class Persistable<T : Serializable>(private val persistedLocation: String) : Serializable {
   val lock = Lock(this.hashCode())
 
   private companion object {
@@ -49,7 +49,7 @@ abstract class Persistable<T : Serializable>(private val persistedLocation: File
    * Serializes this instance and saves it to the file
    */
   open fun save() = lock.softTry {
-    persistedLocation.writeObject(toSerializedInstance())
+    File(persistedLocation).writeObject(toSerializedInstance())
   }
 
   /**
@@ -58,10 +58,10 @@ abstract class Persistable<T : Serializable>(private val persistedLocation: File
    */
   open fun load() {
     lock.block {
-      if (!persistedLocation.createNewFile()) {
-        @Suppress("UNCHECKED_CAST")
-        updateWith(persistedLocation.readObject() as T)
-      }
+      val target = File(persistedLocation)
+      if (!target.createNewFile())
+        @Suppress("UNCHECKED_CAST") updateWith(target.readObject() as T)
+      target.writeObject(toSerializedInstance())
     }
   }
 }

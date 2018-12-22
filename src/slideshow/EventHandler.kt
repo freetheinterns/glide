@@ -2,78 +2,75 @@ package slideshow
 
 import async.Lock
 import storage.ENV
+import storage.FileMap
+import utils.extensions.buttonString
 import utils.extensions.string
 import utils.extensions.vprintln
-import java.awt.Image
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
 
-class EventHandler(private val app: Projector) :
+object EventHandler :
   ActionListener,
   KeyListener,
   MouseListener,
-  WindowAdapter() {
+  FileMap("keymap") {
+  private val actions = hashMapOf(
+    "pageForward" to { ENV.projector.next() },
+    "pageBackward" to { ENV.projector.prev() },
+    "inchForward" to { ENV.projector.dumbNext() },
+    "inchBackward" to { ENV.projector.previous() },
+    "nextCatalog" to { ENV.projector.nextFolder() },
+    "previousCatalog" to { ENV.projector.prevFolder() },
+    "deleteCatalog" to { ENV.projector.deleteCurrentDirectory() },
+    "archiveCatalog" to { ENV.projector.archiveCurrentDirectory() },
+    "toggleSlideshow" to { ENV.projector.toggleTimer() },
+    "exit" to { ENV.projector.exit() },
+    "changeScaling" to { ENV.projector.scaling = CachedImage.nextScalingOption() }
+  )
 
-  private val leftMouseButton = MouseEvent.BUTTON1
-  private val middleMouseButton = MouseEvent.BUTTON2
-  private val rightMouseButton = MouseEvent.BUTTON3
+  private fun takeAction(action: String) = actions[action]!!.invoke()
 
-  private val backspaceAction = { app.previous() }
-  private val deleteAction = { app.deleteCurrentDirectory() }
-  private val downArrowAction = { app.previous() }
-  private val escapeAction = { app.exit() }
-  private val f4Action = { app.archiveCurrentDirectory() }
-  private val leftArrowAction = { app.prev() }
-  private val rightArrowAction = { app.next() }
-  private val shiftAction = { app.prevFolder() }
-  private val spaceAction = { app.toggleTimer() }
-  private val tabAction = { app.nextFolder() }
-  private val upArrowAction = { app.dumbNext() }
-  private val sbutton = {
-    ENV.scaling =
-            if (ENV.scaling == Image.SCALE_AREA_AVERAGING)
-              Image.SCALE_DEFAULT
-            else
-              ENV.scaling * 2
-    vprintln("Updating scaling to: ${ENV.scaling}")
-    app.index.current.rerender()
-    app.index.next().rerender()
-    app.updateCaching()
+  var bindings by fileData(hashMapOf(
+    8 to "inchBackward",
+    9 to "nextCatalog",
+    16 to "previousCatalog",
+    27 to "exit",
+    32 to "toggleSlideshow",
+    37 to "pageBackward",
+    38 to "inchForward",
+    39 to "pageForward",
+    40 to "inchBackward",
+    79 to "changeScaling",
+    127 to "deleteCatalog",
+    115 to "archiveCatalog"
+  ))
+
+  init {
+    load()
+    if (bindings[27] != "exit") {
+      bindings[27] = "exit"
+      save()
+    }
   }
 
   private fun handleKey(code: KeyEvent) {
     if (Lock(code.string).throttle(ENV.debounce)) return
     vprintln(code.string)
 
-    when (code.keyCode) {
-      8   -> backspaceAction()
-      9   -> tabAction()
-      16  -> shiftAction()
-      27  -> escapeAction()
-      32  -> spaceAction()
-      37  -> leftArrowAction()
-      38  -> upArrowAction()
-      39  -> rightArrowAction()
-      40  -> downArrowAction()
-      79  -> sbutton()
-      127 -> deleteAction()
-      115 -> f4Action()
-    }
+    bindings[code.keyCode]?.let(::takeAction)
   }
 
   override fun mousePressed(e: MouseEvent) {
     vprintln(e.string)
-    when (e.button) {
-      leftMouseButton   -> app.next()
-      rightMouseButton  -> {
+    when (e.buttonString) {
+      "Left"   -> takeAction("pageForward")
+      "Right"  -> {
       }
-      middleMouseButton -> {
+      "Middle" -> {
       }
     }
   }
@@ -85,8 +82,7 @@ class EventHandler(private val app: Projector) :
   override fun mouseEntered(e: MouseEvent?) {}
   override fun mouseExited(e: MouseEvent?) {}
   override fun mouseReleased(e: MouseEvent?) {}
-  override fun windowClosed(e: WindowEvent?) = app.exit()
 
   // Timer event
-  override fun actionPerformed(e: ActionEvent) = app.next()
+  override fun actionPerformed(e: ActionEvent) = takeAction("pageForward")
 }

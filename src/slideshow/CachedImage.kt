@@ -52,6 +52,11 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
     )
 
     val SCALING_REMAP = SCALING_OPTIONS.reversed
+
+    fun nextScalingOption(): Int {
+      return if (ENV.scaling == Image.SCALE_AREA_AVERAGING) Image.SCALE_DEFAULT
+      else ENV.scaling * 2
+    }
   }
 
   fun rerender() {
@@ -60,7 +65,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   }
 
   private fun resizeFullImage(): Image {
-    val adjustedDimension = image.dimension * (ENV.screenDimension / image.dimension)
+    val adjustedDimension = image.dimension * (ENV.projector.size / image.dimension)
     if (image.dimension == adjustedDimension) return image
     return image.getScaledInstance(adjustedDimension.width, adjustedDimension.height, ENV.scaling)
   }
@@ -69,7 +74,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
     g?.drawImage(sizedImage, drawPosition.width, drawPosition.height, null)
     g?.color = Color.RED
     if (ENV.showFooterFileNumber)
-      g?.drawString(file.nameWithoutExtension, drawPosition.width + 5, ENV.screenDimension.height - 10)
+      g?.drawString(file.nameWithoutExtension, drawPosition.width + 5, ENV.projector.size.height - 10)
   }
 
   override fun build(xOffset: Int, yOffset: Int): Geometry {

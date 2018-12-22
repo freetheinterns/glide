@@ -21,7 +21,7 @@ class ImageIndex(
   val maxSecondary: Int by always { _maxSecondary!! }
   val copy by always { ImageIndex(library, primary, secondary) }
 
-  fun walk(steps: Int): ImageIndex {
+  private fun walk(steps: Int): ImageIndex {
     repeat(abs(steps)) {
       secondary += steps / abs(steps)
       if (secondary >= maxSecondary) {
@@ -38,7 +38,7 @@ class ImageIndex(
     return this
   }
 
-  fun iterate(steps: Int): CachedImage {
+  private fun iterate(steps: Int): CachedImage {
     secondary += steps
     if (secondary >= maxSecondary) {
       primary += 1

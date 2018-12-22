@@ -1,5 +1,6 @@
 package storage
 
+import slideshow.Projector
 import storage.ENV.archive
 import storage.ENV.debounce
 import storage.ENV.direction
@@ -18,7 +19,6 @@ import storage.ENV.showMarginFolderName
 import storage.ENV.speed
 import storage.ENV.verbose
 import java.awt.Color
-import java.awt.Dimension
 import java.awt.GraphicsEnvironment
 import java.awt.Image
 import java.io.File
@@ -51,7 +51,7 @@ import kotlin.properties.Delegates
  *
  * @property imagePattern
  */
-object ENV : FileMap("environment", -1) {
+object ENV : FileMap("environment") {
   init {
     load()
   }
@@ -72,7 +72,7 @@ object ENV : FileMap("environment", -1) {
   )
   val FONT_FAMILIES: Array<String> = GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
 
-  var screenDimension: Dimension by Delegates.notNull()
+  var projector: Projector by Delegates.notNull()
 
   var background by fileData(Color(15, 15, 15))
   var foreground by fileData(Color(0, 0, 0))

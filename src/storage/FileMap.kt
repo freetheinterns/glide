@@ -2,7 +2,6 @@ package storage
 
 import storage.schemas.FileMapSchema
 import utils.inheritors.Persistable
-import java.io.File
 import java.io.Serializable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -16,8 +15,8 @@ import kotlin.reflect.KProperty
  */
 open class FileMap(
   name: String,
-  private val validEntryWindow: Long = 86400000L // One Day
-) : Persistable<FileMapSchema>(File("$name.java.object")) {
+  private val validEntryWindow: Long = -1  // Never invalidate
+) : Persistable<FileMapSchema>("$name.java.object") {
   var mapData = hashMapOf<Serializable, TimestampedEntry>()
 
   /**
