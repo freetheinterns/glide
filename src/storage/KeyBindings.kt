@@ -1,3 +1,3 @@
 package storage
 
-object KeyBindings : FileMap("keybindings")
+object KeyBindings : FileMap()

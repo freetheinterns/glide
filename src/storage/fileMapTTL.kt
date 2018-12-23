@@ -7,7 +7,7 @@ import java.io.Serializable
  * @property ttl Long
  * @constructor
  */
-abstract class FileMapTTL(name: String, private val ttl: Long = -1L) : FileMap(name) {
+abstract class FileMapTTL(private val ttl: Long = -1L) : FileMap() {
   data class TimestampedEntry(val data: Serializable?, val expiresAt: Long) : Serializable
 
   private fun entry(target: Serializable): TimestampedEntry? {

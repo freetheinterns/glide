@@ -18,10 +18,10 @@ import java.io.Serializable
  * - If implemented within a class that satisfies the requirements for T, T may be reflective
  *   - E.G. data class Example(val a: Int) : Persistable<Example>
  *   - In this case, properties inherited from this class will not be persisted
- * @property persistedLocation File for persisting data
  */
-abstract class Persistable<T : Serializable>(private val persistedLocation: String) : Serializable {
+abstract class Persistable<T : Serializable> : Serializable {
   val lock = Lock(this.hashCode())
+  abstract val filename: String
 
   private companion object {
     private val persistablePropertyNames = Persistable::class.properties.map { x -> x.name }
@@ -49,7 +49,7 @@ abstract class Persistable<T : Serializable>(private val persistedLocation: Stri
    * Serializes this instance and saves it to the file
    */
   open fun save() {
-    File(persistedLocation).writeObject(toSerializedInstance())
+    File(filename).writeObject(toSerializedInstance())
   }
 
   /**
@@ -58,7 +58,7 @@ abstract class Persistable<T : Serializable>(private val persistedLocation: Stri
    */
   open fun load() {
     lock.block {
-      val target = File(persistedLocation)
+      val target = File(filename)
       if (!target.createNewFile())
         @Suppress("UNCHECKED_CAST") updateWith(target.readObject() as T)
       target.writeObject(toSerializedInstance())

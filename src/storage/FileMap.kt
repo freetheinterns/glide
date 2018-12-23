@@ -8,14 +8,18 @@ import kotlin.reflect.KProperty
 /**
  * This class implements a HashMap of Serializable content that can be saved to a file for persistence
  *
- * @param name String - The filename the instance will be persisted to
  * @property mapData HashMap<Serializable, TimestampedEntry> - Data that will be persisted
  */
-abstract class FileMap(name: String = this::class.simpleName ?: "N/A") :
-  Persistable<FileMap.FileMapSchema>("$name.java.object") {
+abstract class FileMap : Persistable<FileMap.FileMapSchema>() {
   data class FileMapSchema(val mapData: HashMap<Serializable, Serializable?>) : Serializable
 
+  open val name by lazy { this::class.simpleName }
+  override val filename by lazy { "$name.java.object" }
   var mapData = hashMapOf<Serializable, Serializable?>()
+
+  init {
+    load()
+  }
 
   /**
    * This function returns the cached value for the provided key OR hits the cacheMiss function for a new

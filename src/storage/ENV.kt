@@ -51,11 +51,7 @@ import kotlin.properties.Delegates
  *
  * @property imagePattern
  */
-object ENV : FileMap("environment") {
-  init {
-    load()
-  }
-
+object ENV : FileMap() {
   const val ALPHABETICAL = "Alphabetical"
   const val FILE_COUNT = "# of Files"
   const val FOLDER_ACCESSED = "Folder Accessed@"
