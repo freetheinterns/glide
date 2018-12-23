@@ -32,4 +32,4 @@ out/
 *.iml
 
 # Blacklist
-src/scripts/scrap.kt
+scripts/
