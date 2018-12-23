@@ -2,7 +2,6 @@ package slideshow
 
 import async.Lock
 import storage.ENV
-import storage.FileMap
 import utils.extensions.buttonString
 import utils.extensions.string
 import utils.extensions.vprintln
@@ -16,8 +15,7 @@ import java.awt.event.MouseListener
 object EventHandler :
   ActionListener,
   KeyListener,
-  MouseListener,
-  FileMap("keymap") {
+  MouseListener {
   private val actions = hashMapOf(
     "pageForward" to { ENV.projector.next() },
     "pageBackward" to { ENV.projector.prev() },
@@ -34,7 +32,7 @@ object EventHandler :
 
   private fun takeAction(action: String) = actions[action]!!.invoke()
 
-  var bindings by fileData(hashMapOf(
+  var bindings = hashMapOf(
     8 to "inchBackward",
     9 to "nextCatalog",
     16 to "previousCatalog",
@@ -47,15 +45,7 @@ object EventHandler :
     79 to "changeScaling",
     127 to "deleteCatalog",
     115 to "archiveCatalog"
-  ))
-
-  init {
-    load()
-    if (bindings[27] != "exit") {
-      bindings[27] = "exit"
-      save()
-    }
-  }
+  )
 
   private fun handleKey(code: KeyEvent) {
     if (Lock(code.string).throttle(ENV.debounce)) return

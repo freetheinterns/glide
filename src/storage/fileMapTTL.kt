@@ -3,11 +3,9 @@ package storage
 import java.io.Serializable
 
 /**
- * This class implements a HashMap of Serializable content that can be saved to a file for persistence
  *
- * @param name String - The filename the instance will be persisted to
- * @property ttl Long - The default time-to-live for entries in map
- * @property mapData HashMap<Serializable, TimestampedEntry> - Data that will be persisted
+ * @property ttl Long
+ * @constructor
  */
 abstract class FileMapTTL(name: String, private val ttl: Long = -1L) : FileMap(name) {
   data class TimestampedEntry(val data: Serializable?, val expiresAt: Long) : Serializable

@@ -11,7 +11,8 @@ import kotlin.reflect.KProperty
  * @param name String - The filename the instance will be persisted to
  * @property mapData HashMap<Serializable, TimestampedEntry> - Data that will be persisted
  */
-abstract class FileMap(name: String) : Persistable<FileMap.FileMapSchema>("$name.java.object") {
+abstract class FileMap(name: String = this::class.simpleName ?: "N/A") :
+  Persistable<FileMap.FileMapSchema>("$name.java.object") {
   data class FileMapSchema(val mapData: HashMap<Serializable, Serializable?>) : Serializable
 
   var mapData = hashMapOf<Serializable, Serializable?>()
@@ -35,7 +36,7 @@ abstract class FileMap(name: String) : Persistable<FileMap.FileMapSchema>("$name
     return value
   }
 
-  inline fun <reified T : Serializable?> fileData(default: T) =
+  open fun <T : Serializable?> fileData(default: T) =
     object : ReadWriteProperty<FileMap, T> {
       override fun getValue(thisRef: FileMap, property: KProperty<*>) =
         thisRef.get(property.name) { default }
