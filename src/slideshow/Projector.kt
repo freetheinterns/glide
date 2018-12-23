@@ -98,7 +98,10 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     ENV.projector = this
 
     // Short-circuit if playlist is empty or if full screen is not possible
-    if (library.map { it.size }.sum() == 0) throw IllegalArgumentException("No images found to display!")
+    if (library.map { it.size }.sum() == 0) {
+      println("No images found to display!")
+      exit(1)
+    }
 
     project()
   }

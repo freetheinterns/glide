@@ -8,6 +8,19 @@ import javax.swing.plaf.ColorUIResource
 
 
 fun main(args: Array<String>) {
+  defineLookAndFeel()
+
+  try {
+    Launcher()
+  } catch (e: Throwable) {
+    e.printStackTrace()
+  } finally {
+    GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.fullScreenWindow = null
+  }
+}
+
+
+fun defineLookAndFeel() {
   // Use the system look and feel to appear more native
   UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
 
@@ -304,13 +317,4 @@ fun main(args: Array<String>) {
   //  invertColor("window")
   //  invertColor("windowBorder")
   //  invertColor("windowText")
-
-  try {
-    Launcher()
-    //    Projector()
-  } catch (e: Throwable) {
-    e.printStackTrace()
-  } finally {
-    GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.fullScreenWindow = null
-  }
 }

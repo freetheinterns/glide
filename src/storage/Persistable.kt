@@ -1,4 +1,4 @@
-package utils.inheritors
+package storage
 
 import async.Lock
 import utils.extensions.properties
@@ -48,7 +48,7 @@ abstract class Persistable<T : Serializable>(private val persistedLocation: Stri
   /**
    * Serializes this instance and saves it to the file
    */
-  open fun save() = lock.softTry {
+  open fun save() {
     File(persistedLocation).writeObject(toSerializedInstance())
   }
 

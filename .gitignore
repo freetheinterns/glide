@@ -30,3 +30,6 @@ out/
 # Project specific
 *.java.object
 *.iml
+
+# Blacklist
+src/scripts/scrap.kt

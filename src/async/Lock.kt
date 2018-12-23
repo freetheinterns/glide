@@ -13,9 +13,11 @@ object GlobalLocks {
         field = if (value > field) value else field
       }
 
-    fun invoke(cb: () -> Unit = {}): Boolean {
-      val crumb = Math.random()
+    fun invoke(cb: (() -> Unit)? = null): Boolean {
       invokedAt = now
+      cb ?: return blocks.isNotEmpty()
+
+      val crumb = Math.random()
       blocks.add(crumb)
       try {
         cb()
