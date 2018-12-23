@@ -5,11 +5,13 @@ import java.awt.DisplayMode
 import java.util.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.companionObject
+import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
 
@@ -168,3 +170,10 @@ fun <T : Any, U> T.setAttribute(name: String, value: U) {
     throw NotImplementedError("Could not find property named $name on instance of class: ${this::class.simpleName}")
   }
 }
+
+@Target(AnnotationTarget.FUNCTION)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class Scope(vararg val scopeKeys: String)
+
+val <T : KCallable<*>> T.scopes: Array<out String>
+  get() = this.findAnnotation<Scope>()?.scopeKeys ?: arrayOf()

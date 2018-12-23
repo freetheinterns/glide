@@ -1,9 +1,11 @@
 package gui
 
 import slideshow.CachedImage
+import slideshow.EventHandler
 import slideshow.Projector
 import storage.ENV
 import utils.extensions.glue
+import utils.extensions.setShortcutListener
 import utils.extensions.sizeTo
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -11,8 +13,6 @@ import java.awt.Color
 import java.awt.Rectangle
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import java.awt.event.KeyEvent
-import java.awt.event.KeyListener
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.SpringLayout
@@ -21,7 +21,7 @@ import javax.swing.SpringLayout.SOUTH
 import javax.swing.SpringLayout.WEST
 import javax.swing.UIManager
 
-class Launcher : JFrame("Projector: Settings"), ActionListener, KeyListener {
+class Launcher : JFrame("Projector: Settings"), ActionListener {
   companion object {
     private const val HARD_HEIGHT = 800
 
@@ -50,6 +50,8 @@ class Launcher : JFrame("Projector: Settings"), ActionListener, KeyListener {
   private val dragListener = FrameDragListener(this)
 
   init {
+    ENV.launcher = this
+    ENV.scope = "Launcher"
     defaultCloseOperation = JFrame.EXIT_ON_CLOSE
     isUndecorated = true
     bounds = Rectangle(300, 200, TabPanel.HARD_WIDTH + LabelButton.HARD_WIDTH + 6, HARD_HEIGHT)
@@ -58,7 +60,6 @@ class Launcher : JFrame("Projector: Settings"), ActionListener, KeyListener {
     // Set up frame listeners
     addMouseMotionListener(dragListener)
     addMouseListener(dragListener)
-    addKeyListener(this)
 
     val selectorLayout = SpringLayout()
     selector.layout = selectorLayout
@@ -93,12 +94,10 @@ class Launcher : JFrame("Projector: Settings"), ActionListener, KeyListener {
 
     isResizable = false
     isVisible = true
+    setShortcutListener(EventHandler)
   }
 
   override fun actionPerformed(e: ActionEvent) = processSource(e.source)
-  override fun keyPressed(e: KeyEvent) {}
-  override fun keyReleased(e: KeyEvent) {}
-  override fun keyTyped(e: KeyEvent) {}
 
   private fun processSource(obj: Any) = when (obj) {
     saveTab                  -> save()
@@ -139,8 +138,9 @@ class Launcher : JFrame("Projector: Settings"), ActionListener, KeyListener {
     ENV.save()
   }
 
-  private fun launch() {
+  fun launch() {
     save()
+    ENV.launcher = null
     Projector()
     dispose()
   }

@@ -1,5 +1,6 @@
 package storage
 
+import gui.Launcher
 import slideshow.Projector
 import storage.ENV.archive
 import storage.ENV.debounce
@@ -23,7 +24,6 @@ import java.awt.GraphicsEnvironment
 import java.awt.Image
 import java.io.File
 import javax.swing.UIManager
-import kotlin.properties.Delegates
 
 /**
  * A global object (static) that is used to persist & access settings for this program
@@ -68,7 +68,9 @@ object ENV : FileMap() {
   )
   val FONT_FAMILIES: Array<String> = GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
 
-  var projector: Projector by Delegates.notNull()
+  var scope = ""
+  var projector: Projector? = null
+  var launcher: Launcher? = null
 
   var background by fileData(Color(15, 15, 15))
   var foreground by fileData(Color(0, 0, 0))

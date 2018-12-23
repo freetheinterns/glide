@@ -2,6 +2,7 @@ package utils.extensions
 
 import java.awt.Color
 import java.awt.Component
+import java.awt.Container
 import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.Font
@@ -9,6 +10,7 @@ import java.awt.GraphicsDevice
 import java.awt.GridBagConstraints
 import java.awt.Image
 import java.awt.Insets
+import java.awt.event.KeyListener
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.SpringLayout
@@ -77,6 +79,19 @@ fun JComponent.sizeTo(w: Int, h: Int) {
   minimumSize = Dimension(w, h)
   preferredSize = Dimension(w, h)
   size = Dimension(w, h)
+}
+
+val Container.allComponents: List<Component>
+  get() = this.components.flatMap {
+    if (it is Container) {
+      arrayListOf(it, *it.allComponents.toTypedArray()).asIterable()
+    } else {
+      arrayOf(it).asIterable()
+    }
+  }
+
+fun Container.setShortcutListener(kl: KeyListener) {
+  allComponents.forEach { it.addKeyListener(kl) }
 }
 
 fun JPanel.addGridBag(

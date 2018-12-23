@@ -96,6 +96,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
     // IMPORTANT!! Register the screen globally
     ENV.projector = this
+    ENV.scope = "Projector"
 
     // Short-circuit if playlist is empty or if full screen is not possible
     if (library.map { it.size }.sum() == 0) {
@@ -107,6 +108,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   }
 
   fun exit(status: Int = 0) {
+    ENV.projector = null
     device.fullScreenWindow = null
     System.exit(status)
   }
