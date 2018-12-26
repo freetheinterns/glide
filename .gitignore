@@ -26,6 +26,8 @@ hs_err_pid*
 *.idea
 .idea*
 out/
+build
+.gradle
 
 # Project specific
 *.java.object
