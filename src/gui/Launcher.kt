@@ -44,7 +44,8 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private val displayOptionsTab = DisplayOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
   private val advancedOptionsTab = AdvancedOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
 
-  private val cards = JPanel(CardLayout())
+  private val cardLayout = CardLayout()
+  private val cards = JPanel(cardLayout)
   private val selector = JPanel()
 
   private val dragListener = FrameDragListener(this)
@@ -94,21 +95,21 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
     isResizable = false
     isVisible = true
+    requestFocus()
+    requestFocusInWindow()
     setShortcutListener(EventHandler)
   }
 
-  override fun actionPerformed(e: ActionEvent) = processSource(e.source)
-
-  private fun processSource(obj: Any) = when (obj) {
+  override fun actionPerformed(e: ActionEvent) = when (e.source) {
     saveTab                  -> save()
     launchTab                -> launch()
     closeWindow              -> System.exit(0)
 
-    fileOptionsTab.label     -> (cards.layout as CardLayout).show(cards, fileOptionsTab.label.title)
-    displayOptionsTab.label  -> (cards.layout as CardLayout).show(cards, displayOptionsTab.label.title)
-    advancedOptionsTab.label -> (cards.layout as CardLayout).show(cards, advancedOptionsTab.label.title)
+    fileOptionsTab.label     -> changeCard(fileOptionsTab)
+    displayOptionsTab.label  -> changeCard(displayOptionsTab)
+    advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
-    else                     -> println("Miss for ${obj::class}: $obj")
+    else                     -> println("Miss for ${e.source::class}: ${e.source}")
   }
 
   private fun save() {
@@ -143,5 +144,11 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     ENV.launcher = null
     Projector()
     dispose()
+  }
+
+  private fun changeCard(target: TabPanel) {
+    cardLayout.show(cards, target.label.title)
+    requestFocus()
+    requestFocusInWindow()
   }
 }
