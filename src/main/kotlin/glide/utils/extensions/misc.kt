@@ -48,8 +48,16 @@ val Long.formattedFileSize: String
 // Event Extensions
 ///////////////////////////////////////
 
+val KeyEvent.action: String
+  get() = when (id) {
+    KeyEvent.KEY_PRESSED  -> "Press"
+    KeyEvent.KEY_RELEASED -> "Lift"
+    KeyEvent.KEY_TYPED    -> "Type"
+    else                  -> "?"
+  }
+
 val KeyEvent.string: String
-  get() = "<Key: ${KeyEvent.getKeyText(keyCode)} ($keyChar) #$keyCode>"
+  get() = "<Key $action: ${KeyEvent.getKeyText(keyCode)} ($keyChar) #$keyCode>"
 
 val MouseEvent.buttonString: String
   get() = when (button) {

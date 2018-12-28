@@ -5,7 +5,6 @@ import glide.slideshow.EventHandler
 import glide.slideshow.Projector
 import glide.storage.ENV
 import glide.utils.extensions.glue
-import glide.utils.extensions.setShortcutListener
 import glide.utils.extensions.sizeTo
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -94,10 +93,10 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     add(cards, BorderLayout.CENTER)
 
     isResizable = false
+    isFocusable = true
     isVisible = true
-    requestFocus()
     requestFocusInWindow()
-    setShortcutListener(EventHandler)
+    EventHandler.register()
   }
 
   override fun actionPerformed(e: ActionEvent) = when (e.source) {

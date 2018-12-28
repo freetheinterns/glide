@@ -7,12 +7,9 @@ import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.Font
 import java.awt.GraphicsDevice
-import java.awt.GridBagConstraints
 import java.awt.Image
-import java.awt.Insets
 import java.awt.event.KeyListener
 import javax.swing.JComponent
-import javax.swing.JPanel
 import javax.swing.SpringLayout
 
 
@@ -91,31 +88,8 @@ val Container.allComponents: List<Component>
   }
 
 fun Container.setShortcutListener(kl: KeyListener) {
-  allComponents.forEach { it.addKeyListener(kl) }
-}
-
-fun JPanel.addGridBag(
-        comp: JComponent,
-        anchor: Int = GridBagConstraints.EAST,
-        x: Int,
-        y: Int,
-        xSpan: Int = 1,
-        ySpan: Int = 1,
-        xPad: Int = 0,
-        yPad: Int = 0,
-        fill: Int = GridBagConstraints.EAST,
-        insets: Insets = Insets(3, 3, 3, 3)
-) {
-  val c = GridBagConstraints()
-  c.fill = fill
-  c.weightx = 0.5
-  c.gridx = x + 1
-  c.gridy = y
-  c.gridwidth = xSpan
-  c.gridheight = ySpan
-  c.anchor = anchor
-  c.ipadx = xPad
-  c.ipady = yPad
-  c.insets = insets
-  add(comp, c)
+  allComponents.forEach {
+    it.addKeyListener(kl)
+    it.isFocusable = true
+  }
 }

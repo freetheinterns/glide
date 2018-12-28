@@ -13,16 +13,13 @@ repositories {
 
 dependencies {
   compileOnly(gradleKotlinDsl())
-
-  compile(kotlin("gradle-plugin"))
-  compile(kotlin("stdlib-jdk8"))
-  compile(kotlin("reflect"))
+  implementation(kotlin("gradle-plugin"))
+  implementation(kotlin("stdlib-jdk8"))
+  implementation(kotlin("reflect"))
 
   // Use the Kotlin test library
-  testImplementation("org.jetbrains.kotlin:kotlin-test")
-
-  // Use the Kotlin JUnit integration
-  testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
+  testImplementation(kotlin("test"))
+  testImplementation(kotlin("test-junit"))
 }
 
 application {

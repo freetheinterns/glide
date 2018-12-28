@@ -1,6 +1,7 @@
 package glide.slideshow
 
 import glide.storage.ENV
+import glide.storage.KeyBindings
 import glide.utils.extensions.CACHED_FILE
 import glide.utils.extensions.CACHE_FULL_IMAGE
 import glide.utils.extensions.CACHE_RESIZED_IMAGE
@@ -60,7 +61,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
-  private var timer = Timer(ENV.speed, EventHandler)
+  private var timer = Timer(ENV.speed) { KeyBindings.trigger("pageForward") }
 
   init {
     if (!device.isFullScreenSupported) throw IllegalArgumentException("Non full-screen modes not yet supported")
@@ -74,7 +75,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
       }
     })
     addMouseListener(EventHandler)
-    addKeyListener(EventHandler)
+    EventHandler.register()
     timer.initialDelay = ENV.speed
 
     // Set up JFrame

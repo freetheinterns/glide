@@ -6,14 +6,41 @@ import glide.storage.KeyBindings
 import glide.utils.extensions.buttonString
 import glide.utils.extensions.string
 import glide.utils.extensions.vprintln
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
+import java.awt.KeyEventDispatcher
+import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent
-import java.awt.event.KeyListener
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 
-object EventHandler : ActionListener, KeyListener, MouseListener {
+object EventHandler : KeyEventDispatcher, MouseListener {
+  private var isRegistered = false
+
+  fun register() {
+    if (isRegistered) return
+    try {
+      KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this)
+      isRegistered = true
+      vprintln("EventHandler successfully registered")
+    } catch (err: RuntimeException) {
+      vprintln("Error registering EventHandler")
+      err.printStackTrace()
+      isRegistered = false
+    }
+  }
+
+  fun deregister() {
+    if (!isRegistered) return
+    try {
+      KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
+      isRegistered = true
+      vprintln("EventHandler successfully deregistered")
+    } catch (err: RuntimeException) {
+      vprintln("Error deregistering EventHandler")
+      err.printStackTrace()
+      isRegistered = false
+    }
+  }
+
   private fun handleKey(code: KeyEvent) {
     if (Lock(code.string).throttle(ENV.debounce)) return
     vprintln(code.string)
@@ -27,14 +54,13 @@ object EventHandler : ActionListener, KeyListener, MouseListener {
     }
   }
 
-  override fun keyPressed(e: KeyEvent) = handleKey(e)
-  override fun keyReleased(e: KeyEvent?) {}
-  override fun keyTyped(e: KeyEvent?) {}
+  override fun dispatchKeyEvent(e: KeyEvent): Boolean {
+    if (e.id == KeyEvent.KEY_PRESSED)
+      handleKey(e)
+    return false
+  }
   override fun mouseClicked(e: MouseEvent?) {}
   override fun mouseEntered(e: MouseEvent?) {}
   override fun mouseExited(e: MouseEvent?) {}
   override fun mouseReleased(e: MouseEvent?) {}
-
-  // Timer event
-  override fun actionPerformed(e: ActionEvent) = KeyBindings.trigger("pageForward")
 }
