@@ -26,6 +26,7 @@ open class TabPanel(
         totalHeight: Int,
         private val listener: Launcher
 ) : JPanel() {
+  var highlighted = false
   val label = LabelButton(title, listener)
   var header = JLabel(title)
   var spring = SpringLayout()

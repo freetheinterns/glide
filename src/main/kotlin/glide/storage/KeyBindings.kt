@@ -36,7 +36,8 @@ object KeyBindings : FileMap() {
     ),
     "Launcher" to hashMapOf(
       10 to "launch",
-      27 to "exit"
+      27 to "exit",
+      39 to "pageForward"
     )
   ))
 
@@ -45,9 +46,12 @@ object KeyBindings : FileMap() {
     ENV.launcher!!.launch()
   }
 
-  @Scope("Projector")
-  fun pageForward() {
-    ENV.projector!!.next()
+  @Scope("Projector", "Launcher")
+  fun pageForward() = when (ENV.scope) {
+    "Projector" -> ENV.projector!!.next()
+    "Launcher"  -> ENV.launcher!!.nextCard()
+    else        -> {
+    }
   }
 
   @Scope("Projector")

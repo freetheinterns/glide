@@ -47,6 +47,11 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private val cardLayout = CardLayout()
   private val cards = JPanel(cardLayout)
   private val selector = JPanel()
+  private val tabOptions = arrayOf(
+    fileOptionsTab,
+    displayOptionsTab,
+    advancedOptionsTab
+  )
 
   private val dragListener = FrameDragListener(this)
 
@@ -148,7 +153,12 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
   private fun changeCard(target: TabPanel) {
     cardLayout.show(cards, target.label.title)
-    requestFocus()
-    requestFocusInWindow()
+    tabOptions.forEach { it.highlighted = (it == target) }
+  }
+
+  fun nextCard() {
+    var nextIndex = tabOptions.indexOfFirst { it.highlighted } + 1
+    if (nextIndex >= tabOptions.size) nextIndex = 0
+    changeCard(tabOptions[nextIndex])
   }
 }
