@@ -5,6 +5,7 @@ import glide.slideshow.EventHandler
 import glide.slideshow.Projector
 import glide.storage.ENV
 import glide.utils.extensions.glue
+import glide.utils.extensions.logger
 import glide.utils.extensions.sizeTo
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -108,7 +109,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     displayOptionsTab.label  -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
-    else                     -> println("Miss for ${e.source::class}: ${e.source}")
+    else                     -> logger.warning("Miss for ${e.source::class}: ${e.source}")
   }
 
   private fun save() {

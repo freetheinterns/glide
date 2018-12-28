@@ -4,8 +4,8 @@ import glide.async.Lock
 import glide.storage.ENV
 import glide.storage.KeyBindings
 import glide.utils.extensions.buttonString
+import glide.utils.extensions.logger
 import glide.utils.extensions.string
-import glide.utils.extensions.vprintln
 import java.awt.KeyEventDispatcher
 import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent
@@ -20,9 +20,9 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     try {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this)
       isRegistered = true
-      vprintln("EventHandler successfully registered")
+      logger.info("EventHandler successfully registered")
     } catch (err: RuntimeException) {
-      vprintln("Error registering EventHandler")
+      logger.warning("Error registering EventHandler")
       err.printStackTrace()
       isRegistered = false
     }
@@ -33,9 +33,9 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     try {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
       isRegistered = true
-      vprintln("EventHandler successfully deregistered")
+      logger.info("EventHandler successfully de-registered")
     } catch (err: RuntimeException) {
-      vprintln("Error deregistering EventHandler")
+      logger.warning("Error de-registering EventHandler")
       err.printStackTrace()
       isRegistered = false
     }
@@ -43,12 +43,12 @@ object EventHandler : KeyEventDispatcher, MouseListener {
 
   private fun handleKey(code: KeyEvent) {
     if (Lock(code.string).throttle(ENV.debounce)) return
-    vprintln(code.string)
+    logger.info(code.string)
     KeyBindings.triggerByCode(code.keyCode)
   }
 
   override fun mousePressed(e: MouseEvent) {
-    vprintln(e.string)
+    logger.info(e.string)
     when (e.buttonString) {
       "Left" -> KeyBindings.trigger("pageForward")
     }

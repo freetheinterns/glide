@@ -29,7 +29,7 @@ class MarginPanel(private val app: Projector) : Geometry {
     lines.add(currentPlaylist.folderSize.formattedFileSize)
     lines.add(formatter.format(currentPlaylist.file.createdAt))
     lines.add("")
-    lines.add("${ENV.scaling}")
+    lines.add("scale: ${CachedImage.SCALING_OPTIONS[ENV.scaling]}")
 
     addFileName()
     addFileCount()

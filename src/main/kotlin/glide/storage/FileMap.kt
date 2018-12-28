@@ -45,7 +45,7 @@ abstract class FileMap : Persistable<FileMap.FileMapSchema>() {
       override fun getValue(thisRef: FileMap, property: KProperty<*>) =
         thisRef.get(property.name) { default }
 
-      override fun setValue(thisRef: FileMap, property: KProperty<*>, value: T) = lock.softTry {
+      override fun setValue(thisRef: FileMap, property: KProperty<*>, value: T) {
         thisRef.put(property.name, value)
       }
     }

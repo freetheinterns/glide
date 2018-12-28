@@ -1,8 +1,10 @@
 package glide.utils.extensions
 
-import glide.storage.ENV
 import java.awt.DisplayMode
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.util.*
+import java.util.logging.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KCallable
@@ -53,8 +55,43 @@ fun superGC(timeout: Long = 100) {
   }
 }
 
-fun vprintln(obj: Any?) = if (ENV.verbose) println(obj) else null
+///////////////////////////////////////
+// Logging Extensions
+///////////////////////////////////////
 
+// unwrap companion class to enclosing class given a Java Class
+fun <T : Any> unwrapCompanionClass(ofClass: Class<T>): Class<*> {
+  return ofClass.enclosingClass?.takeIf {
+    ofClass.enclosingClass.kotlin.companionObject?.java == ofClass
+  } ?: ofClass
+}
+
+// unwrap companion class to enclosing class given a Kotlin Class
+fun <T : Any> unwrapCompanionClass(ofClass: KClass<T>): KClass<*> {
+  return unwrapCompanionClass(ofClass.java).kotlin
+}
+
+fun <T : Any> logger(forClass: KClass<T>): Logger {
+  return Logger.getLogger(unwrapCompanionClass(forClass).simpleName)
+}
+
+fun <T : Any> logger(forClass: Class<T>): Logger {
+  return Logger.getLogger(unwrapCompanionClass(forClass).name)
+}
+
+val <T : Any> T.logger: Logger
+  get() = logger(this::class)
+
+val LogRecord.throwable: String
+  get() {
+    thrown ?: return ""
+    val sw = StringWriter()
+    val pw = PrintWriter(sw)
+    pw.println()
+    thrown.printStackTrace(pw)
+    pw.close()
+    return sw.toString()
+  }
 
 ///////////////////////////////////////
 // Generic Extensions

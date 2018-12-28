@@ -12,8 +12,8 @@ import glide.utils.extensions.catalogs
 import glide.utils.extensions.chooseBestDisplayMode
 import glide.utils.extensions.dimension
 import glide.utils.extensions.imageCount
+import glide.utils.extensions.logger
 import glide.utils.extensions.superGC
-import glide.utils.extensions.vprintln
 import glide.utils.inheritors.FullScreenFrame
 import glide.utils.inheritors.Geometry
 import java.awt.Color
@@ -49,11 +49,11 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   val library: List<Catalog> by always { _library!! }
   var scaling: Int = ENV.scaling
     set(value) {
-      vprintln("Updating scaling to: ${ENV.scaling}")
+      logger.info("Updating scaling from: ${ENV.scaling}, to: $value")
       ENV.scaling = value
       index.current.rerender()
       index.copy.next().rerender()
-      updateCaching()
+      project()
     }
 
   private var _index: ImageIndex? by cache { ImageIndex(library) }
@@ -101,7 +101,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
     // Short-circuit if playlist is empty or if full screen is not possible
     if (library.map { it.size }.sum() == 0) {
-      println("No images found to display!")
+      logger.severe("No images found to display!")
       exit(1)
     }
 
@@ -109,6 +109,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   }
 
   fun exit(status: Int = 0) {
+    EventHandler.deregister()
     ENV.projector = null
     device.fullScreenWindow = null
     System.exit(status)
@@ -282,7 +283,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
   fun deleteCurrentDirectory() {
     purgeCatalog(index.primary) {
-      vprintln("Deleting Folder: ${it.absolutePath}")
+      logger.warning("Deleting Folder: ${it.absolutePath}")
       it.deleteRecursively()
     }
   }
@@ -290,9 +291,9 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   fun archiveCurrentDirectory() {
     purgeCatalog(index.primary) {
       val newPath = File("${ENV.archive}\\${it.name}").toPath()
-      vprintln("Moving Folder: ${it.absolutePath} --> $newPath")
+      logger.warning("Moving Folder: ${it.absolutePath} --> $newPath")
       if (Files.exists(newPath, LinkOption.NOFOLLOW_LINKS))
-        vprintln("Target Path already exists! No action taken!")
+        logger.severe("Target Path already exists! No action taken!")
       else
         Files.move(it.toPath(), newPath)
     }
