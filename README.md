@@ -1,16 +1,7 @@
 ## Glide Application Documentation
 
 Glide is an open source slideshow application for comics.
-For now the application is entirely in development mode. That means the following:
-- **0 user support**
-    - You can ask questions or something. I might read them. Maybe.
-- **No ETAs on anything**
-- **Minimal execution capabilities**
-    - If you want to run the code you'll need to download and compile it yourself.
-- **Not versioned or packaged**
-    - This repo is not set up with versioning or releases yet and there will be no indication of current feature support
-    - This repo is not set up to be easily distributed or installed.
-- **Master will be rebased occasionally**
+For now the application is beind developed only in my free time. Please keep this in mind.
 
 
 ### Features
