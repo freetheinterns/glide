@@ -25,7 +25,8 @@ hs_err_pid*
 # IntelliJ files and folders
 *.idea
 .idea*
-out/
+.idea
+out
 build
 .gradle
 

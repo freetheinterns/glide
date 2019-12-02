@@ -7,6 +7,7 @@ import glide.storage.ENV
 import glide.utils.extensions.glue
 import glide.utils.extensions.logger
 import glide.utils.extensions.sizeTo
+import glide.utils.extensions.update
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color
@@ -58,7 +59,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   init {
     ENV.launcher = this
     ENV.scope = "Launcher"
-    defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+    defaultCloseOperation = EXIT_ON_CLOSE
     isUndecorated = true
     bounds = Rectangle(300, 200, TabPanel.HARD_WIDTH + LabelButton.HARD_WIDTH + 6, HARD_HEIGHT)
     layout = BorderLayout()
@@ -118,30 +119,28 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   }
 
   private fun save() {
-    ENV.lock.block {
-      ENV.archive = fileOptionsTab.archive.banner.text
-      ENV.root = fileOptionsTab.root.banner.text
+    ENV.update {
+      archive = fileOptionsTab.archive.banner.text
+      root = fileOptionsTab.root.banner.text
 
-      ENV.ordering = fileOptionsTab.ordering.selectedItem as String
-      ENV.fontName = displayOptionsTab.fontName.selectedItem as String
-      ENV.scaling = CachedImage.SCALING_REMAP[displayOptionsTab.scaling.selectedItem]!!
+      ordering = fileOptionsTab.ordering.selectedItem as String
+      fontName = displayOptionsTab.fontName.selectedItem as String
+      scaling = CachedImage.SCALING_REMAP[displayOptionsTab.scaling.selectedItem]!!
 
-      ENV.speed = advancedOptionsTab.speed.value
-      ENV.debounce = advancedOptionsTab.debounce.value.toLong()
-      ENV.imageBufferCapacity = advancedOptionsTab.imageBufferCapacity.value
-      ENV.intraPlaylistVision = advancedOptionsTab.intraPlaylistVision.value
+      speed = advancedOptionsTab.speed.value
+      debounce = advancedOptionsTab.debounce.value.toLong()
+      imageBufferCapacity = advancedOptionsTab.imageBufferCapacity.value
+      intraPlaylistVision = advancedOptionsTab.intraPlaylistVision.value
 
-      ENV.direction = displayOptionsTab.directionGroup.selectedItem == LEFT_TO_RIGHT_TEXT
-      ENV.paneled = displayOptionsTab.paneledInput.isSelected
-      ENV.showFooterFileNumber = displayOptionsTab.showFooterFileNumberInput.isSelected
-      ENV.showMarginFileCount = displayOptionsTab.showMarginFileCountInput.isSelected
-      ENV.showMarginFileName = displayOptionsTab.showMarginFileNameInput.isSelected
-      ENV.showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
-      ENV.showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
-      ENV.verbose = advancedOptionsTab.verboseInput.isSelected
+      direction = displayOptionsTab.directionGroup.selectedItem == LEFT_TO_RIGHT_TEXT
+      paneled = displayOptionsTab.paneledInput.isSelected
+      showFooterFileNumber = displayOptionsTab.showFooterFileNumberInput.isSelected
+      showMarginFileCount = displayOptionsTab.showMarginFileCountInput.isSelected
+      showMarginFileName = displayOptionsTab.showMarginFileNameInput.isSelected
+      showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
+      showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
+      verbose = advancedOptionsTab.verboseInput.isSelected
     }
-
-    ENV.save()
   }
 
   fun launch() {

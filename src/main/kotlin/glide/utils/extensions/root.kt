@@ -55,6 +55,10 @@ fun superGC(timeout: Long = 100) {
   }
 }
 
+val currentThread: Thread
+  get() = Thread.currentThread()
+
+
 ///////////////////////////////////////
 // Logging Extensions
 ///////////////////////////////////////

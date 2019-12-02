@@ -72,34 +72,34 @@ object ENV : FileMap() {
   var projector: Projector? = null
   var launcher: Launcher? = null
 
-  var background by fileData(Color(15, 15, 15))
-  var foreground by fileData(Color(0, 0, 0))
-  var dark by fileData(Color(27, 28, 27))
-  var darkSelected by fileData(Color(70, 71, 71))
-  var darkHighlight by fileData(Color(103, 102, 100))
-  var exitRed by fileData(Color(232, 17, 35))
+  var background by fileData { Color(15, 15, 15) }
+  var foreground by fileData { Color(0, 0, 0) }
+  var dark by fileData { Color(27, 28, 27) }
+  var darkSelected by fileData { Color(70, 71, 71) }
+  var darkHighlight by fileData { Color(103, 102, 100) }
+  var exitRed by fileData { Color(232, 17, 35) }
 
-  var archive: String by fileData(File("~\\Pictures\\archive").absolutePath)
-  var fontName: String by fileData(UIManager.getFont("Button.font").fontName)
-  var ordering by fileData(FILE_COUNT)
-  var root by fileData("~\\Pictures")
+  var archive: String by fileData { File("~\\Pictures\\archive").absolutePath }
+  var fontName: String by fileData { UIManager.getFont("Button.font").fontName }
+  var ordering by fileData { FILE_COUNT }
+  var root by fileData { "~\\Pictures" }
 
-  var direction by fileData(true)
-  var paneled by fileData(true)
-  var verbose by fileData(true)
+  var direction by fileData { true }
+  var paneled by fileData { true }
+  var verbose by fileData { true }
 
-  var showFooterFileNumber by fileData(true)
-  var showMarginFileCount by fileData(true)
-  var showMarginFileName by fileData(true)
-  var showMarginFolderCount by fileData(true)
-  var showMarginFolderName by fileData(true)
+  var showFooterFileNumber by fileData { true }
+  var showMarginFileCount by fileData { true }
+  var showMarginFileName by fileData { true }
+  var showMarginFolderCount by fileData { true }
+  var showMarginFolderName by fileData { true }
 
-  var imageBufferCapacity by fileData(2)
-  var intraPlaylistVision by fileData(50)
-  var scaling by fileData(Image.SCALE_AREA_AVERAGING)
-  var speed by fileData(2500)
+  var imageBufferCapacity by fileData { 2 }
+  var intraPlaylistVision by fileData { 50 }
+  var scaling by fileData { Image.SCALE_AREA_AVERAGING }
+  var speed by fileData { 2500 }
 
-  var debounce by fileData(200L)
+  var debounce by fileData { 200L }
 
-  var imagePattern by fileData("^.+\\.(jpg|png|gif|bmp)$".toRegex(RegexOption.IGNORE_CASE))
+  var imagePattern by fileData { "^.+\\.(jpg|png|gif|bmp)$".toRegex(RegexOption.IGNORE_CASE) }
 }

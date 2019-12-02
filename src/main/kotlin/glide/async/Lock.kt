@@ -1,12 +1,15 @@
 package glide.async
 
-class Lock(private val defaultKey: Any? = null, private val defaultThrottle: Long? = null) {
-  fun throttle(key: Any? = defaultKey, millis: Long? = defaultThrottle) =
-    GlobalLocks.throttle(key!!, millis ?: 0)
+class Lock(val key: Any, private val defaultThrottle: Long? = null) {
+  fun throttle(millis: Long? = defaultThrottle) =
+    GlobalLocks.throttle(key, millis ?: 0)
 
-  fun block(key: Any? = defaultKey, cb: () -> Unit = {}) =
-    GlobalLocks.block(key!!, cb)
+  fun runLocked(callback: () -> Unit) =
+    GlobalLocks.runLocked(key, callback)
 
-  fun softTry(key: Any? = defaultKey, cb: () -> Unit = {}) =
-    GlobalLocks.softTry(key!!, cb)
+  val isLocked: Boolean
+    get() = GlobalLocks.isLocked(key)
+
+  val lockedThreadName: String
+    get() = "Locked Execution of $key"
 }

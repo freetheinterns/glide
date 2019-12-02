@@ -3,6 +3,7 @@ package glide.storage
 import glide.slideshow.CachedImage
 import glide.utils.extensions.Scope
 import glide.utils.extensions.scopes
+import kotlin.system.exitProcess
 
 
 object KeyBindings : FileMap() {
@@ -18,28 +19,30 @@ object KeyBindings : FileMap() {
   fun options(scope: String = ENV.scope): List<String> =
     this::class.members.filter { it.scopes.contains(scope) }.map { it.name }
 
-  val map by fileData(hashMapOf(
-    "Projector" to hashMapOf(
-      8 to "inchBackward",
-      9 to "nextCatalog",
-      10 to "pageForward",
-      16 to "previousCatalog",
-      27 to "exit",
-      32 to "toggleSlideshow",
-      37 to "pageBackward",
-      38 to "inchForward",
-      39 to "pageForward",
-      40 to "inchBackward",
-      79 to "changeScaling",
-      127 to "deleteCatalog",
-      115 to "archiveCatalog"
-    ),
-    "Launcher" to hashMapOf(
-      10 to "launch",
-      27 to "exit",
-      39 to "pageForward"
+  private val map by fileData {
+    hashMapOf(
+      "Projector" to hashMapOf(
+        8 to "inchBackward",
+        9 to "nextCatalog",
+        10 to "pageForward",
+        16 to "previousCatalog",
+        27 to "exit",
+        32 to "toggleSlideshow",
+        37 to "pageBackward",
+        38 to "inchForward",
+        39 to "pageForward",
+        40 to "inchBackward",
+        79 to "changeScaling",
+        127 to "deleteCatalog",
+        115 to "archiveCatalog"
+      ),
+      "Launcher" to hashMapOf(
+        10 to "launch",
+        27 to "exit",
+        39 to "pageForward"
+      )
     )
-  ))
+  }
 
   @Scope("Launcher")
   fun launch() {
@@ -99,7 +102,7 @@ object KeyBindings : FileMap() {
     "Projector" -> ENV.projector!!.exit()
     "Launcher"  -> {
       ENV.launcher!!.dispose()
-      System.exit(0)
+      exitProcess(0)
     }
     else        -> {
     }

@@ -19,12 +19,12 @@ import java.io.Serializable
  *   - E.G. data class Example(val a: Int) : Persistable<Example>
  *   - In this case, properties inherited from this class will not be persisted
  */
-abstract class Persistable<T : Serializable> : Serializable {
+abstract class Persistable<T : Serializable> {
   val lock = Lock(this.hashCode())
   abstract val filename: String
 
   private companion object {
-    private val persistablePropertyNames = Persistable::class.properties.map { x -> x.name }
+    private val INTERNAL_PROPERTY_NAMES = listOf("lock", "filename")
   }
 
   /**
@@ -35,7 +35,7 @@ abstract class Persistable<T : Serializable> : Serializable {
 
     for (item in other::class.properties) {
       // Don't copy over properties if they are reflective from this class
-      if (hasReflectiveProperties and (item.name in persistablePropertyNames)) continue
+      if (hasReflectiveProperties && (item.name in INTERNAL_PROPERTY_NAMES)) continue
       setAttribute(item.name, item.getter.call(other))
     }
   }
@@ -46,22 +46,17 @@ abstract class Persistable<T : Serializable> : Serializable {
   abstract fun toSerializedInstance(): T
 
   /**
-   * Serializes this instance and saves it to the file
-   */
-  open fun save() {
-    File(filename).writeObject(toSerializedInstance())
-  }
-
-  /**
    * Loads an instance of T from the file location and copies attributes from T onto this instance
    * @suppress an unchecked cast to T when the file is read
    */
-  open fun load() {
-    lock.block {
-      val target = File(filename)
-      if (!target.createNewFile())
-        @Suppress("UNCHECKED_CAST") updateWith(target.readObject() as T)
-      target.writeObject(toSerializedInstance())
+  fun load(saveAfter: Boolean = true) {
+    lock.runLocked {
+      File(filename).apply {
+        if (!createNewFile())
+          @Suppress("UNCHECKED_CAST") updateWith(readObject() as T)
+        if (saveAfter)
+          writeObject(toSerializedInstance())
+      }
     }
   }
 }

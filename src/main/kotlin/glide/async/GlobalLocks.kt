@@ -1,51 +1,54 @@
 package glide.async
 
 import glide.utils.extensions.always
+import glide.utils.extensions.currentThread
 
 object GlobalLocks {
   val now by always { System.currentTimeMillis() }
 
-  private class Context {
+  private class Context(private val key: Any) {
     private val blocks = hashSetOf<Any>()
-    val since by always { now - invokedAt }
-    var invokedAt: Long = 0
+    private var invokedAt: Long = 0
       set(value) {
         field = if (value > field) value else field
       }
 
-    fun invoke(cb: (() -> Unit)? = null): Boolean {
-      invokedAt = now
-      cb ?: return blocks.isNotEmpty()
+    val since by always { now - invokedAt }
+    val isBlocked by always { blocks.isNotEmpty() }
 
-      val crumb = Math.random()
+    fun runLocked(callback: () -> Unit) {
+      invokedAt = now
+      if (isBlocked) return
+
+      val crumb: Double = Math.random()
       blocks.add(crumb)
       try {
-        cb()
+        val ct = currentThread
+        val currentName = ct.name
+        ct.name = "Locked Execution of $key"
+        callback()
+        ct.name = currentName
+
       } catch (err: Exception) {
         println(err.stackTrace.toString())
         err.printStackTrace()
       } finally {
         blocks.remove(crumb)
       }
-      return blocks.isNotEmpty()
     }
   }
 
   private val core = hashMapOf<Any, Context>()
 
-  private fun lookup(key: Any): Context {
-    if (!core.containsKey(key))
-      core[key] = Context()
-    return core[key]!!
-  }
+  private fun lookup(key: Any): Context =
+    core[key] ?: Context(key).also { core[key] = it }
 
-  fun throttle(key: Any, millis: Long = 0): Boolean {
-    return lookup(key).since <= millis || lookup(key).invoke()
-  }
+  fun throttle(key: Any, millis: Long = 0): Boolean =
+    lookup(key).since <= millis || lookup(key).isBlocked
 
-  fun block(key: Any, cb: () -> Unit) = lookup(key).invoke(cb)
+  fun runLocked(key: Any, callback: () -> Unit) =
+    lookup(key).runLocked(callback)
 
-  fun softTry(key: Any, cb: () -> Unit) {
-    if (lookup(key).invoke()) cb()
-  }
+  fun isLocked(key: Any): Boolean =
+    lookup(key).isBlocked
 }

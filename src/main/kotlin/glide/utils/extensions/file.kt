@@ -6,6 +6,7 @@ import java.io.File
 import java.io.FileFilter
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.io.Serializable
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -17,29 +18,30 @@ import java.nio.file.attribute.BasicFileAttributes
 val File.catalogs: List<Catalog>
   get() = this.listMatchingDirectories().map(::Catalog).sorted()
 
-fun File.listMatchingDirectories(): List<File> {
-  return this.listFiles(DirectoryFilter()).toList()
-}
+fun File.listMatchingDirectories(): List<File> =
+  listFiles(DirectoryFilter())?.toList() ?: listOf()
 
-fun File.listImages(): List<File> {
-  return this.listFiles(ImagesFilter()).toList()
-}
+fun File.listImages(): List<File> =
+  listFiles(ImagesFilter())?.toList() ?: listOf()
 
-fun File.writeObject(obj: Any) {
-  val out = this.outputStream()
-  val objectOut = ObjectOutputStream(out)
-  objectOut.writeObject(obj)
-  objectOut.close()
-  out.close()
+fun File.writeObject(obj: Serializable) {
+  outputStream().also {
+    ObjectOutputStream(it).apply {
+      writeObject(obj)
+    }.close()
+  }.close()
 }
 
 fun File.readObject(): Any {
-  val inp = this.inputStream()
-  val objectIn = ObjectInputStream(inp)
-  val x = objectIn.readObject()
-  objectIn.close()
-  inp.close()
-  return x
+  val obj: Any
+
+  inputStream().also {
+    ObjectInputStream(it).apply {
+      obj = readObject()
+    }.close()
+  }.close()
+
+  return obj
 }
 
 
