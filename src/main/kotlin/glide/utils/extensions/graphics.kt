@@ -8,6 +8,7 @@ import java.awt.DisplayMode
 import java.awt.Font
 import java.awt.GraphicsDevice
 import java.awt.Image
+import java.awt.Point
 import java.awt.event.KeyListener
 import javax.swing.JComponent
 import javax.swing.SpringLayout
@@ -71,6 +72,27 @@ val Image.height: Int
 
 val Font.string: String
   get() = "<Font: $fontName $size $style>"
+
+///////////////////////////////////////
+// Geometric Extensions
+///////////////////////////////////////
+
+fun Point.copy() = Point(x, y)
+operator fun Point.plus(other: Point): Point = copy().apply { plusAssign(other) }
+operator fun Point.plusAssign(other: Point) {
+  x += other.x
+  y += other.y
+}
+
+operator fun Point.minus(other: Point): Point = copy().apply { minusAssign(other) }
+operator fun Point.minusAssign(other: Point) {
+  x -= other.x
+  y -= other.y
+}
+
+///////////////////////////////////////
+// Container & Component Extensions
+///////////////////////////////////////
 
 fun JComponent.sizeTo(w: Int, h: Int) {
   minimumSize = Dimension(w, h)

@@ -21,6 +21,7 @@ import javax.swing.SpringLayout.NORTH
 import javax.swing.SpringLayout.SOUTH
 import javax.swing.SpringLayout.WEST
 import javax.swing.UIManager
+import kotlin.system.exitProcess
 
 class Launcher : JFrame("Projector: Settings"), ActionListener {
   companion object {
@@ -34,7 +35,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private val launchTab = LabelButton("Launch", this, defaultBackground = ENV.darkHighlight)
   private val closeWindow = LabelButton(
     "X",
-    ActionListener { System.exit(0) },
+    ActionListener { exitProcess(0) },
     defaultBackground = UIManager.getColor("Panel.background"),
     defaultSelected = Color.RED,
     width = 57,
@@ -46,61 +47,60 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private val advancedOptionsTab = AdvancedOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
 
   private val cardLayout = CardLayout()
-  private val cards = JPanel(cardLayout)
-  private val selector = JPanel()
+  private val cards = JPanel(cardLayout).apply {
+    sizeTo(TabPanel.HARD_WIDTH, HARD_HEIGHT)
+    add(fileOptionsTab, fileOptionsTab.label.title)
+    add(displayOptionsTab, displayOptionsTab.label.title)
+    add(advancedOptionsTab, advancedOptionsTab.label.title)
+  }
+
+  private val selectorLayout = SpringLayout()
+  private val selector = JPanel().apply constructSelector@{
+    layout = selectorLayout.also {
+      it.glue(NORTH, fileOptionsTab.label, this@constructSelector)
+      it.putConstraint(NORTH, displayOptionsTab.label, 0, SOUTH, fileOptionsTab.label)
+      it.putConstraint(NORTH, advancedOptionsTab.label, 0, SOUTH, displayOptionsTab.label)
+      it.glue(WEST, fileOptionsTab.label, this@constructSelector)
+      it.glue(WEST, displayOptionsTab.label, this@constructSelector)
+      it.glue(WEST, advancedOptionsTab.label, this@constructSelector)
+      it.glue(SOUTH, launchTab, this@constructSelector)
+      // Float action button tabs on the bottom
+      it.putConstraint(SOUTH, saveTab, 0, NORTH, launchTab)
+      it.glue(WEST, launchTab, this@constructSelector)
+      it.glue(WEST, saveTab, this@constructSelector)
+    }
+    background = ENV.dark
+    sizeTo(LabelButton.HARD_WIDTH, HARD_HEIGHT)
+    add(fileOptionsTab.label)
+    add(displayOptionsTab.label)
+    add(advancedOptionsTab.label)
+    add(saveTab)
+    add(launchTab)
+  }
   private val tabOptions = arrayOf(
     fileOptionsTab,
     displayOptionsTab,
     advancedOptionsTab
   )
 
-  private val dragListener = FrameDragListener(this)
+  private val dragListener = FrameDragListener { location = it }.also {
+    addMouseMotionListener(it)
+    addMouseListener(it)
+  }
 
   init {
     ENV.launcher = this
     ENV.scope = "Launcher"
     defaultCloseOperation = EXIT_ON_CLOSE
     isUndecorated = true
+    isResizable = false
+    isFocusable = true
     bounds = Rectangle(300, 200, TabPanel.HARD_WIDTH + LabelButton.HARD_WIDTH + 6, HARD_HEIGHT)
     layout = BorderLayout()
-
-    // Set up frame listeners
-    addMouseMotionListener(dragListener)
-    addMouseListener(dragListener)
-
-    val selectorLayout = SpringLayout()
-    selector.layout = selectorLayout
-    selector.background = ENV.dark
-    selector.sizeTo(LabelButton.HARD_WIDTH, HARD_HEIGHT)
-    selector.add(fileOptionsTab.label)
-    selector.add(displayOptionsTab.label)
-    selector.add(advancedOptionsTab.label)
-
-    selectorLayout.glue(NORTH, fileOptionsTab.label, selector)
-    selectorLayout.putConstraint(NORTH, displayOptionsTab.label, 0, SOUTH, fileOptionsTab.label)
-    selectorLayout.putConstraint(NORTH, advancedOptionsTab.label, 0, SOUTH, displayOptionsTab.label)
-    selectorLayout.glue(WEST, fileOptionsTab.label, selector)
-    selectorLayout.glue(WEST, displayOptionsTab.label, selector)
-    selectorLayout.glue(WEST, advancedOptionsTab.label, selector)
-
-    // Float action button tabs on the bottom
-    selector.add(saveTab)
-    selector.add(launchTab)
-    selectorLayout.glue(SOUTH, launchTab, selector)
-    selectorLayout.putConstraint(SOUTH, saveTab, 0, NORTH, launchTab)
-    selectorLayout.glue(WEST, launchTab, selector)
-    selectorLayout.glue(WEST, saveTab, selector)
-
-    cards.sizeTo(TabPanel.HARD_WIDTH, HARD_HEIGHT)
-    cards.add(fileOptionsTab, fileOptionsTab.label.title)
-    cards.add(displayOptionsTab, displayOptionsTab.label.title)
-    cards.add(advancedOptionsTab, advancedOptionsTab.label.title)
 
     add(selector, BorderLayout.WEST)
     add(cards, BorderLayout.CENTER)
 
-    isResizable = false
-    isFocusable = true
     isVisible = true
     requestFocusInWindow()
     EventHandler.register()
@@ -109,13 +109,13 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   override fun actionPerformed(e: ActionEvent) = when (e.source) {
     saveTab                  -> save()
     launchTab                -> launch()
-    closeWindow              -> System.exit(0)
+    closeWindow              -> exitProcess(0)
 
     fileOptionsTab.label     -> changeCard(fileOptionsTab)
     displayOptionsTab.label  -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
-    else                     -> logger.warning("Miss for ${e.source::class}: ${e.source}")
+    else                     -> logger.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
   }
 
   private fun save() {

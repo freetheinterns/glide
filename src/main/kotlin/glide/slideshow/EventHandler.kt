@@ -42,9 +42,10 @@ object EventHandler : KeyEventDispatcher, MouseListener {
   }
 
   private fun handleKey(code: KeyEvent) {
-    if (Lock(code.string).throttle(ENV.debounce)) return
-    logger.info(code.string)
-    KeyBindings.triggerByCode(code.keyCode)
+    Lock(code.string).throttle(ENV.debounce) {
+      logger.info(code.string)
+      KeyBindings.triggerByCode(code.keyCode)
+    }
   }
 
   override fun mousePressed(e: MouseEvent) {
@@ -54,11 +55,11 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     }
   }
 
-  override fun dispatchKeyEvent(e: KeyEvent): Boolean {
+  override fun dispatchKeyEvent(e: KeyEvent) = false.also {
     if (e.id == KeyEvent.KEY_PRESSED)
       handleKey(e)
-    return false
   }
+
   override fun mouseClicked(e: MouseEvent?) {}
   override fun mouseEntered(e: MouseEvent?) {}
   override fun mouseExited(e: MouseEvent?) {}

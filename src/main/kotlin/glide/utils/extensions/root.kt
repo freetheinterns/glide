@@ -79,10 +79,6 @@ fun <T : Any> logger(forClass: KClass<T>): Logger {
   return Logger.getLogger(unwrapCompanionClass(forClass).simpleName)
 }
 
-fun <T : Any> logger(forClass: Class<T>): Logger {
-  return Logger.getLogger(unwrapCompanionClass(forClass).name)
-}
-
 val <T : Any> T.logger: Logger
   get() = logger(this::class)
 
@@ -106,6 +102,19 @@ val LogRecord.throwable: String
  */
 val <T : Any> T.string: String
   get() = this.toString()
+
+fun <T : Comparable<T>> coerceMaximum(getter: () -> T) = object : ReadWriteProperty<Any, T> {
+  private var value: T = getter()
+
+  override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
+    if (value > this.value)
+      this.value = value
+  }
+
+  override fun getValue(thisRef: Any, property: KProperty<*>): T {
+    return value
+  }
+}
 
 
 inline fun <T> always(crossinline getter: () -> T) = object : ReadOnlyProperty<Any, T> {
