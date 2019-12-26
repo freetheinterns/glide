@@ -53,8 +53,7 @@ object KeyBindings : FileMap() {
   fun pageForward() = when (ENV.scope) {
     "Projector" -> ENV.projector!!.next()
     "Launcher"  -> ENV.launcher!!.nextCard()
-    else        -> {
-    }
+    else        -> Unit
   }
 
   @Scope("Projector")
@@ -100,12 +99,8 @@ object KeyBindings : FileMap() {
   @Scope("Projector", "Launcher")
   fun exit() = when (ENV.scope) {
     "Projector" -> ENV.projector!!.exit()
-    "Launcher"  -> {
-      ENV.launcher!!.dispose()
-      exitProcess(0)
-    }
-    else        -> {
-    }
+    "Launcher"  -> ENV.launcher!!.dispose().also { exitProcess(0) }
+    else        -> Unit
   }
 
   @Scope("Projector")

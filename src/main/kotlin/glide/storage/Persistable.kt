@@ -23,8 +23,15 @@ abstract class Persistable<T : Serializable> {
   val lock = Lock(this.hashCode())
   abstract val filename: String
 
-  private companion object {
+  companion object {
     private val INTERNAL_PROPERTY_NAMES = listOf("lock", "filename")
+    fun <T : Persistable<*>> T.update(block: T.() -> Unit) {
+      lock.runLocked {
+        block()
+        println("SAVING: ${this::class.simpleName}")
+        File(filename).writeObject(toSerializedInstance())
+      }
+    }
   }
 
   /**

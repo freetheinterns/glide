@@ -4,10 +4,10 @@ import glide.slideshow.CachedImage
 import glide.slideshow.EventHandler
 import glide.slideshow.Projector
 import glide.storage.ENV
+import glide.storage.Persistable.Companion.update
 import glide.utils.extensions.glue
 import glide.utils.extensions.logger
 import glide.utils.extensions.sizeTo
-import glide.utils.extensions.update
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color
