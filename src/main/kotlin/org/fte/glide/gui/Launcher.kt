@@ -1,0 +1,175 @@
+package org.fte.glide.gui
+
+import org.fte.glide.gui.components.Button
+import org.fte.glide.gui.components.LabelButton
+import org.fte.glide.gui.listeners.FrameDragListener
+import org.fte.glide.gui.panels.AdvancedOptionsTabPanel
+import org.fte.glide.gui.panels.DisplayOptionsTabPanel
+import org.fte.glide.gui.panels.FileOptionsTabPanel
+import org.fte.glide.gui.panels.TabPanel
+import org.fte.glide.slideshow.CachedImage
+import org.fte.glide.slideshow.EventHandler
+import org.fte.glide.slideshow.Projector
+import org.fte.glide.storage.ENV
+import org.fte.glide.storage.Persistable.Companion.update
+import org.fte.glide.utils.extensions.glue
+import org.fte.glide.utils.extensions.logger
+import org.fte.glide.utils.extensions.sizeTo
+import java.awt.BorderLayout
+import java.awt.CardLayout
+import java.awt.Color
+import java.awt.Rectangle
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import javax.swing.JFrame
+import javax.swing.JPanel
+import javax.swing.SpringLayout
+import javax.swing.SpringLayout.NORTH
+import javax.swing.SpringLayout.SOUTH
+import javax.swing.SpringLayout.WEST
+import javax.swing.UIManager
+import kotlin.system.exitProcess
+
+class Launcher : JFrame("Projector: Settings"), ActionListener {
+  companion object {
+    private const val HARD_HEIGHT = 800
+
+    const val LEFT_TO_RIGHT_TEXT = ":LtR (JA)"
+    const val RIGHT_TO_LEFT_TEXT = ":RtL (EN)"
+  }
+
+  private val saveTab =
+    LabelButton("Save Settings", this, defaultBackground = ENV.darkHighlight)
+  private val launchTab =
+    LabelButton("Launch", this, defaultBackground = ENV.darkHighlight)
+  private val closeWindow = LabelButton(
+    "X",
+    ActionListener { exitProcess(0) },
+    defaultBackground = UIManager.getColor("Panel.background"),
+    defaultSelected = Color.RED,
+    width = 57,
+    height = 39
+  )
+
+  private val fileOptionsTab =
+    FileOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
+  private val displayOptionsTab =
+    DisplayOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
+  private val advancedOptionsTab =
+    AdvancedOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
+
+  private val cardLayout = CardLayout()
+  private val cards = JPanel(cardLayout).apply {
+    sizeTo(TabPanel.HARD_WIDTH, HARD_HEIGHT)
+    add(fileOptionsTab, fileOptionsTab.label.title)
+    add(displayOptionsTab, displayOptionsTab.label.title)
+    add(advancedOptionsTab, advancedOptionsTab.label.title)
+  }
+
+  private val selectorLayout = SpringLayout()
+  private val selector = JPanel().apply constructSelector@{
+    layout = selectorLayout.also {
+      it.glue(NORTH, fileOptionsTab.label, this@constructSelector)
+      it.putConstraint(NORTH, displayOptionsTab.label, 0, SOUTH, fileOptionsTab.label)
+      it.putConstraint(NORTH, advancedOptionsTab.label, 0, SOUTH, displayOptionsTab.label)
+      it.glue(WEST, fileOptionsTab.label, this@constructSelector)
+      it.glue(WEST, displayOptionsTab.label, this@constructSelector)
+      it.glue(WEST, advancedOptionsTab.label, this@constructSelector)
+      it.glue(SOUTH, launchTab, this@constructSelector)
+      // Float action button tabs on the bottom
+      it.putConstraint(SOUTH, saveTab, 0, NORTH, launchTab)
+      it.glue(WEST, launchTab, this@constructSelector)
+      it.glue(WEST, saveTab, this@constructSelector)
+    }
+    background = ENV.dark
+    sizeTo(LabelButton.HARD_WIDTH, HARD_HEIGHT)
+    add(fileOptionsTab.label)
+    add(displayOptionsTab.label)
+    add(advancedOptionsTab.label)
+    add(saveTab)
+    add(launchTab)
+  }
+  private val tabOptions = arrayOf(
+    fileOptionsTab,
+    displayOptionsTab,
+    advancedOptionsTab
+  )
+
+  private val dragListener = FrameDragListener { location = it }.also {
+    addMouseMotionListener(it)
+    addMouseListener(it)
+  }
+
+  init {
+    ENV.launcher = this
+    ENV.scope = "Launcher"
+    defaultCloseOperation = EXIT_ON_CLOSE
+    isUndecorated = true
+    isResizable = false
+    isFocusable = true
+    bounds = Rectangle(300, 200, TabPanel.HARD_WIDTH + LabelButton.HARD_WIDTH + 6, HARD_HEIGHT)
+    layout = BorderLayout()
+
+    add(selector, BorderLayout.WEST)
+    add(cards, BorderLayout.CENTER)
+
+    isVisible = true
+    requestFocusInWindow()
+    EventHandler.register()
+  }
+
+  override fun actionPerformed(e: ActionEvent) = when (e.source) {
+    saveTab                  -> save()
+    launchTab                -> launch()
+    closeWindow              -> exitProcess(0)
+
+    fileOptionsTab.label     -> changeCard(fileOptionsTab)
+    displayOptionsTab.label  -> changeCard(displayOptionsTab)
+    advancedOptionsTab.label -> changeCard(advancedOptionsTab)
+
+    else                     -> logger.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
+  }
+
+  private fun save() {
+    ENV.update {
+      archive = fileOptionsTab.archive.banner.text
+      root = fileOptionsTab.root.banner.text
+
+      ordering = fileOptionsTab.ordering.selectedItem as String
+      fontName = displayOptionsTab.fontName.selectedItem as String
+      scaling = CachedImage.SCALING_REMAP[displayOptionsTab.scaling.selectedItem]!!
+
+      speed = advancedOptionsTab.speed.value
+      debounce = advancedOptionsTab.debounce.value.toLong()
+      imageBufferCapacity = advancedOptionsTab.imageBufferCapacity.value
+      intraPlaylistVision = advancedOptionsTab.intraPlaylistVision.value
+
+      direction = displayOptionsTab.directionGroup.selectedItem == LEFT_TO_RIGHT_TEXT
+      paneled = displayOptionsTab.paneledInput.isSelected
+      showFooterFileNumber = displayOptionsTab.showFooterFileNumberInput.isSelected
+      showMarginFileCount = displayOptionsTab.showMarginFileCountInput.isSelected
+      showMarginFileName = displayOptionsTab.showMarginFileNameInput.isSelected
+      showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
+      showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
+      verbose = advancedOptionsTab.verboseInput.isSelected
+    }
+  }
+
+  fun launch() {
+    save()
+    ENV.launcher = null
+    Projector()
+    dispose()
+  }
+
+  private fun changeCard(target: TabPanel) {
+    cardLayout.show(cards, target.label.title)
+    tabOptions.forEach { it.highlighted = (it == target) }
+  }
+
+  fun nextCard() {
+    var nextIndex = tabOptions.indexOfFirst { it.highlighted } + 1
+    if (nextIndex >= tabOptions.size) nextIndex = 0
+    changeCard(tabOptions[nextIndex])
+  }
+}
