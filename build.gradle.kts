@@ -17,6 +17,7 @@ dependencies {
   implementation(kotlin("stdlib-jdk8"))
   implementation(kotlin("reflect"))
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
+  // implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
 
   // Use the Kotlin test library
   testImplementation(kotlin("test"))
