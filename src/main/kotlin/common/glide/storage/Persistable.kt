@@ -3,11 +3,13 @@ package common.glide.storage
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.FileNotFoundException
+import java.nio.file.Paths
 
 
 abstract class Persistable<T : Persistable<T>> constructor() {
   private val filename: String by lazy {
-    "${this::class.simpleName}.json"
+    Paths.get("").toAbsolutePath().resolve("${this::class.simpleName}.json").toString()
   }
   private lateinit var serializer: KSerializer<T>
   private lateinit var json: Json
@@ -33,9 +35,18 @@ abstract class Persistable<T : Persistable<T>> constructor() {
       it.json = this.json
       it.serializer = this.serializer
     }
+  } catch (exc: FileNotFoundException) {
+    println("File $filename not found. Creating it now")
+    File(filename).also {
+      it.parentFile.mkdirs()
+      it.createNewFile()
+    }
+    save()
+    thisT
   } catch (exc: Exception) {
     println("Error loading ${this::class.simpleName} from file $filename")
     exc.printStackTrace()
+    save()
     thisT
   }
 

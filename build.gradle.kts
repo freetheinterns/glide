@@ -22,11 +22,19 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
 
   // Use the Kotlin test library
-  testImplementation(kotlin("test"))
+  testImplementation("junit:junit:4.11")
   testImplementation(kotlin("test-junit"))
 }
 
 application {
   // Define the main class for the application
   mainClassName = "common.glide.MainKt"
+}
+
+tasks {
+  test {
+    dependsOn("cleanTest")
+    failFast = false
+    testLogging.showExceptions = true
+  }
 }

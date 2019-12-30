@@ -1,45 +1,24 @@
 package common.glide.async
 
 import common.glide.utils.extensions.coerceMaximum
-import common.glide.utils.extensions.currentThread
 
 data class Lock(private val key: Any) {
-  private data class Signature(val blocks: HashSet<Any> = hashSetOf()) {
+  private class Signature {
     var invokedAt by coerceMaximum<Long> { 0 }
+    override fun toString(): String =
+      "Lock.Signature(invokedAt=$invokedAt)"
   }
 
   private val context: Signature
-    get() = GLOBAL_LOCKS.getValue(key)
-
-  val lockedThreadName: String
-    get() = "Locked Execution of $key"
-  val isLocked: Boolean
-    get() = context.blocks.isNotEmpty()
+    get() = GLOBAL_LOCKS.getValue(key).also { GLOBAL_LOCKS[key] = it }
 
   fun throttle(millis: Long, block: () -> Unit) = context.let {
-    if (NOW - it.invokedAt <= millis || it.blocks.isNotEmpty())
-      runLocked(block)
-  }
-
-  fun runLocked(block: () -> Unit) {
-    context.apply {
-      invokedAt = NOW
-      if (blocks.isNotEmpty()) return
-
-      val crumb: Double = Math.random()
-      blocks.add(crumb)
+    if (NOW - it.invokedAt >= millis) {
+      it.invokedAt = NOW
       try {
-        val ct = currentThread
-        val currentName = ct.name
-        ct.name = lockedThreadName
         block()
-        ct.name = currentName
-
-      } catch (err: Exception) {
-        println(err.stackTrace.toString())
-        err.printStackTrace()
-      } finally {
-        blocks.remove(crumb)
+      } catch (exc: Exception) {
+        exc.printStackTrace()
       }
     }
   }

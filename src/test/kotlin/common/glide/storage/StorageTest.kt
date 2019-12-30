@@ -12,9 +12,16 @@ class StorageTest {
   ) : Persistable<TT>(serializer())
 
   @Test
+  fun testPersistableSerialization() {
+    val a = TT(bbb = "example")
+    val b = JSON.parse<TT>(TT.serializer(), a.jsonString)
+    assertEquals(a, b)
+  }
+
+  @Test
   fun testIoMemoizer() {
     FILE_SIZES["3"] = 4
     assertEquals(4, FILE_SIZES["3"]!!)
-    println(TT().jsonString)
+    println()
   }
 }

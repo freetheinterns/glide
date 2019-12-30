@@ -99,15 +99,15 @@ val LogRecord.throwable: String
 val <T : Any> T.string: String
   get() = this.toString()
 
-fun <T : Comparable<T>> coerceMaximum(getter: () -> T) = object : ReadWriteProperty<Any, T> {
+fun <T : Comparable<T>> coerceMaximum(getter: () -> T) = object : ReadWriteProperty<Any?, T> {
   private var value: T = getter()
 
-  override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
+  override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
     if (value > this.value)
       this.value = value
   }
 
-  override fun getValue(thisRef: Any, property: KProperty<*>): T {
+  override fun getValue(thisRef: Any?, property: KProperty<*>): T {
     return value
   }
 }
