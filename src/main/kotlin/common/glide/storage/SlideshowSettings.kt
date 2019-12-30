@@ -1,9 +1,15 @@
+@file:UseSerializers(
+  ColorSerializer::class,
+  RegexSerializer::class
+)
+
 package common.glide.storage
 
 import common.glide.gui.Launcher
 import common.glide.slideshow.Projector
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.UseSerializers
 import java.awt.Color
 import java.awt.GraphicsEnvironment
 import java.awt.Image
@@ -12,15 +18,13 @@ import javax.swing.UIManager
 
 @Serializable
 data class SlideshowSettings(
-  // TODO: Register [ColorSerializer] & [RegexSerializer] Globally
-  @Serializable(ColorSerializer::class) var background: Color = Color(15, 15, 15),
-  @Serializable(ColorSerializer::class) var foreground: Color = Color(0, 0, 0),
-  @Serializable(ColorSerializer::class) var dark: Color = Color(27, 28, 27),
-  @Serializable(ColorSerializer::class) var darkSelected: Color = Color(70, 71, 71),
-  @Serializable(ColorSerializer::class) var darkHighlight: Color = Color(103, 102, 100),
-  @Serializable(ColorSerializer::class) var exitRed: Color = Color(232, 17, 35),
+  var background: Color = Color(15, 15, 15),
+  var foreground: Color = Color(0, 0, 0),
+  var dark: Color = Color(27, 28, 27),
+  var darkSelected: Color = Color(70, 71, 71),
+  var darkHighlight: Color = Color(103, 102, 100),
+  var exitRed: Color = Color(232, 17, 35),
 
-  @Serializable(RegexSerializer::class)
   var imagePattern: Regex = "^.+\\.(jpg|png|gif|bmp)$".toRegex(RegexOption.IGNORE_CASE),
 
   var direction: Boolean = true,
@@ -32,8 +36,7 @@ data class SlideshowSettings(
   var showMarginFolderCount: Boolean = true,
   var showMarginFolderName: Boolean = true,
 
-  var imageBufferCapacity: Int = 4,
-  var intraPlaylistVision: Int = 20,
+  var maxImagesPerFrame: Int = 3,
   var scaling: Int = Image.SCALE_AREA_AVERAGING,
   var speed: Int = 2500,
   var debounce: Long = 200L,

@@ -10,8 +10,7 @@ class AdvancedOptionsTabPanel(
   listener: Launcher
 ) : TabPanel("Advanced", totalHeight, listener) {
   val debounce: JSlider
-  val imageBufferCapacity: JSlider
-  val intraPlaylistVision: JSlider
+  val maxImagesPerFrame: JSlider
   val speed: JSlider
 
   val verboseInput: JCheckBox
@@ -36,19 +35,12 @@ class AdvancedOptionsTabPanel(
       value = ENV.debounce.toInt(),
       labelFormat = "One keystroke may register every %dms"
     )
-    intraPlaylistVision = buildSlider(
+    maxImagesPerFrame = buildSlider(
       name = "Lookahead",
-      min = 5,
-      max = 105,
-      value = ENV.intraPlaylistVision,
-      labelFormat = "<html>Affects CPU<br/>Caching enforced within %d frames</html>"
-    )
-    imageBufferCapacity = buildSlider(
-      name = "Buffer",
-      min = 2,
+      min = 1,
       max = 10,
-      value = ENV.imageBufferCapacity,
-      labelFormat = "<html>Affects Memory<br/>Images buffered within %d frames</html>"
+      value = ENV.maxImagesPerFrame,
+      labelFormat = "<html>Affects Rendering<br/>Will display at most %d images per frame</html>"
     )
   }
 }

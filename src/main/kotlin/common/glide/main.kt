@@ -6,10 +6,7 @@ import common.glide.utils.extensions.throwable
 import java.awt.GraphicsEnvironment
 import java.util.logging.*
 
-
-fun main(args: Array<String>) {
-  defineLookAndFeel()
-
+internal fun defineLogger() {
   val baseLogger = Logger.getLogger("")
   baseLogger.level = Level.INFO
   baseLogger.handlers.forEach {
@@ -20,6 +17,11 @@ fun main(args: Array<String>) {
       }
     }
   }
+}
+
+fun main(args: Array<String>) {
+  defineLookAndFeel()
+  defineLogger()
 
   try {
     Launcher()

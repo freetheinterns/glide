@@ -5,6 +5,7 @@ import java.awt.Component
 import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.Font
+import java.awt.Graphics
 import java.awt.GraphicsDevice
 import java.awt.Image
 import java.awt.Point
@@ -36,6 +37,11 @@ fun GraphicsDevice.chooseBestDisplayMode() {
   if (nextMode != null) {
     displayMode = nextMode
   }
+}
+
+fun Graphics.use(block: (Graphics) -> Unit) {
+  block(this)
+  dispose()
 }
 
 

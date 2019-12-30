@@ -137,8 +137,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     ENV.scaling = CachedImage.SCALING_REMAP[displayOptionsTab.scaling.selectedItem]!!
     ENV.speed = advancedOptionsTab.speed.value
     ENV.debounce = advancedOptionsTab.debounce.value.toLong()
-    ENV.imageBufferCapacity = advancedOptionsTab.imageBufferCapacity.value
-    ENV.intraPlaylistVision = advancedOptionsTab.intraPlaylistVision.value
+    ENV.maxImagesPerFrame = advancedOptionsTab.maxImagesPerFrame.value
     ENV.direction = displayOptionsTab.directionGroup.selectedItem == LEFT_TO_RIGHT_TEXT
     ENV.paneled = displayOptionsTab.paneledInput.isSelected
     ENV.showFooterFileNumber = displayOptionsTab.showFooterFileNumberInput.isSelected

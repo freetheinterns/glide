@@ -15,6 +15,7 @@ import common.glide.utils.extensions.dimension
 import common.glide.utils.extensions.imageCount
 import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.superGC
+import common.glide.utils.extensions.use
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -134,11 +135,11 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   }
 
   private inline infix fun drawPage(crossinline painter: (Graphics) -> Unit) {
-    val g = bufferStrategy.drawGraphics
-    wipeScreen(g)
-    painter(g)
+    bufferStrategy.drawGraphics.use {
+      wipeScreen(it)
+      painter(it)
+    }
     bufferStrategy.show()
-    g.dispose()
   }
 
   ///////////////////////////////////////
@@ -176,17 +177,17 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   }
 
   private fun updateCaching() {
-    val cacheFront = index - max(0, index.secondary - ENV.intraPlaylistVision)
+    val cacheFront = index - max(0, index.secondary - ENV.maxImagesPerFrame * 2)
     while (cacheFront.hasNext()) {
       val offset = abs(cacheFront.compareTo(index))
-      if (offset > ENV.intraPlaylistVision)
+      if (offset > ENV.maxImagesPerFrame * 2)
         return
 
       GlobalScope.launch(Dispatchers.IO) {
         when {
-          offset < ENV.imageBufferCapacity     -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
-          offset < ENV.imageBufferCapacity + 2 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
-          else                                 -> cacheFront.current.cacheLevel = CACHED_FILE
+          offset < ENV.maxImagesPerFrame     -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
+          offset < ENV.maxImagesPerFrame + 2 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
+          else                               -> cacheFront.current.cacheLevel = CACHED_FILE
         }
       }
       cacheFront.next()
