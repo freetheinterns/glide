@@ -175,15 +175,22 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   }
 
   private fun project() {
-    if (ENV.paneled && index.secondary < index.maxSecondary - 1) {
-      val next = index + 1
-      val margin = (size.width - index.current.width - next.current.width) / 2
-      if (margin >= 0) {
-        geometry = constructGeometry(index, next)
-        return
-      }
-    }
-    geometry = constructGeometry(index)
+    val pages: MutableList<ImageIndex> = mutableListOf()
+    var margin = size.width
+    var focus = index.copy
+
+    do {
+      margin -= focus.current.width
+      if (margin < 0) break
+      pages.add(focus)
+      focus = focus + 1
+    } while (
+      ENV.paneled &&                     // Panelling is enabled
+      focus.primary == index.primary &&  // We are still in the current Catalog
+      pages.size < ENV.maxImagesPerFrame // Honor upper bound
+    )
+
+    geometry = constructGeometry(*pages.toTypedArray())
   }
 
   private fun render() {
