@@ -13,7 +13,7 @@ abstract class Persistable<T : Persistable<T>> private constructor() {
   private lateinit var json: Json
 
   // Only safe if T is the implementing class of [this]
-  // EG: class Example() : P2<Example>()
+  // EG: class Example() : Persistable<Example>()
   private val thisT: T
     @Suppress("UNCHECKED_CAST") get() = this as T
 
