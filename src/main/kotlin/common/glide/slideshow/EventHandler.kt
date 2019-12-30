@@ -2,7 +2,7 @@ package common.glide.slideshow
 
 import common.glide.async.Lock
 import common.glide.storage.ENV
-import common.glide.storage.KeyBindings
+import common.glide.storage.KEY_BINDINGS
 import common.glide.utils.extensions.buttonString
 import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.string
@@ -44,14 +44,14 @@ object EventHandler : KeyEventDispatcher, MouseListener {
   private fun handleKey(code: KeyEvent) {
     Lock(code.string).throttle(ENV.debounce) {
       logger.info(code.string)
-      KeyBindings.triggerByCode(code.keyCode)
+      KEY_BINDINGS.trigger(code.keyCode)
     }
   }
 
   override fun mousePressed(e: MouseEvent) {
     logger.info(e.string)
     when (e.buttonString) {
-      "Left" -> KeyBindings.trigger("pageForward")
+      "Left" -> KEY_BINDINGS.trigger("pageForward")
     }
   }
 

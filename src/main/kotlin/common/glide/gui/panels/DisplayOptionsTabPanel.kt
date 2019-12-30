@@ -3,14 +3,15 @@ package common.glide.gui.panels
 import common.glide.gui.Launcher
 import common.glide.slideshow.CachedImage
 import common.glide.storage.ENV
+import common.glide.storage.SlideshowSettings
 import common.glide.utils.FontNameRenderer
 import java.awt.Font
 import javax.swing.JCheckBox
 import javax.swing.JComboBox
 
 class DisplayOptionsTabPanel(
-        totalHeight: Int,
-        listener: Launcher
+  totalHeight: Int,
+  listener: Launcher
 ) : TabPanel("Display", totalHeight, listener) {
   companion object {
     private const val LEFT_TO_RIGHT_TEXT = Launcher.LEFT_TO_RIGHT_TEXT
@@ -69,7 +70,7 @@ class DisplayOptionsTabPanel(
     )
     fontName = buildComboBox(
       description = "Font Family",
-      options = ENV.FONT_FAMILIES,
+      options = SlideshowSettings.FONT_FAMILIES,
       selected = ENV.fontName
     )
     fontName.font = Font(ENV.fontName, Font.BOLD, labelFontSize)

@@ -4,8 +4,6 @@ import common.glide.slideshow.Catalog
 import common.glide.storage.ENV
 import java.io.File
 import java.io.FileFilter
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -22,27 +20,6 @@ fun File.listMatchingDirectories(): List<File> =
 
 fun File.listImages(): List<File> =
   listFiles(ImagesFilter())?.toList() ?: listOf()
-
-fun <T> File.writeObject(obj: T) {
-  outputStream().also {
-    ObjectOutputStream(it).apply {
-      writeObject(obj)
-    }.close()
-  }.close()
-}
-
-fun File.readObject(): Any {
-  val obj: Any
-
-  inputStream().also {
-    ObjectInputStream(it).apply {
-      obj = readObject()
-    }.close()
-  }.close()
-
-  return obj
-}
-
 
 ///////////////////////////////////////
 // File Filters

@@ -2,14 +2,12 @@ package common.glide.utils.extensions
 
 import java.awt.Color
 import java.awt.Component
-import java.awt.Container
 import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.Font
 import java.awt.GraphicsDevice
 import java.awt.Image
 import java.awt.Point
-import java.awt.event.KeyListener
 import javax.swing.JComponent
 import javax.swing.SpringLayout
 
@@ -62,9 +60,6 @@ val Color.invert: Color
 val Image.width: Int
   get() = getWidth(null)
 
-val Image.height: Int
-  get() = getHeight(null)
-
 
 ///////////////////////////////////////
 // Font Extensions
@@ -98,20 +93,4 @@ fun JComponent.sizeTo(w: Int, h: Int) {
   minimumSize = Dimension(w, h)
   preferredSize = Dimension(w, h)
   size = Dimension(w, h)
-}
-
-val Container.allComponents: List<Component>
-  get() = this.components.flatMap {
-    if (it is Container) {
-      arrayListOf(it, *it.allComponents.toTypedArray()).asIterable()
-    } else {
-      arrayOf(it).asIterable()
-    }
-  }
-
-fun Container.setShortcutListener(kl: KeyListener) {
-  allComponents.forEach {
-    it.addKeyListener(kl)
-    it.isFocusable = true
-  }
 }

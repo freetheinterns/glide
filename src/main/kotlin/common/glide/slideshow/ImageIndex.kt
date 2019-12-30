@@ -91,6 +91,7 @@ class ImageIndex(
       other.primary -> secondary - other.secondary
       else          -> (primary - other.primary) * 1000
     }
+
   override fun equals(other: Any?) =
     when (other) {
       is ImageIndex -> primary == other.primary && secondary == other.secondary

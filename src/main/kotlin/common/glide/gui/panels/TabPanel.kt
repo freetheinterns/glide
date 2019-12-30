@@ -27,9 +27,9 @@ import javax.swing.SpringLayout.WEST
 import kotlin.system.exitProcess
 
 open class TabPanel(
-        title: String,
-        totalHeight: Int,
-        private val listener: Launcher
+  title: String,
+  totalHeight: Int,
+  private val listener: Launcher
 ) : JPanel() {
   var highlighted = false
   val label = LabelButton(title, listener)
@@ -126,9 +126,9 @@ open class TabPanel(
   }
 
   fun buildCheckBox(
-          name: String,
-          selected: Boolean,
-          description: String? = null
+    name: String,
+    selected: Boolean,
+    description: String? = null
   ): JCheckBox {
     val box = CheckBox(name, selected)
     box.alignmentX = Component.LEFT_ALIGNMENT
@@ -144,10 +144,10 @@ open class TabPanel(
   }
 
   fun <T> buildComboBox(
-          name: String? = null,
-          options: Array<T>?,
-          selected: T?,
-          description: String? = null
+    name: String? = null,
+    options: Array<T>?,
+    selected: T?,
+    description: String? = null
   ): JComboBox<T> {
     val box = ComboBox(options)
     box.selectedItem = selected ?: box.selectedItem
@@ -183,9 +183,9 @@ open class TabPanel(
   }
 
   fun buildChooser(
-          name: String,
-          home: String,
-          description: String? = null
+    name: String,
+    home: String,
+    description: String? = null
   ): DirectoryChooser {
     val chooser = DirectoryChooser(home, listener)
     chooser.alignmentX = Component.LEFT_ALIGNMENT

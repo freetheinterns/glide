@@ -3,11 +3,12 @@ package common.glide.gui.panels
 import common.glide.gui.Launcher
 import common.glide.gui.components.DirectoryChooser
 import common.glide.storage.ENV
+import common.glide.storage.SlideshowSettings
 import javax.swing.JComboBox
 
 class FileOptionsTabPanel(
-        totalHeight: Int,
-        listener: Launcher
+  totalHeight: Int,
+  listener: Launcher
 ) : TabPanel("Directories", totalHeight, listener) {
   val root: DirectoryChooser = buildChooser(
     name = "Home",
@@ -22,7 +23,7 @@ class FileOptionsTabPanel(
 
   val ordering: JComboBox<String> = buildComboBox(
     name = "Folder Sort",
-    options = ENV.ORDER_ENUMS,
+    options = SlideshowSettings.ORDER_ENUMS,
     selected = ENV.ordering
   )
 }

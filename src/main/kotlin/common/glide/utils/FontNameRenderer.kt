@@ -9,11 +9,11 @@ import javax.swing.JList
 
 internal class FontNameRenderer : DefaultListCellRenderer() {
   override fun getListCellRendererComponent(
-          list: JList<*>,
-          value: Any?,
-          index: Int,
-          isSelected: Boolean,
-          cellHasFocus: Boolean
+    list: JList<*>,
+    value: Any?,
+    index: Int,
+    isSelected: Boolean,
+    cellHasFocus: Boolean
   ): Component {
     val label = super.getListCellRendererComponent(
       list, value, index, isSelected, cellHasFocus) as JLabel

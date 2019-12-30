@@ -18,15 +18,15 @@ import javax.swing.border.Border
 import javax.swing.border.EmptyBorder
 
 class LabelButton(
-        val title: String,
-        private val listener: ActionListener,
-        private val defaultBackground: Color = ENV.dark,
-        private val defaultSelected: Color = ENV.darkSelected,
-        foreground: Color = ENV.foreground,
-        width: Int = HARD_WIDTH,
-        height: Int = HARD_HEIGHT,
-        borderObj: Border = EmptyBorder(0, 20, 0, 0),
-        private val artist: (Graphics2D) -> Unit = {}
+  val title: String,
+  private val listener: ActionListener,
+  private val defaultBackground: Color = ENV.dark,
+  private val defaultSelected: Color = ENV.darkSelected,
+  foreground: Color = ENV.foreground,
+  width: Int = HARD_WIDTH,
+  height: Int = HARD_HEIGHT,
+  borderObj: Border = EmptyBorder(0, 20, 0, 0),
+  private val artist: (Graphics2D) -> Unit = {}
 ) : JPanel(), MouseListener, MouseMotionListener {
   private val label = JLabel(title)
 

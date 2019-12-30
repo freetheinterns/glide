@@ -6,8 +6,8 @@ import javax.swing.JCheckBox
 import javax.swing.JSlider
 
 class AdvancedOptionsTabPanel(
-        totalHeight: Int,
-        listener: Launcher
+  totalHeight: Int,
+  listener: Launcher
 ) : TabPanel("Advanced", totalHeight, listener) {
   val debounce: JSlider
   val imageBufferCapacity: JSlider

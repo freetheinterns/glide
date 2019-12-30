@@ -3,18 +3,14 @@ package common.glide.utils.extensions
 import java.awt.DisplayMode
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.*
 import java.util.logging.*
 import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
-import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
 import kotlin.reflect.full.companionObject
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.memberProperties
 
 
 ///////////////////////////////////////
@@ -173,53 +169,6 @@ inline fun <reified T> blindObserver(
 // Reflection Extensions
 ///////////////////////////////////////
 
-/**
- * @receiver T instance of Any
- * @return Collection<KProperty1<*, *>> all available properties for the instance
- */
-val <T : Any> T.properties: Collection<KProperty1<*, *>>
-  get() {
-    val props = ArrayList<KProperty1<*, *>>()
-    if (this is KClass<*>) {
-      props.addAll(this.memberProperties)
-    } else {
-      props.addAll(this::class.memberProperties)
-    }
-
-    val companion = this::class.companionObject
-    if (companion is KClass<*>) {
-      props.addAll(companion.memberProperties)
-    }
-    return props
-  }
-
-/**
- * @receiver T instance of Any
- * @param name String matching the name of a property on T
- * @return Any? value stored on T in the property indicated by name
- */
-fun <T : Any> T.getAttribute(name: String): Any? {
-  val property = this::class.properties.find { it.name == name }
-  if (property is KProperty1<*, *>) {
-    return property.getter.call(this)
-  } else {
-    throw NotImplementedError("Could not find property named $name on instance of class: ${this::class.simpleName}")
-  }
-}
-
-/**
- * @receiver T instance of Any
- * @param name String matching the name of a WRITABLE property on T
- * @param value Any? value to be written to
- */
-fun <T : Any, U> T.setAttribute(name: String, value: U) {
-  val property = this::class.properties.find { it.name == name }
-  if (property is KMutableProperty<*>) {
-    property.setter.call(this, value)
-  } else {
-    throw NotImplementedError("Could not find property named $name on instance of class: ${this::class.simpleName}")
-  }
-}
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

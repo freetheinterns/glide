@@ -23,15 +23,6 @@ val <K, V> Map<K, V>.reversed: HashMap<V, K>
 
 
 ///////////////////////////////////////
-// Regex Extensions
-///////////////////////////////////////
-
-fun Regex.groupValues(input: String): List<String> {
-  return this.find(input)!!.groups.map { it!!.value }
-}
-
-
-///////////////////////////////////////
 // Primitive Extensions
 ///////////////////////////////////////
 

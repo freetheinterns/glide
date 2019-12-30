@@ -32,6 +32,7 @@ build
 
 # Project specific
 *.java.object
+*.json
 *.iml
 
 # Blacklist
