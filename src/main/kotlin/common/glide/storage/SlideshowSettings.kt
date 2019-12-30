@@ -32,8 +32,8 @@ data class SlideshowSettings(
   var showMarginFolderCount: Boolean = true,
   var showMarginFolderName: Boolean = true,
 
-  var imageBufferCapacity: Int = 2,
-  var intraPlaylistVision: Int = 50,
+  var imageBufferCapacity: Int = 4,
+  var intraPlaylistVision: Int = 20,
   var scaling: Int = Image.SCALE_AREA_AVERAGING,
   var speed: Int = 2500,
   var debounce: Long = 200L,
@@ -51,13 +51,15 @@ data class SlideshowSettings(
     const val FOLDER_CREATED = "Folder Created@"
     const val FOLDER_DATA = "Data MB"
     const val FOLDER_UPDATED = "Folder Updated@"
+    const val RANDOM_ORDER = "Random"
     val ORDER_ENUMS = arrayOf(
       ALPHABETICAL,
       FILE_COUNT,
       FOLDER_ACCESSED,
       FOLDER_CREATED,
       FOLDER_DATA,
-      FOLDER_UPDATED
+      FOLDER_UPDATED,
+      RANDOM_ORDER
     )
     val FONT_FAMILIES: Array<String> =
       GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames

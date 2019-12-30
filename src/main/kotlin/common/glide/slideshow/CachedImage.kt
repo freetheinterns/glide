@@ -65,6 +65,8 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   }
 
   private fun resizeFullImage(): Image {
+    if (ENV.projector == null)
+      return image
     val adjustedDimension = image.dimension * (ENV.projector!!.size / image.dimension)
     if (image.dimension == adjustedDimension) return image
     return image.getScaledInstance(adjustedDimension.width, adjustedDimension.height, ENV.scaling)
@@ -79,6 +81,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
 
   override fun build(xOffset: Int, yOffset: Int): Geometry {
     drawPosition = Dimension(xOffset, yOffset)
+    cacheLevel = CACHE_RESIZED_IMAGE
     return this
   }
 

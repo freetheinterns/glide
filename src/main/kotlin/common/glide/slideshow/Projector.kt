@@ -15,6 +15,9 @@ import common.glide.utils.extensions.dimension
 import common.glide.utils.extensions.imageCount
 import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.superGC
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.GraphicsEnvironment
@@ -176,11 +179,15 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     val cacheFront = index - max(0, index.secondary - ENV.intraPlaylistVision)
     while (cacheFront.hasNext()) {
       val offset = abs(cacheFront.compareTo(index))
-      when {
-        offset < ENV.imageBufferCapacity     -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
-        offset < ENV.imageBufferCapacity + 1 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
-        offset > ENV.intraPlaylistVision     -> return
-        else                                 -> cacheFront.current.cacheLevel = CACHED_FILE
+      if (offset > ENV.intraPlaylistVision)
+        return
+
+      GlobalScope.launch(Dispatchers.IO) {
+        when {
+          offset < ENV.imageBufferCapacity     -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
+          offset < ENV.imageBufferCapacity + 2 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
+          else                                 -> cacheFront.current.cacheLevel = CACHED_FILE
+        }
       }
       cacheFront.next()
     }

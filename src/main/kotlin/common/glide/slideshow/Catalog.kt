@@ -8,6 +8,7 @@ import common.glide.utils.extensions.createdAt
 import common.glide.utils.extensions.listImages
 import common.glide.utils.extensions.updatedAt
 import java.io.File
+import java.lang.Math.random
 
 class Catalog(val file: File) : Comparable<Catalog> {
   private val cachedImages: List<CachedImage> = file.listImages().map(::CachedImage).sorted()
@@ -29,6 +30,7 @@ class Catalog(val file: File) : Comparable<Catalog> {
       SlideshowSettings.FOLDER_ACCESSED -> it.file.accessedAt
       SlideshowSettings.FOLDER_UPDATED  -> it.file.updatedAt
       SlideshowSettings.FOLDER_DATA     -> it.folderSize
+      SlideshowSettings.RANDOM_ORDER    -> random()
       else                              -> it.path
     }
   }

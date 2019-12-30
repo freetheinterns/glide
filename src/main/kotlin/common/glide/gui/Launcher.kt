@@ -31,7 +31,7 @@ import kotlin.system.exitProcess
 
 class Launcher : JFrame("Projector: Settings"), ActionListener {
   companion object {
-    private const val HARD_HEIGHT = 800
+    private const val HARD_HEIGHT = 900
 
     const val LEFT_TO_RIGHT_TEXT = ":LtR (JA)"
     const val RIGHT_TO_LEFT_TEXT = ":RtL (EN)"
