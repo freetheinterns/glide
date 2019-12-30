@@ -11,7 +11,13 @@ import java.io.File
 import java.lang.Math.random
 
 class Catalog(val file: File) : Comparable<Catalog> {
-  private val cachedImages: List<CachedImage> = file.listImages().map(::CachedImage).sorted()
+  private val cachedImages: Array<CachedImage> =
+    file
+      .listImages()
+      .map(::CachedImage)
+      .sorted()
+      .toTypedArray()
+
   private val fileCount: Int
     get() = cachedImages.size
 

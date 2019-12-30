@@ -12,8 +12,8 @@ import java.nio.file.attribute.BasicFileAttributes
 // File Extensions
 ///////////////////////////////////////
 
-val File.catalogs: List<Catalog>
-  get() = this.listMatchingDirectories().map(::Catalog).sorted()
+val File.catalogs: Array<Catalog>
+  get() = this.listMatchingDirectories().map(::Catalog).sorted().toTypedArray()
 
 fun File.listMatchingDirectories(): List<File> =
   listFiles(DirectoryFilter())?.toList() ?: listOf()

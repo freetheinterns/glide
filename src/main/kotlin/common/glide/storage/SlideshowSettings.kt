@@ -7,6 +7,8 @@ package common.glide.storage
 
 import common.glide.gui.Launcher
 import common.glide.slideshow.Projector
+import common.glide.storage.serialization.ColorSerializer
+import common.glide.storage.serialization.RegexSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers

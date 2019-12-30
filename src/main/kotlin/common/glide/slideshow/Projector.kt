@@ -49,7 +49,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
   var geometry by blindObserver(arrayOf<Geometry>(), ::render)
   val index: ImageIndex by always { _index!! }
-  val library: List<Catalog> by always { _library!! }
+  val library: Array<Catalog> by always { _library!! }
   var scaling: Int = ENV.scaling
     set(value) {
       logger.info("Updating scaling from: ${ENV.scaling}, to: $value")
@@ -61,7 +61,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     }
 
   private var _index: ImageIndex? by cache { ImageIndex(library) }
-  private var _library: List<Catalog>? by cache { File(ENV.root).catalogs }
+  private var _library: Array<Catalog>? by cache { File(ENV.root).catalogs }
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
@@ -152,23 +152,38 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   // - updateCaching() which re-evaluates the caching states of buffered images
   ///////////////////////////////////////
 
+  private fun constructGeometry(
+    vararg pages: ImageIndex
+  ): Array<Geometry> {
+
+    var margin = size.width
+      .minus(pages.sumBy { it.current.width })
+      .div(2)
+
+    val pageGeometry: Array<Geometry> = pages.run {
+      if (ENV.direction) reversed() else toList()
+    }.map {
+      it.current.build(margin).apply {
+        margin += it.current.width
+      }
+    }.toTypedArray()
+
+    return arrayOf(
+      *pageGeometry,
+      marginPanel.build()
+    )
+  }
+
   private fun project() {
     if (ENV.paneled && index.secondary < index.maxSecondary - 1) {
       val next = index + 1
       val margin = (size.width - index.current.width - next.current.width) / 2
       if (margin >= 0) {
-        geometry = arrayOf(
-          index.current.build(size.width - margin - index.current.width),
-          next.current.build(margin),
-          marginPanel.build(margin)
-        )
+        geometry = constructGeometry(index, next)
         return
       }
     }
-    geometry = arrayOf(
-      index.current.build((size.width / 2) - (index.current.width / 2)),
-      marginPanel.build((size.width - index.current.width) / 2)
-    )
+    geometry = constructGeometry(index)
   }
 
   private fun render() {
@@ -276,7 +291,10 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
       val target = library[targetPosition].file
 
       _index = null
-      _library = library.filter { !it.path.startsWith(target.absolutePath) }
+      _library = library.filter {
+        !it.path.startsWith(target.absolutePath)
+      }.toTypedArray()
+
       geometry = arrayOf()
 
       operation(target)

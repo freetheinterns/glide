@@ -5,7 +5,6 @@ import common.glide.utils.extensions.CACHED_FILE
 import common.glide.utils.extensions.CACHED_PATH
 import common.glide.utils.extensions.CACHE_FULL_IMAGE
 import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
-import common.glide.utils.extensions.always
 import common.glide.utils.extensions.cache
 import common.glide.utils.extensions.dimension
 import common.glide.utils.extensions.div
@@ -23,11 +22,14 @@ import javax.imageio.ImageIO
 class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   private var drawPosition = Dimension(0, 0)
   private var _image: BufferedImage? by cache { ImageIO.read(file) }
-  private val image: BufferedImage by always { _image!! }
-  val name: String by always { file.name }
-  var sizedImage: Image? by cache(::resizeFullImage)
+  private val image: BufferedImage
+    get() = _image!!
+  private var sizedImage: Image? by cache(::resizeFullImage)
+
   val rawBytes: Long by cache { file.length() }
   val width: Int by lazy { sizedImage!!.width }
+  val name: String
+    get() = file.name
   var cacheLevel: Int = CACHED_FILE
     set(next) {
       when (next) {

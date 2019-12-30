@@ -7,7 +7,7 @@ import common.glide.utils.extensions.string
 import kotlin.math.abs
 
 class ImageIndex(
-  private val library: List<Catalog>,
+  private val library: Array<Catalog>,
   playlistIndex: Int = 0,
   slideIndex: Int = 0
 ) : ListIterator<CachedImage>, Comparable<ImageIndex> {

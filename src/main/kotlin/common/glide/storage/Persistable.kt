@@ -1,5 +1,6 @@
 package common.glide.storage
 
+import common.glide.storage.serialization.JSON
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import java.io.File

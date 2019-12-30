@@ -1,4 +1,4 @@
-package common.glide.storage
+package common.glide.storage.serialization
 
 import kotlinx.serialization.Decoder
 import kotlinx.serialization.Encoder
