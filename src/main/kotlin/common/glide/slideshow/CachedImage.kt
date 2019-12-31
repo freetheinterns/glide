@@ -8,6 +8,7 @@ import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
 import common.glide.utils.extensions.cache
 import common.glide.utils.extensions.dimension
 import common.glide.utils.extensions.div
+import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.reversed
 import common.glide.utils.extensions.times
 import common.glide.utils.extensions.width
@@ -39,7 +40,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
           sizedImage = null
         }
         CACHE_FULL_IMAGE    -> image
-        CACHE_RESIZED_IMAGE -> sizedImage
+        CACHE_RESIZED_IMAGE -> logger.info("Ensure cache of $name width=$width")
       }
       field = next
     }

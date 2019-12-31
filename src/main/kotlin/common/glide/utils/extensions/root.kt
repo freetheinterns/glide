@@ -4,7 +4,6 @@ import java.awt.DisplayMode
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.logging.*
-import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KCallable
 import kotlin.reflect.KClass
@@ -26,33 +25,6 @@ val BEST_DISPLAY_MODES = arrayOf(
   DisplayMode(2560, 1440, 16, 0),
   DisplayMode(2560, 1440, 8, 0)
 )
-
-
-///////////////////////////////////////
-// Global Functions
-///////////////////////////////////////
-
-/**
- * Runs System gc & finalization twice
- *
- * @param timeout Long for the milliseconds slept in-between each action
- */
-fun superGC(timeout: Long = 100) {
-  try {
-    System.gc()
-    Thread.sleep(timeout)
-    System.runFinalization()
-    Thread.sleep(timeout)
-    System.gc()
-    Thread.sleep(timeout)
-    System.runFinalization()
-  } catch (ex: InterruptedException) {
-    ex.printStackTrace()
-  }
-}
-
-val currentThread: Thread
-  get() = Thread.currentThread()
 
 
 ///////////////////////////////////////
@@ -112,12 +84,6 @@ fun <T : Comparable<T>> coerceMaximum(getter: () -> T) = object : ReadWritePrope
   }
 }
 
-
-inline fun <T> always(crossinline getter: () -> T) = object : ReadOnlyProperty<Any, T> {
-  override fun getValue(thisRef: Any, property: KProperty<*>): T {
-    return getter()
-  }
-}
 
 /**
  * Implements a cached property with an inline block

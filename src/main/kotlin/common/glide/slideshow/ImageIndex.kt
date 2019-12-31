@@ -1,6 +1,5 @@
 package common.glide.slideshow
 
-import common.glide.utils.extensions.always
 import common.glide.utils.extensions.blindObserver
 import common.glide.utils.extensions.cache
 import common.glide.utils.extensions.string
@@ -14,12 +13,15 @@ class ImageIndex(
   private var _current: CachedImage? by cache { library[primary][secondary] }
   private var _maxSecondary: Int? by cache { library[primary].size }
 
-  val current: CachedImage by always { _current!! }
+  val current: CachedImage
+    get() = _current!!
   var primary by blindObserver(playlistIndex) { _maxSecondary = null; _current = null; secondary = 0 }
   var secondary by blindObserver(slideIndex) { _current = null }
   var maxPrimary by cache { library.size }
-  val maxSecondary: Int by always { _maxSecondary!! }
-  val copy by always { ImageIndex(library, primary, secondary) }
+  val maxSecondary: Int
+    get() = _maxSecondary!!
+  val copy
+    get() = ImageIndex(library, primary, secondary)
 
   private fun walk(steps: Int): ImageIndex {
     repeat(abs(steps)) {

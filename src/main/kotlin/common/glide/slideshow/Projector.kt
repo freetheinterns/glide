@@ -6,7 +6,6 @@ import common.glide.storage.KEY_BINDINGS
 import common.glide.utils.extensions.CACHED_FILE
 import common.glide.utils.extensions.CACHE_FULL_IMAGE
 import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
-import common.glide.utils.extensions.always
 import common.glide.utils.extensions.blindObserver
 import common.glide.utils.extensions.cache
 import common.glide.utils.extensions.catalogs
@@ -14,7 +13,6 @@ import common.glide.utils.extensions.chooseBestDisplayMode
 import common.glide.utils.extensions.dimension
 import common.glide.utils.extensions.imageCount
 import common.glide.utils.extensions.logger
-import common.glide.utils.extensions.superGC
 import common.glide.utils.extensions.use
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +29,7 @@ import javax.swing.Timer
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.system.exitProcess
+import kotlin.system.measureTimeMillis
 
 /**
  * @property geometry Array<Geometry>
@@ -48,8 +47,10 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
 
   var geometry by blindObserver(arrayOf<Geometry>(), ::render)
-  val index: ImageIndex by always { _index!! }
-  val library: Array<Catalog> by always { _library!! }
+  val index: ImageIndex
+    get() = _index!!
+  val library: Array<Catalog>
+    get() = _library!!
   var scaling: Int = ENV.scaling
     set(value) {
       logger.info("Updating scaling from: ${ENV.scaling}, to: $value")
@@ -97,7 +98,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     createBufferStrategy(2)
 
     // Draw initial black background
-    drawPage {}
+    drawPage()
 
     // IMPORTANT!! Register the screen globally
     ENV.projector = this
@@ -134,12 +135,16 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     g.color = oldColor
   }
 
-  private inline infix fun drawPage(crossinline painter: (Graphics) -> Unit) {
-    bufferStrategy.drawGraphics.use {
-      wipeScreen(it)
-      painter(it)
+  private fun drawPage(painter: ((Graphics) -> Unit)? = null) {
+    val drawTime = measureTimeMillis {
+      bufferStrategy.drawGraphics.use {
+        wipeScreen(it)
+        painter?.invoke(it)
+      }
+      bufferStrategy.show()
     }
-    bufferStrategy.show()
+
+    logger.info("Spent $drawTime ms drawing")
   }
 
   ///////////////////////////////////////
@@ -155,7 +160,6 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   private fun constructGeometry(
     vararg pages: ImageIndex
   ): Array<Geometry> {
-
     var margin = size.width
       .minus(pages.sumBy { it.current.width })
       .div(2)
@@ -168,6 +172,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
       }
     }.toTypedArray()
 
+    logger.info("geo: ${System.currentTimeMillis()}")
     return arrayOf(
       *pageGeometry,
       marginPanel.build()
@@ -193,27 +198,43 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     geometry = constructGeometry(*pages.toTypedArray())
   }
 
+
   private fun render() {
-    drawPage { g -> geometry.forEach { it.paint(g) } }
+    drawPage { g ->
+      geometry.forEach { it.paint(g) }
+    }
+
+    drawPage { g ->
+      val focus = index + geometry.imageCount
+      repeat(ENV.maxImagesPerFrame) {
+        focus.current.build(size.width * 2, size.height * 2).paint(g)
+        focus.inc()
+      }
+
+      wipeScreen(g)
+
+      geometry.forEach { it.paint(g) }
+    }
     if (geometry.isNotEmpty()) updateCaching()
   }
 
   private fun updateCaching() {
-    val cacheFront = index - max(0, index.secondary - ENV.maxImagesPerFrame * 2)
+    val cacheFront = index - max(0, index.secondary - ENV.maxImagesPerFrame * 4)
     while (cacheFront.hasNext()) {
       val offset = abs(cacheFront.compareTo(index))
-      if (offset > ENV.maxImagesPerFrame * 2)
+      if (offset > ENV.maxImagesPerFrame * 4)
         return
 
       GlobalScope.launch(Dispatchers.IO) {
         when {
-          offset < ENV.maxImagesPerFrame     -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
-          offset < ENV.maxImagesPerFrame + 2 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
+          offset < ENV.maxImagesPerFrame * 2 -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
+          offset < ENV.maxImagesPerFrame * 3 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
           else                               -> cacheFront.current.cacheLevel = CACHED_FILE
         }
       }
       cacheFront.next()
     }
+
   }
 
   ///////////////////////////////////////
@@ -292,7 +313,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     crossinline operation: (File) -> Unit
   ) {
 
-    drawPage {}
+    drawPage()
 
     try {
       val target = library[targetPosition].file
@@ -309,7 +330,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
       throw err
     }
 
-    superGC(50)
+    System.gc()
 
     softJump(jumpPosition)
   }

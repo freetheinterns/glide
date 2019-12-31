@@ -4,6 +4,7 @@ import common.glide.slideshow.CachedImage
 import common.glide.utils.extensions.Scope
 import common.glide.utils.extensions.scopes
 import kotlinx.serialization.Serializable
+import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 
@@ -34,9 +35,14 @@ data class KeyBindings(
 ) : Persistable<KeyBindings>(serializer()) {
 
   fun trigger(name: String) =
-    this::class.members.forEach {
-      if (it.name == name && it.scopes.contains(ENV.scope))
-        it.call(this)
+    thread(
+      isDaemon = true,
+      priority = 2,
+      name = "KeyEvent-$name"
+    ) {
+      this::class.members.firstOrNull {
+        it.name == name && it.scopes.contains(ENV.scope)
+      }?.call(this)
     }
 
   fun trigger(code: Int) = trigger(keyMap[ENV.scope]?.get(code) ?: "noBinding")
