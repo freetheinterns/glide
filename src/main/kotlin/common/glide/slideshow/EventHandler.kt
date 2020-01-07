@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 
 object EventHandler : KeyEventDispatcher, MouseListener {
+  private val log by logger()
   private var isRegistered = false
 
   fun register() {
@@ -20,9 +21,9 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     try {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this)
       isRegistered = true
-      logger.info("EventHandler successfully registered")
+      log.info("EventHandler successfully registered")
     } catch (err: RuntimeException) {
-      logger.warning("Error registering EventHandler")
+      log.warning("Error registering EventHandler")
       err.printStackTrace()
       isRegistered = false
     }
@@ -33,9 +34,9 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     try {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
       isRegistered = true
-      logger.info("EventHandler successfully de-registered")
+      log.info("EventHandler successfully de-registered")
     } catch (err: RuntimeException) {
-      logger.warning("Error de-registering EventHandler")
+      log.warning("Error de-registering EventHandler")
       err.printStackTrace()
       isRegistered = false
     }
@@ -43,13 +44,13 @@ object EventHandler : KeyEventDispatcher, MouseListener {
 
   private fun handleKey(code: KeyEvent) {
     Lock(code.string).throttle(ENV.debounce) {
-      logger.info(code.string)
+      log.info(code.string)
       KEY_BINDINGS.trigger(code.keyCode)
     }
   }
 
   override fun mousePressed(e: MouseEvent) {
-    logger.info(e.string)
+    log.info(e.string)
     when (e.buttonString) {
       "Left" -> KEY_BINDINGS.trigger("pageForward")
     }

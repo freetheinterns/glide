@@ -1,40 +1,50 @@
 package common.glide.storage.serialization
 
+import kotlinx.serialization.CompositeDecoder
 import kotlinx.serialization.Decoder
 import kotlinx.serialization.Encoder
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializer
-import kotlinx.serialization.internal.StringDescriptor
-import kotlinx.serialization.withName
+import kotlinx.serialization.internal.HashSetSerializer
+import kotlinx.serialization.internal.SerialClassDescImpl
+import kotlinx.serialization.internal.StringSerializer
 
 @Serializer(Regex::class)
-class RegexSerializer : KSerializer<Regex> {
-  override val descriptor: SerialDescriptor =
-    StringDescriptor.withName("Regex")
-
-  @Serializable
-  private data class RegexData(
-    val pattern: String,
-    val options: Set<String> = setOf()
-  ) {
-    constructor(base: Regex) : this(
-      base.pattern,
-      base.options.map { it.name }.toSet()
-    )
-
-    val regex: Regex
-      get() = Regex(
-        pattern,
-        options.map { RegexOption.valueOf(it) }.toSet()
-      )
+object RegexSerializer : KSerializer<Regex> {
+  override val descriptor: SerialDescriptor = object : SerialClassDescImpl("Regex") {
+    init {
+      addElement("pattern")
+      addElement("options")
+    }
   }
 
   override fun deserialize(decoder: Decoder): Regex =
-    JSON.parse(RegexData.serializer(), decoder.decodeString()).regex
+    decodeStructure(decoder) {
+      lateinit var pattern: String
+      lateinit var options: Set<String>
+      loop@ while (true) {
+        when (val i = it.decodeElementIndex(descriptor)) {
+          CompositeDecoder.READ_DONE -> break@loop
+          0                          -> pattern = it.decodeStringElement(descriptor, i)
+          1                          -> options =
+            it.decodeSerializableElement(descriptor, i, HashSetSerializer(StringSerializer))
+          else                       -> throw SerializationException("Unknown index $i")
+        }
+      }
+      Regex(pattern, options.map { name -> RegexOption.valueOf(name) }.toSet())
+    }
 
   override fun serialize(encoder: Encoder, obj: Regex) {
-    encoder.encodeString(JSON.stringify(RegexData.serializer(), RegexData(obj)))
+    encodeStructure(encoder) {
+      it.encodeStringElement(descriptor, 0, obj.pattern)
+      it.encodeSerializableElement(
+        descriptor,
+        1,
+        HashSetSerializer(StringSerializer),
+        obj.options.map { opt -> opt.name }.toHashSet()
+      )
+    }
   }
 }

@@ -16,7 +16,9 @@ import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.use
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.awt.Color
 import java.awt.Graphics
 import java.awt.GraphicsEnvironment
@@ -42,6 +44,10 @@ import kotlin.system.measureTimeMillis
  * @property timer Timer
  */
 class Projector : FullScreenFrame(), Iterable<CachedImage> {
+  companion object {
+    private val log by logger()
+  }
+
   ///////////////////////////////////////
   // Properties
   ///////////////////////////////////////
@@ -53,7 +59,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     get() = _library!!
   var scaling: Int = ENV.scaling
     set(value) {
-      logger.info("Updating scaling from: ${ENV.scaling}, to: $value")
+      log.info("Updating scaling from: ${ENV.scaling}, to: $value")
       ENV.scaling = value
       index.current.rerender()
       index.copy.next().rerender()
@@ -106,7 +112,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
     // Short-circuit if playlist is empty or if full screen is not possible
     if (library.map { it.size }.sum() == 0) {
-      logger.severe("No images found to display!")
+      log.severe("No images found to display!")
       exit(1)
     }
 
@@ -135,6 +141,17 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     g.color = oldColor
   }
 
+  private fun preRender(g: Graphics) {
+    val focus = index + geometry.imageCount
+
+    repeat(ENV.maxImagesPerFrame) {
+      focus.current.build(size.width * 2, size.height * 2).paint(g)
+      focus.inc()
+    }
+
+    wipeScreen(g)
+  }
+
   private fun drawPage(painter: ((Graphics) -> Unit)? = null) {
     val drawTime = measureTimeMillis {
       bufferStrategy.drawGraphics.use {
@@ -144,7 +161,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
       bufferStrategy.show()
     }
 
-    logger.info("Spent $drawTime ms drawing")
+    log.info("Spent $drawTime ms drawing")
   }
 
   ///////////////////////////////////////
@@ -158,25 +175,25 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
 
   private fun constructGeometry(
-    vararg pages: ImageIndex
+    pages: List<ImageIndex>
   ): Array<Geometry> {
-    var margin = size.width
-      .minus(pages.sumBy { it.current.width })
-      .div(2)
+    var margin = (size.width - pages.sumBy { it.current.width }) / 2
 
-    val pageGeometry: Array<Geometry> = pages.run {
-      if (ENV.direction) reversed() else toList()
-    }.map {
-      it.current.build(margin).apply {
-        margin += it.current.width
+    val pageGeometry =
+      pages.run {
+        if (ENV.direction)
+          reversed()
+        else
+          toList()
+      }.map {
+        it
+          .current
+          .build(margin, (size.height - it.current.height) / 2)
+          .apply { margin += it.current.width }
       }
-    }.toTypedArray()
 
-    logger.info("geo: ${System.currentTimeMillis()}")
-    return arrayOf(
-      *pageGeometry,
-      marginPanel.build()
-    )
+    log.info("geo: ${System.currentTimeMillis()}")
+    return arrayOf(*pageGeometry.toTypedArray(), marginPanel.build())
   }
 
   private fun project() {
@@ -195,30 +212,28 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
       pages.size < ENV.maxImagesPerFrame // Honor upper bound
     )
 
-    geometry = constructGeometry(*pages.toTypedArray())
+    geometry = constructGeometry(pages)
   }
 
 
   private fun render() {
-    drawPage { g ->
-      geometry.forEach { it.paint(g) }
-    }
+    drawPage { g -> geometry.forEach { it.paint(g) } }
 
-    drawPage { g ->
-      val focus = index + geometry.imageCount
-      repeat(ENV.maxImagesPerFrame) {
-        focus.current.build(size.width * 2, size.height * 2).paint(g)
-        focus.inc()
+    // Launch coroutine and delay to allow graphics thread to render
+    runBlocking {
+      delay(10)
+
+      drawPage { g ->
+        preRender(g)
+        geometry.forEach { it.paint(g) }
       }
 
-      wipeScreen(g)
-
-      geometry.forEach { it.paint(g) }
+      updateCaching()
     }
-    if (geometry.isNotEmpty()) updateCaching()
   }
 
   private fun updateCaching() {
+    if (geometry.isEmpty()) return
     val cacheFront = index - max(0, index.secondary - ENV.maxImagesPerFrame * 4)
     while (cacheFront.hasNext()) {
       val offset = abs(cacheFront.compareTo(index))
@@ -337,7 +352,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
   fun deleteCurrentDirectory() {
     purgeCatalog(index.primary) {
-      logger.warning("Deleting Folder: ${it.absolutePath}")
+      log.warning("Deleting Folder: ${it.absolutePath}")
       it.deleteRecursively()
     }
   }
@@ -345,9 +360,9 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   fun archiveCurrentDirectory() {
     purgeCatalog(index.primary) {
       val newPath = File("${ENV.archive}\\${it.name}").toPath()
-      logger.warning("Moving Folder: ${it.absolutePath} --> $newPath")
+      log.warning("Moving Folder: ${it.absolutePath} --> $newPath")
       if (Files.exists(newPath, LinkOption.NOFOLLOW_LINKS))
-        logger.severe("Target Path already exists! No action taken!")
+        log.severe("Target Path already exists! No action taken!")
       else
         Files.move(it.toPath(), newPath)
     }

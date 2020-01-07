@@ -3,6 +3,8 @@
   RegexSerializer::class
 )
 
+//@file:ContextualSerialization(Color::class, Regex::class)
+
 package common.glide.storage
 
 import common.glide.gui.Launcher

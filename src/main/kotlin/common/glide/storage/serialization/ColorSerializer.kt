@@ -1,46 +1,51 @@
 package common.glide.storage.serialization
 
+import kotlinx.serialization.CompositeDecoder
 import kotlinx.serialization.Decoder
 import kotlinx.serialization.Encoder
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialDescriptor
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Serializer
-import kotlinx.serialization.internal.StringDescriptor
-import kotlinx.serialization.withName
+import kotlinx.serialization.internal.SerialClassDescImpl
 import java.awt.Color
 
 @Serializer(Color::class)
-class ColorSerializer : KSerializer<Color> {
-  override val descriptor: SerialDescriptor =
-    StringDescriptor.withName("Color")
-
-  @Serializable
-  private data class ColorData(
-    val r: Int,
-    val g: Int,
-    val b: Int,
-    val a: Int? = null
-  ) {
-
-    constructor(base: Color) : this(
-      base.red,
-      base.green,
-      base.blue,
-      base.alpha
-    )
-
-    val color: Color
-      get() = when (a) {
-        null -> Color(r, g, b)
-        else -> Color(r, g, b, a)
-      }
+object ColorSerializer : KSerializer<Color> {
+  override val descriptor: SerialDescriptor = object : SerialClassDescImpl("Color") {
+    init {
+      addElement("r")
+      addElement("g")
+      addElement("b")
+      addElement("a")
+    }
   }
 
   override fun deserialize(decoder: Decoder): Color =
-    JSON.parse(ColorData.serializer(), decoder.decodeString()).color
+    decodeStructure(decoder) {
+      lateinit var r: Number
+      lateinit var g: Number
+      lateinit var b: Number
+      lateinit var a: Number
+      loop@ while (true) {
+        when (val i = it.decodeElementIndex(descriptor)) {
+          CompositeDecoder.READ_DONE -> break@loop
+          0                          -> r = it.decodeIntElement(descriptor, i)
+          1                          -> g = it.decodeIntElement(descriptor, i)
+          2                          -> b = it.decodeIntElement(descriptor, i)
+          3                          -> a = it.decodeIntElement(descriptor, i)
+          else                       -> throw SerializationException("Unknown index $i")
+        }
+      }
+      Color(r.toInt(), g.toInt(), b.toInt(), a.toInt())
+    }
 
   override fun serialize(encoder: Encoder, obj: Color) {
-    encoder.encodeString(JSON.stringify(ColorData.serializer(), ColorData(obj)))
+    encodeStructure(encoder) {
+      it.encodeIntElement(descriptor, 0, obj.red)
+      it.encodeIntElement(descriptor, 1, obj.green)
+      it.encodeIntElement(descriptor, 2, obj.blue)
+      it.encodeIntElement(descriptor, 3, obj.alpha)
+    }
   }
 }

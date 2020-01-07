@@ -32,7 +32,7 @@ val BEST_DISPLAY_MODES = arrayOf(
 ///////////////////////////////////////
 
 // unwrap companion class to enclosing class given a Java Class
-fun <T : Any> unwrapCompanionClass(ofClass: Class<T>): Class<*> {
+fun <T> unwrapCompanionClass(ofClass: Class<T>): Class<*> {
   return ofClass.enclosingClass?.takeIf {
     ofClass.enclosingClass.kotlin.companionObject?.java == ofClass
   } ?: ofClass
@@ -43,12 +43,9 @@ fun <T : Any> unwrapCompanionClass(ofClass: KClass<T>): KClass<*> {
   return unwrapCompanionClass(ofClass.java).kotlin
 }
 
-fun <T : Any> logger(forClass: KClass<T>): Logger {
-  return Logger.getLogger(unwrapCompanionClass(forClass).simpleName)
+fun <T : Any> T.logger(): Lazy<Logger> = lazy {
+  Logger.getLogger(unwrapCompanionClass(this::class).simpleName)
 }
-
-val <T : Any> T.logger: Logger
-  get() = logger(this::class)
 
 val LogRecord.throwable: String
   get() {

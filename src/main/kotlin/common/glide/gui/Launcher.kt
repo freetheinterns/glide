@@ -31,6 +31,7 @@ import kotlin.system.exitProcess
 
 class Launcher : JFrame("Projector: Settings"), ActionListener {
   companion object {
+    private val log by logger()
     private const val HARD_HEIGHT = 900
 
     const val LEFT_TO_RIGHT_TEXT = ":LtR (JA)"
@@ -126,7 +127,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     displayOptionsTab.label  -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
-    else                     -> logger.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
+    else -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
   }
 
   private fun save() {

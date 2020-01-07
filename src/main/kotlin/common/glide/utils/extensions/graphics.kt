@@ -65,6 +65,8 @@ val Color.invert: Color
 
 val Image.width: Int
   get() = getWidth(null)
+val Image.height: Int
+  get() = getHeight(null)
 
 
 ///////////////////////////////////////

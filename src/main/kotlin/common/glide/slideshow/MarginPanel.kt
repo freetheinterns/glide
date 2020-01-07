@@ -4,22 +4,35 @@ import common.glide.storage.ENV
 import common.glide.utils.extensions.createdAt
 import common.glide.utils.extensions.formattedFileSize
 import common.glide.utils.extensions.imageCount
-import java.awt.Color
+import java.awt.BasicStroke
+import java.awt.BasicStroke.CAP_ROUND
+import java.awt.BasicStroke.JOIN_ROUND
+import java.awt.Color.BLACK
+import java.awt.Color.WHITE
 import java.awt.Font
 import java.awt.Graphics
+import java.awt.Graphics2D
+import java.awt.RenderingHints.KEY_ANTIALIASING
+import java.awt.RenderingHints.VALUE_ANTIALIAS_ON
 import java.text.SimpleDateFormat
 
 class MarginPanel(private val app: Projector) : Geometry {
   private var lines = arrayListOf<String>()
   private val formatter = SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss")
-  private val font = Font(ENV.fontName, Font.PLAIN, 16)
+  private val font = Font(ENV.fontName, Font.PLAIN, 22)
+  private val stroke = BasicStroke(4.0f, CAP_ROUND, JOIN_ROUND)
   override fun build(xOffset: Int, yOffset: Int): Geometry {
     return this
   }
 
   override fun paint(g: Graphics?) {
-    g?.color = Color.red
-    g?.font = font
+    val g2: Graphics2D = g as Graphics2D
+    g2.setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON)
+    g2.font = font
+    g2.stroke = stroke
+    g2.translate(10, 10)
+
+    val frc = g2.fontRenderContext
     val currentPlaylist = app.library[app.index.primary]
     lines = arrayListOf()
 
@@ -34,7 +47,15 @@ class MarginPanel(private val app: Projector) : Geometry {
     addFileCount()
     addFolderCount()
 
-    lines.forEachIndexed { index, it -> g?.drawString(it, 5, 20 + index * 20) }
+    lines.forEach {
+      g2.translate(0, 25)
+      if (it.isBlank()) return@forEach
+      val textOutline = font.createGlyphVector(frc, it).outline
+      g2.color = BLACK
+      g2.draw(textOutline)
+      g2.color = WHITE
+      g2.fill(textOutline)
+    }
   }
 
   private fun addFolderName() {

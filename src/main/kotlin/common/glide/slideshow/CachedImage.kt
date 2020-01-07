@@ -8,6 +8,7 @@ import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
 import common.glide.utils.extensions.cache
 import common.glide.utils.extensions.dimension
 import common.glide.utils.extensions.div
+import common.glide.utils.extensions.height
 import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.reversed
 import common.glide.utils.extensions.times
@@ -29,6 +30,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
 
   val rawBytes: Long by cache { file.length() }
   val width: Int by lazy { sizedImage!!.width }
+  val height: Int by lazy { sizedImage!!.height }
   val name: String
     get() = file.name
   var cacheLevel: Int = CACHED_FILE
@@ -40,12 +42,14 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
           sizedImage = null
         }
         CACHE_FULL_IMAGE    -> image
-        CACHE_RESIZED_IMAGE -> logger.info("Ensure cache of $name width=$width")
+        CACHE_RESIZED_IMAGE -> log.info("Ensure cache of $name width=$width")
       }
       field = next
     }
 
   companion object {
+    private val log by logger()
+
     val SCALING_OPTIONS = hashMapOf(
       Image.SCALE_AREA_AVERAGING to "Area Average",
       Image.SCALE_DEFAULT to "Default",
