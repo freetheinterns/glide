@@ -7,8 +7,8 @@ import common.glide.gui.panels.AdvancedOptionsTabPanel
 import common.glide.gui.panels.DisplayOptionsTabPanel
 import common.glide.gui.panels.FileOptionsTabPanel
 import common.glide.gui.panels.TabPanel
-import common.glide.slideshow.CachedImage
 import common.glide.slideshow.EventHandler
+import common.glide.slideshow.FolderSortStrategy
 import common.glide.slideshow.Projector
 import common.glide.storage.ENV
 import common.glide.utils.extensions.glue
@@ -133,9 +133,8 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private fun save() {
     ENV.archive = fileOptionsTab.archive.banner.text
     ENV.root = fileOptionsTab.root.banner.text
-    ENV.ordering = fileOptionsTab.ordering.selectedItem as String
+    ENV.ordering = fileOptionsTab.ordering.selectedItem as FolderSortStrategy
     ENV.fontName = displayOptionsTab.fontName.selectedItem as String
-    ENV.scaling = CachedImage.SCALING_REMAP[displayOptionsTab.scaling.selectedItem]!!
     ENV.speed = advancedOptionsTab.speed.value
     ENV.debounce = advancedOptionsTab.debounce.value.toLong()
     ENV.maxImagesPerFrame = advancedOptionsTab.maxImagesPerFrame.value

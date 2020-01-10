@@ -1,6 +1,5 @@
 package common.glide.storage
 
-import common.glide.slideshow.CachedImage
 import common.glide.utils.extensions.Scope
 import common.glide.utils.extensions.scopes
 import kotlinx.serialization.Serializable
@@ -22,7 +21,6 @@ data class KeyBindings(
       38 to "inchForward",
       39 to "pageForward",
       40 to "inchBackward",
-      79 to "changeScaling",
       127 to "deleteCatalog",
       115 to "archiveCatalog"
     ),
@@ -107,10 +105,5 @@ data class KeyBindings(
     "Projector" -> ENV.projector!!.exit()
     "Launcher"  -> ENV.launcher!!.dispose().also { exitProcess(0) }
     else        -> Unit
-  }
-
-  @Scope("Projector")
-  fun changeScaling() {
-    ENV.projector!!.scaling = CachedImage.nextScalingOption()
   }
 }

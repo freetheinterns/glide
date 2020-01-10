@@ -14,12 +14,8 @@ import java.text.DecimalFormat
 // DataStructure Extensions
 ///////////////////////////////////////
 
-
 val Array<Geometry>.imageCount: Int
   get() = this.count { it::class == CachedImage::class }
-
-val <K, V> Map<K, V>.reversed: HashMap<V, K>
-  get() = HashMap<V, K>().also { newMap -> entries.forEach { newMap[it.value] = it.key } }
 
 
 ///////////////////////////////////////

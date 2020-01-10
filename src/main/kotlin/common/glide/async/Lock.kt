@@ -1,5 +1,6 @@
 package common.glide.async
 
+import common.glide.Block
 import common.glide.utils.extensions.coerceMaximum
 
 data class Lock(private val key: Any) {
@@ -12,7 +13,7 @@ data class Lock(private val key: Any) {
   private val context: Signature
     get() = GLOBAL_LOCKS.getValue(key).also { GLOBAL_LOCKS[key] = it }
 
-  fun throttle(millis: Long, block: () -> Unit) = context.let {
+  fun throttle(millis: Long, block: Block) = context.let {
     if (NOW - it.invokedAt >= millis) {
       it.invokedAt = NOW
       try {

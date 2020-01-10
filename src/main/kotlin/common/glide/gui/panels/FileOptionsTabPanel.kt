@@ -2,8 +2,8 @@ package common.glide.gui.panels
 
 import common.glide.gui.Launcher
 import common.glide.gui.components.DirectoryChooser
+import common.glide.slideshow.FolderSortStrategy
 import common.glide.storage.ENV
-import common.glide.storage.SlideshowSettings
 import javax.swing.JComboBox
 
 class FileOptionsTabPanel(
@@ -21,9 +21,9 @@ class FileOptionsTabPanel(
     description = "Where to store archived playlist folders"
   )
 
-  val ordering: JComboBox<String> = buildComboBox(
+  val ordering: JComboBox<FolderSortStrategy> = buildComboBox(
     name = "Folder Sort",
-    options = SlideshowSettings.ORDER_ENUMS,
+    options = FolderSortStrategy.values(),
     selected = ENV.ordering
   )
 }

@@ -7,20 +7,21 @@ import common.glide.utils.extensions.CACHED_FILE
 import common.glide.utils.extensions.CACHE_FULL_IMAGE
 import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
 import common.glide.utils.extensions.blindObserver
-import common.glide.utils.extensions.cache
 import common.glide.utils.extensions.catalogs
 import common.glide.utils.extensions.chooseBestDisplayMode
 import common.glide.utils.extensions.dimension
 import common.glide.utils.extensions.imageCount
 import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.use
+import common.glide.utils.properties.CachedProperty.Companion.cache
+import common.glide.utils.properties.CachedProperty.Companion.invalidateCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.awt.Color
-import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -36,9 +37,7 @@ import kotlin.system.measureTimeMillis
 /**
  * @property geometry Array<Geometry>
  * @property index ImageIndex The current image in the library being displayed
- * @property _index ImageIndex? The private cache for index
  * @property library List<Catalog> The list of Catalogs loaded by the program
- * @property _library List<Catalog>? The private cache for library
  * @property device GraphicsDevice
  * @property marginPanel MarginPanel
  * @property timer Timer
@@ -53,29 +52,16 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
 
   var geometry by blindObserver(arrayOf<Geometry>(), ::render)
-  val index: ImageIndex
-    get() = _index!!
-  val library: Array<Catalog>
-    get() = _library!!
-  var scaling: Int = ENV.scaling
-    set(value) {
-      log.info("Updating scaling from: ${ENV.scaling}, to: $value")
-      ENV.scaling = value
-      index.current.rerender()
-      index.copy.next().rerender()
-      project()
-      field = value
-    }
-
-  private var _index: ImageIndex? by cache { ImageIndex(library) }
-  private var _library: Array<Catalog>? by cache { File(ENV.root).catalogs }
+  val index: ImageIndex by cache { ImageIndex(library) }
+  var library: Array<Catalog> by cache { File(ENV.root).catalogs }
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
   private var timer = Timer(ENV.speed) { KEY_BINDINGS.trigger("pageForward") }
 
   init {
-    if (!device.isFullScreenSupported) throw IllegalArgumentException("Non full-screen modes not yet supported")
+    if (!device.isFullScreenSupported)
+      throw IllegalArgumentException("Full-screen modes not yet supported on device")
 
     // Set up Listeners
     defaultCloseOperation = DO_NOTHING_ON_CLOSE
@@ -134,27 +120,27 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   // Draw Logic Helpers
   ///////////////////////////////////////
 
-  private fun wipeScreen(g: Graphics, color: Color = Color.BLACK) {
+  private fun wipeScreen(g: Graphics2D, color: Color = Color.BLACK) {
     val oldColor = g.color
     g.color = color
     g.fillRect(0, 0, size.width, size.height)
     g.color = oldColor
   }
 
-  private fun preRender(g: Graphics) {
+  private fun preRender(g: Graphics2D) {
     val focus = index + geometry.imageCount
 
     repeat(ENV.maxImagesPerFrame) {
-      focus.current.build(size.width * 2, size.height * 2).paint(g)
+      focus.current.build(size.width * 2, size.height * 2).render(g)
       focus.inc()
     }
 
     wipeScreen(g)
   }
 
-  private fun drawPage(painter: ((Graphics) -> Unit)? = null) {
+  private fun drawPage(painter: ((Graphics2D) -> Unit)? = null) {
     val drawTime = measureTimeMillis {
-      bufferStrategy.drawGraphics.use {
+      (bufferStrategy.drawGraphics as Graphics2D).use {
         wipeScreen(it)
         painter?.invoke(it)
       }
@@ -217,7 +203,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
 
   private fun render() {
-    drawPage { g -> geometry.forEach { it.paint(g) } }
+    drawPage { g -> geometry.forEach { it.render(g) } }
 
     // Launch coroutine and delay to allow graphics thread to render
     runBlocking {
@@ -225,7 +211,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
       drawPage { g ->
         preRender(g)
-        geometry.forEach { it.paint(g) }
+        geometry.forEach { it.render(g) }
       }
 
       updateCaching()
@@ -333,8 +319,8 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     try {
       val target = library[targetPosition].file
 
-      _index = null
-      _library = library.filter {
+      invalidateCache(::index)
+      library = library.filter {
         !it.path.startsWith(target.absolutePath)
       }.toTypedArray()
 

@@ -1,5 +1,7 @@
 package common.glide.utils.extensions
 
+import common.glide.Block
+import common.glide.Loader
 import java.awt.DisplayMode
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -68,7 +70,7 @@ val LogRecord.throwable: String
 val <T : Any> T.string: String
   get() = this.toString()
 
-fun <T : Comparable<T>> coerceMaximum(getter: () -> T) = object : ReadWriteProperty<Any?, T> {
+fun <T : Comparable<T>> coerceMaximum(getter: Loader<T>) = object : ReadWriteProperty<Any?, T> {
   private var value: T = getter()
 
   override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
@@ -83,26 +85,6 @@ fun <T : Comparable<T>> coerceMaximum(getter: () -> T) = object : ReadWritePrope
 
 
 /**
- * Implements a cached property with an inline block
- * Also satisfies the NotNull promise on access
- *
- * @param cacheMiss () -> T called when property is fetched and cache is null
- * @return ReadWriteProperty<Any, T> that calls cacheMiss appropriately
- */
-inline fun <T> cache(crossinline cacheMiss: () -> T) = object : ReadWriteProperty<Any, T> {
-  private var value: T? = null
-
-  override fun getValue(thisRef: Any, property: KProperty<*>): T {
-    value = value ?: cacheMiss()
-    return value ?: throw AssertionError("Value set to null by another thread")
-  }
-
-  override fun setValue(thisRef: Any, property: KProperty<*>, value: T) {
-    this.value = value
-  }
-}
-
-/**
  * An observable delegate function that triggers callBack when the observed property changes value.
  * Also satisfies the NotNull promise on access
  *
@@ -112,7 +94,7 @@ inline fun <T> cache(crossinline cacheMiss: () -> T) = object : ReadWritePropert
  */
 inline fun <reified T> blindObserver(
   initialValue: T? = null,
-  crossinline callBack: () -> Unit
+  crossinline callBack: Block
 ) = object : ReadWriteProperty<Any?, T> {
   private var value: T? = initialValue
 

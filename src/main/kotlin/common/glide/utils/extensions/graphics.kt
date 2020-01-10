@@ -5,10 +5,12 @@ import java.awt.Component
 import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.Font
-import java.awt.Graphics
+import java.awt.Graphics2D
 import java.awt.GraphicsDevice
-import java.awt.Image
 import java.awt.Point
+import java.awt.RenderingHints.KEY_INTERPOLATION
+import java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR
+import java.awt.image.BufferedImage
 import javax.swing.JComponent
 import javax.swing.SpringLayout
 
@@ -39,7 +41,7 @@ fun GraphicsDevice.chooseBestDisplayMode() {
   }
 }
 
-fun Graphics.use(block: (Graphics) -> Unit) {
+fun Graphics2D.use(block: (Graphics2D) -> Unit) {
   block(this)
   dispose()
 }
@@ -63,10 +65,16 @@ val Color.invert: Color
 // Image Extensions
 ///////////////////////////////////////
 
-val Image.width: Int
-  get() = getWidth(null)
-val Image.height: Int
-  get() = getHeight(null)
+fun BufferedImage.scaleToFit(area: Dimension): BufferedImage {
+  val adjusted = dimension * (area / dimension)
+  if (dimension == adjusted) return this
+  val ret = BufferedImage(adjusted.width, adjusted.height, type)
+  ret.createGraphics().use {
+    it.setRenderingHint(KEY_INTERPOLATION, VALUE_INTERPOLATION_BILINEAR)
+    it.drawImage(this, 0, 0, adjusted.width, adjusted.height, 0, 0, width, height, null)
+  }
+  return ret
+}
 
 
 ///////////////////////////////////////

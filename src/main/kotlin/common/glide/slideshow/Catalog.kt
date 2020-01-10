@@ -2,7 +2,6 @@ package common.glide.slideshow
 
 import common.glide.storage.ENV
 import common.glide.storage.FILE_SIZES
-import common.glide.storage.SlideshowSettings
 import common.glide.utils.extensions.accessedAt
 import common.glide.utils.extensions.createdAt
 import common.glide.utils.extensions.listImages
@@ -30,14 +29,13 @@ class Catalog(val file: File) : Comparable<Catalog> {
 
   override fun compareTo(other: Catalog) = compareValuesBy(this, other) {
     when (ENV.ordering) {
-      SlideshowSettings.ALPHABETICAL    -> it.path
-      SlideshowSettings.FILE_COUNT      -> it.fileCount
-      SlideshowSettings.FOLDER_CREATED  -> it.file.createdAt
-      SlideshowSettings.FOLDER_ACCESSED -> it.file.accessedAt
-      SlideshowSettings.FOLDER_UPDATED  -> it.file.updatedAt
-      SlideshowSettings.FOLDER_DATA     -> it.folderSize
-      SlideshowSettings.RANDOM_ORDER    -> random()
-      else                              -> it.path
+      FolderSortStrategy.Alphabetical     -> it.path
+      FolderSortStrategy.NumberOfFiles    -> it.fileCount
+      FolderSortStrategy.FolderCreatedAt  -> it.file.createdAt
+      FolderSortStrategy.FolderAccessedAt -> it.file.accessedAt
+      FolderSortStrategy.FolderUpdatedAt  -> it.file.updatedAt
+      FolderSortStrategy.FolderDiskSize   -> it.folderSize
+      FolderSortStrategy.Random           -> random()
     }
   }
 

@@ -1,9 +1,8 @@
 package common.glide.gui.panels
 
 import common.glide.gui.Launcher
-import common.glide.slideshow.CachedImage
 import common.glide.storage.ENV
-import common.glide.storage.SlideshowSettings
+import common.glide.storage.FONT_FAMILIES
 import common.glide.utils.FontNameRenderer
 import java.awt.Font
 import javax.swing.JCheckBox
@@ -19,12 +18,6 @@ class DisplayOptionsTabPanel(
     private const val labelFontSize = 16
   }
 
-  val scaling: JComboBox<String> = buildComboBox(
-    name = "Scaling",
-    options = CachedImage.SCALING_OPTIONS.values.toTypedArray(),
-    selected = CachedImage.SCALING_OPTIONS[ENV.scaling],
-    description = "Algorithm to use resizing frames"
-  )
   val directionGroup: JComboBox<String> = buildComboBox(
     name = "Page Orientation",
     options = arrayOf(LEFT_TO_RIGHT_TEXT, RIGHT_TO_LEFT_TEXT),
@@ -70,7 +63,7 @@ class DisplayOptionsTabPanel(
     )
     fontName = buildComboBox(
       description = "Font Family",
-      options = SlideshowSettings.FONT_FAMILIES,
+      options = FONT_FAMILIES,
       selected = ENV.fontName
     )
     fontName.font = Font(ENV.fontName, Font.BOLD, labelFontSize)

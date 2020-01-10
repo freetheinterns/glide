@@ -2,6 +2,12 @@ package common.glide
 
 import common.glide.gui.Launcher
 import common.glide.scripts.defineLookAndFeel
+import common.glide.slideshow.GlideVersion
+import common.glide.storage.FileSizeMemoizer
+import common.glide.storage.KeyBindings
+import common.glide.storage.LAST_VERSION
+import common.glide.storage.SlideshowSettings
+import common.glide.storage.VERSION
 import common.glide.utils.extensions.throwable
 import java.awt.GraphicsEnvironment
 import java.util.logging.*
@@ -19,7 +25,17 @@ internal fun defineLogger() {
   }
 }
 
+fun sanitizeSavedFiles() {
+  if (VERSION == LAST_VERSION) return
+  println("Version miss-match between $LAST_VERSION (old) and $VERSION")
+  FileSizeMemoizer().save()
+  SlideshowSettings().save()
+  GlideVersion(VERSION).save()
+  KeyBindings().save()
+}
+
 fun main(args: Array<String>) {
+  sanitizeSavedFiles()
   defineLookAndFeel()
   defineLogger()
 

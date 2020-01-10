@@ -5,32 +5,26 @@ import common.glide.utils.extensions.CACHED_FILE
 import common.glide.utils.extensions.CACHED_PATH
 import common.glide.utils.extensions.CACHE_FULL_IMAGE
 import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
-import common.glide.utils.extensions.cache
-import common.glide.utils.extensions.dimension
-import common.glide.utils.extensions.div
-import common.glide.utils.extensions.height
 import common.glide.utils.extensions.logger
-import common.glide.utils.extensions.reversed
-import common.glide.utils.extensions.times
-import common.glide.utils.extensions.width
-import java.awt.Color
+import common.glide.utils.extensions.scaleToFit
+import common.glide.utils.properties.CachedProperty.Companion.cache
+import common.glide.utils.properties.CachedProperty.Companion.invalidateCache
 import java.awt.Dimension
-import java.awt.Graphics
-import java.awt.Image
+import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
 class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   private var drawPosition = Dimension(0, 0)
-  private var _image: BufferedImage? by cache { ImageIO.read(file) }
-  private val image: BufferedImage
-    get() = _image!!
-  private var sizedImage: Image? by cache(::resizeFullImage)
+  private val image: BufferedImage by cache { ImageIO.read(file) }
+  private val sizedImage: BufferedImage by cache {
+    ENV.projector?.size?.let { image.scaleToFit(it) } ?: image
+  }
 
   val rawBytes: Long by cache { file.length() }
-  val width: Int by lazy { sizedImage!!.width }
-  val height: Int by lazy { sizedImage!!.height }
+  val width: Int by lazy { sizedImage.width }
+  val height: Int by lazy { sizedImage.height }
   val name: String
     get() = file.name
   var cacheLevel: Int = CACHED_FILE
@@ -38,8 +32,8 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
       when (next) {
         CACHED_PATH         -> Unit
         CACHED_FILE         -> {
-          _image = null
-          sizedImage = null
+          invalidateCache(::image)
+          invalidateCache(::sizedImage)
         }
         CACHE_FULL_IMAGE    -> image
         CACHE_RESIZED_IMAGE -> log.info("Ensure cache of $name width=$width")
@@ -49,50 +43,26 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
 
   companion object {
     private val log by logger()
-
-    val SCALING_OPTIONS = hashMapOf(
-      Image.SCALE_AREA_AVERAGING to "Area Average",
-      Image.SCALE_DEFAULT to "Default",
-      Image.SCALE_FAST to "Fast",
-      Image.SCALE_SMOOTH to "Smooth",
-      Image.SCALE_REPLICATE to "Replicate"
-    )
-
-    val SCALING_REMAP = SCALING_OPTIONS.reversed
-
-    fun nextScalingOption(): Int {
-      return if (ENV.scaling == Image.SCALE_AREA_AVERAGING) Image.SCALE_DEFAULT
-      else ENV.scaling * 2
-    }
   }
 
-  fun rerender() {
-    sizedImage = null
-    cacheLevel = CACHE_RESIZED_IMAGE
+  override fun paint(g: Graphics2D) {
+    g.translate(drawPosition.width, drawPosition.height)
+    g.drawRenderedImage(sizedImage, null)
+
+    if (!ENV.showFooterFileNumber) return
+
+    val drawOutlinedText = g.createOutlinedTypeSetter()
+    g.translate(5, sizedImage.height - 10)
+    g.drawOutlinedText(file.nameWithoutExtension)
   }
 
-  private fun resizeFullImage(): Image {
-    if (ENV.projector == null)
-      return image
-    val adjustedDimension = image.dimension * (ENV.projector!!.size / image.dimension)
-    if (image.dimension == adjustedDimension) return image
-    return image.getScaledInstance(adjustedDimension.width, adjustedDimension.height, ENV.scaling)
-  }
-
-  override fun paint(g: Graphics?) {
-    g?.drawImage(sizedImage, drawPosition.width, drawPosition.height, null)
-    g?.color = Color.RED
-    if (ENV.showFooterFileNumber)
-      g?.drawString(file.nameWithoutExtension, drawPosition.width + 5, ENV.projector!!.size.height - 10)
-  }
-
-  override fun build(xOffset: Int, yOffset: Int): Geometry {
+  override fun build(xOffset: Int, yOffset: Int): Geometry = apply {
     drawPosition = Dimension(xOffset, yOffset)
     cacheLevel = CACHE_RESIZED_IMAGE
-    return this
   }
 
-  override fun compareTo(other: CachedImage) = compareValuesBy(this, other) { it.file.absolutePath }
+  override fun compareTo(other: CachedImage) =
+    compareValuesBy(this, other) { it.file.absolutePath }
 }
 
 

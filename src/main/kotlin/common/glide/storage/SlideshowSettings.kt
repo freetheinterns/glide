@@ -3,11 +3,10 @@
   RegexSerializer::class
 )
 
-//@file:ContextualSerialization(Color::class, Regex::class)
-
 package common.glide.storage
 
 import common.glide.gui.Launcher
+import common.glide.slideshow.FolderSortStrategy
 import common.glide.slideshow.Projector
 import common.glide.storage.serialization.ColorSerializer
 import common.glide.storage.serialization.RegexSerializer
@@ -15,8 +14,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import java.awt.Color
-import java.awt.GraphicsEnvironment
-import java.awt.Image
 import java.io.File
 import javax.swing.UIManager
 
@@ -29,7 +26,7 @@ data class SlideshowSettings(
   var darkHighlight: Color = Color(103, 102, 100),
   var exitRed: Color = Color(232, 17, 35),
 
-  var imagePattern: Regex = "^.+\\.(jpg|png|gif|bmp)$".toRegex(RegexOption.IGNORE_CASE),
+  var imagePattern: Regex = "^.+\\.(jpe?g|png|gif|bmp)$".toRegex(RegexOption.IGNORE_CASE),
 
   var direction: Boolean = true,
   var paneled: Boolean = true,
@@ -41,42 +38,15 @@ data class SlideshowSettings(
   var showMarginFolderName: Boolean = true,
 
   var maxImagesPerFrame: Int = 3,
-  var scaling: Int = Image.SCALE_AREA_AVERAGING,
   var speed: Int = 2500,
   var debounce: Long = 200L,
 
-  var ordering: String = FILE_COUNT,
-  var root: String = "~\\Pictures",
+  var ordering: FolderSortStrategy = FolderSortStrategy.NumberOfFiles,
+  var root: String = File("~\\Pictures").absolutePath,
   var archive: String = File("~\\Pictures\\archive").absolutePath,
-  var fontName: String = UIManager.getFont("Button.font").fontName
+  var fontName: String = UIManager.getFont("Button.font").fontName,
 
-) : Persistable<SlideshowSettings>(serializer()) {
-  companion object {
-    const val ALPHABETICAL = "Alphabetical"
-    const val FILE_COUNT = "# of Files"
-    const val FOLDER_ACCESSED = "Folder Accessed@"
-    const val FOLDER_CREATED = "Folder Created@"
-    const val FOLDER_DATA = "Data MB"
-    const val FOLDER_UPDATED = "Folder Updated@"
-    const val RANDOM_ORDER = "Random"
-    val ORDER_ENUMS = arrayOf(
-      ALPHABETICAL,
-      FILE_COUNT,
-      FOLDER_ACCESSED,
-      FOLDER_CREATED,
-      FOLDER_DATA,
-      FOLDER_UPDATED,
-      RANDOM_ORDER
-    )
-    val FONT_FAMILIES: Array<String> =
-      GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
-  }
-
-  @Transient
-  var scope = ""
-  @Transient
-  var projector: Projector? = null
-  @Transient
-  var launcher: Launcher? = null
-
-}
+  @Transient var scope: String = "",
+  @Transient var projector: Projector? = null,
+  @Transient var launcher: Launcher? = null
+) : Persistable<SlideshowSettings>(serializer())

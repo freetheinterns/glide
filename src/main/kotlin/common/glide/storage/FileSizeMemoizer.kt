@@ -1,5 +1,6 @@
 package common.glide.storage
 
+import common.glide.Loader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -13,7 +14,7 @@ data class FileSizeMemoizer(
     const val TTL = 86400000L
   }
 
-  fun get(key: String, cacheMiss: () -> Long): Long =
+  fun get(key: String, cacheMiss: Loader<Long>): Long =
     this[key] ?: set(key, cacheMiss())
 
   operator fun get(key: String): Long? {
