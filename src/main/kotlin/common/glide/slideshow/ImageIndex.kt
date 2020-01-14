@@ -1,9 +1,8 @@
 package common.glide.slideshow
 
-import common.glide.extensions.blindObserver
-import common.glide.extensions.string
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidateCache
+import common.glide.utils.TriggeringProperty
 import kotlin.math.abs
 
 class ImageIndex(
@@ -12,13 +11,13 @@ class ImageIndex(
   slideIndex: Int = 0
 ) : ListIterator<CachedImage>, Comparable<ImageIndex> {
   val current: CachedImage by cache { library[primary][secondary] }
-  var primary by blindObserver(playlistIndex) {
+  var primary: Int by TriggeringProperty(playlistIndex) {
     invalidateCache(::maxSecondary)
     invalidateCache(::current)
     secondary = 0
   }
-  var secondary by blindObserver(slideIndex) { invalidateCache(::current) }
-  var maxPrimary by cache { library.size }
+  var secondary: Int by TriggeringProperty(slideIndex) { invalidateCache(::current) }
+  var maxPrimary: Int by cache { library.size }
   val maxSecondary: Int by cache { library[primary].size }
   val copy
     get() = ImageIndex(library, primary, secondary)
@@ -86,7 +85,7 @@ class ImageIndex(
   override fun nextIndex() = primary + 1
   override fun previousIndex() = primary - 1
 
-  override fun hashCode() = string.hashCode()
+  override fun hashCode() = toString().hashCode()
   override fun toString() = "$primary-$secondary-${library.hashCode()}"
   override fun compareTo(other: ImageIndex) =
     when (primary) {

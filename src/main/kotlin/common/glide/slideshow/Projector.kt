@@ -3,7 +3,6 @@ package common.glide.slideshow
 import common.glide.ENV
 import common.glide.KEY_BINDINGS
 import common.glide.enums.CacheStrategy
-import common.glide.extensions.blindObserver
 import common.glide.extensions.catalogs
 import common.glide.extensions.chooseBestDisplayMode
 import common.glide.extensions.dimension
@@ -14,6 +13,7 @@ import common.glide.gui.listeners.EventHandler
 import common.glide.gui.panels.FullScreenFrame
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidateCache
+import common.glide.utils.TriggeringProperty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -50,7 +50,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   // Properties
   ///////////////////////////////////////
 
-  var geometry by blindObserver(arrayOf<Geometry>(), ::render)
+  var geometry by TriggeringProperty(arrayOf<Geometry>(), ::render)
   val index: ImageIndex by cache { ImageIndex(library) }
   var library: Array<Catalog> by cache { File(ENV.root).catalogs }
 

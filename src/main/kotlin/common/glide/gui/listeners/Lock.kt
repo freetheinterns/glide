@@ -1,13 +1,12 @@
 package common.glide.gui.listeners
 
 import common.glide.Block
-import common.glide.extensions.coerceMaximum
+import common.glide.utils.MaximizingProperty
 
 data class Lock(private val key: Any) {
   private class Signature {
-    var invokedAt by coerceMaximum<Long> { 0 }
-    override fun toString(): String =
-      "Lock.Signature(invokedAt=$invokedAt)"
+    var invokedAt by MaximizingProperty(0L)
+    override fun toString(): String = "Lock.Signature(invokedAt=$invokedAt)"
   }
 
   private val context: Signature

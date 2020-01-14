@@ -1,6 +1,5 @@
 package common.glide.utils
 
-import common.glide.extensions.coerceMaximum
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -12,7 +11,7 @@ class UtilsTest {
     val end = 5L
     assertTrue(initial < end)
 
-    var a by coerceMaximum { initial }
+    var a by MaximizingProperty(initial)
 
     assertEquals(initial, a)
     a = end

@@ -5,7 +5,6 @@ import common.glide.enums.FolderSortStrategy
 import common.glide.extensions.glue
 import common.glide.extensions.logger
 import common.glide.extensions.sizeTo
-import common.glide.gui.components.Button
 import common.glide.gui.components.LabelButton
 import common.glide.gui.listeners.EventHandler
 import common.glide.gui.listeners.FrameDragListener
@@ -52,11 +51,11 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   )
 
   private val fileOptionsTab =
-    FileOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
+    FileOptionsTabPanel(HARD_HEIGHT - LabelButton.HARD_HEIGHT, this)
   private val displayOptionsTab =
-    DisplayOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
+    DisplayOptionsTabPanel(HARD_HEIGHT - LabelButton.HARD_HEIGHT, this)
   private val advancedOptionsTab =
-    AdvancedOptionsTabPanel(HARD_HEIGHT - Button.HARD_HEIGHT, this)
+    AdvancedOptionsTabPanel(HARD_HEIGHT - LabelButton.HARD_HEIGHT, this)
 
   private val cardLayout = CardLayout()
   private val cards = JPanel(cardLayout).apply {
