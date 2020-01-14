@@ -9,6 +9,7 @@ import common.glide.enums.CacheStrategy.SCALED
 import common.glide.extensions.scaleToFit
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidateCache
+import common.glide.utils.TriggeringProperty
 import common.glide.utils.createOutlinedTypeSetter
 import java.awt.Dimension
 import java.awt.Graphics2D
@@ -17,7 +18,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
-  private var drawPosition = Dimension(0, 0)
+  override var position: Dimension by TriggeringProperty(Dimension()) { updateCache(SCALED) }
 
   private val image: BufferedImage by cache { ImageIO.read(file) }
   private val sizedImage: BufferedImage by cache {
@@ -39,7 +40,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   }
 
   override fun paint(g: Graphics2D) {
-    g.translate(drawPosition.width, drawPosition.height)
+    g.translate(position.width, position.height)
     g.drawRenderedImage(sizedImage, null)
 
     if (!ENV.showFooterFileNumber) return
@@ -47,11 +48,6 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
     val drawOutlinedText = g.createOutlinedTypeSetter()
     g.translate(5, sizedImage.height - 10)
     g.drawOutlinedText(file.nameWithoutExtension)
-  }
-
-  override fun build(xOffset: Int, yOffset: Int): Geometry = apply {
-    drawPosition = Dimension(xOffset, yOffset)
-    updateCache(SCALED)
   }
 
   override fun compareTo(other: CachedImage) =

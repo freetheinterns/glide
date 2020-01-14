@@ -72,6 +72,13 @@ class ImageIndex(
   operator fun dec() = this - 1
   operator fun plus(inc: Int) = copy.walk(inc)
   operator fun minus(inc: Int) = copy.walk(-inc)
+  override fun hasNext() = primary < maxPrimary - 1 || secondary < maxSecondary - 1
+  override fun hasPrevious() = primary > 0 || secondary > 0
+  override fun nextIndex() = primary + 1
+  override fun previousIndex() = primary - 1
+  override fun hashCode() = toString().hashCode()
+  override fun toString() = "$primary-$secondary-${library.hashCode()}"
+
   operator fun plusAssign(inc: Int) {
     walk(inc)
   }
@@ -80,13 +87,6 @@ class ImageIndex(
     walk(-inc)
   }
 
-  override fun hasNext() = primary < maxPrimary - 1 || secondary < maxSecondary - 1
-  override fun hasPrevious() = primary > 0 || secondary > 0
-  override fun nextIndex() = primary + 1
-  override fun previousIndex() = primary - 1
-
-  override fun hashCode() = toString().hashCode()
-  override fun toString() = "$primary-$secondary-${library.hashCode()}"
   override fun compareTo(other: ImageIndex) =
     when (primary) {
       other.primary -> secondary - other.secondary

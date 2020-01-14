@@ -1,8 +1,11 @@
 package common.glide.slideshow
 
+import java.awt.Dimension
 import java.awt.Graphics2D
 
 interface Geometry {
+  var position: Dimension
+
   fun render(g: Graphics2D) {
     val pos = g.transform
     paint(g)
@@ -10,5 +13,4 @@ interface Geometry {
   }
 
   fun paint(g: Graphics2D)
-  fun build(xOffset: Int = 0, yOffset: Int = 0): Geometry
 }

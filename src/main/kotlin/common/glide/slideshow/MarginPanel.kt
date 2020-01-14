@@ -5,15 +5,16 @@ import common.glide.extensions.createdAt
 import common.glide.extensions.formattedFileSize
 import common.glide.extensions.imageCount
 import common.glide.utils.createOutlinedTypeSetter
+import java.awt.Dimension
 import java.awt.Graphics2D
 import java.text.SimpleDateFormat
 
 class MarginPanel(private val app: Projector) : Geometry {
+  override var position: Dimension = Dimension()
+
   companion object {
     private val DATE_FORMAT = SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss")
   }
-
-  override fun build(xOffset: Int, yOffset: Int): Geometry = this
 
   override fun paint(g: Graphics2D) {
     g.translate(10, 10)

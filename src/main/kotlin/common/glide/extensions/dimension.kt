@@ -1,5 +1,7 @@
 package common.glide.extensions
 
+import common.glide.ENV
+import common.glide.slideshow.CachedImage
 import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.image.BufferedImage
@@ -23,6 +25,23 @@ fun Dimension?.equals(other: Any?): Boolean {
     return (this?.width == other.width) && (this.height == other.height)
   }
   return false
+}
+
+
+///////////////////////////////////////
+// Fitting Logic
+///////////////////////////////////////
+
+fun Dimension.fitCentered(pages: List<CachedImage>): List<CachedImage> {
+  var margin = (size.width - pages.sumBy { it.width }) / 2
+
+  return pages
+    .run { if (ENV.direction) reversed() else this }
+    .map {
+      it.position = Dimension(margin, (size.height - it.height) / 2)
+      margin += it.width
+      it
+    }
 }
 
 

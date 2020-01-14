@@ -16,7 +16,7 @@ import kotlin.math.pow
 // DataStructure Extensions
 ///////////////////////////////////////
 
-val Array<Geometry>.imageCount: Int
+val List<Geometry>.imageCount: Int
   get() = this.count { it::class == CachedImage::class }
 
 

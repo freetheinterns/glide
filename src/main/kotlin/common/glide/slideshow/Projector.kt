@@ -6,6 +6,7 @@ import common.glide.enums.CacheStrategy
 import common.glide.extensions.catalogs
 import common.glide.extensions.chooseBestDisplayMode
 import common.glide.extensions.dimension
+import common.glide.extensions.fitCentered
 import common.glide.extensions.imageCount
 import common.glide.extensions.logger
 import common.glide.extensions.use
@@ -20,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.awt.Color
+import java.awt.Dimension
 import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment
 import java.awt.event.WindowAdapter
@@ -33,14 +35,7 @@ import kotlin.math.max
 import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 
-/**
- * @property geometry Array<Geometry>
- * @property index ImageIndex The current image in the library being displayed
- * @property library List<Catalog> The list of Catalogs loaded by the program
- * @property device GraphicsDevice
- * @property marginPanel MarginPanel
- * @property timer Timer
- */
+
 class Projector : FullScreenFrame(), Iterable<CachedImage> {
   companion object {
     private val log by logger()
@@ -50,7 +45,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   // Properties
   ///////////////////////////////////////
 
-  var geometry by TriggeringProperty(arrayOf<Geometry>(), ::render)
+  var geometry by TriggeringProperty(listOf<Geometry>(), ::render)
   val index: ImageIndex by cache { ImageIndex(library) }
   var library: Array<Catalog> by cache { File(ENV.root).catalogs }
 
@@ -130,7 +125,8 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     val focus = index + geometry.imageCount
 
     repeat(ENV.maxImagesPerFrame) {
-      focus.current.build(size.width * 2, size.height * 2).render(g)
+      focus.current.position = Dimension(size.width * 2, size.height * 2)
+      focus.current.render(g)
       focus.inc()
     }
 
@@ -154,42 +150,27 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
   // Order of operations:
   // - The index is modified and project() is called
-  // - project() recalculates the geometry array which triggers...
-  // - render() draws all geometry to a screen and triggers...
-  // - updateCaching() which re-evaluates the caching states of buffered images
+  // - selectImages() performs lookahead operations to collect the images to be displayed
+  // - render() draws all geometry to a screen after the field is updated
+  // - 10ms delay to allow UI thread to kick in
+  // - preRender() immediately draws the optimistic next images to get them cached on the UI thread.
+  // - updateCaching() which re-evaluates the caching states of buffered images after rendering
   ///////////////////////////////////////
 
-  private fun constructGeometry(
-    pages: List<ImageIndex>
-  ): Array<Geometry> {
-    var margin = (size.width - pages.sumBy { it.current.width }) / 2
-
-    val pageGeometry =
-      pages.run {
-        if (ENV.direction)
-          reversed()
-        else
-          toList()
-      }.map {
-        it
-          .current
-          .build(margin, (size.height - it.current.height) / 2)
-          .apply { margin += it.current.width }
-      }
-
-    log.info("geo: ${System.currentTimeMillis()}")
-    return arrayOf(*pageGeometry.toTypedArray(), marginPanel.build())
+  private fun project() {
+    val pages = selectImages()
+    geometry = size.fitCentered(pages).plus(marginPanel)
   }
 
-  private fun project() {
-    val pages: MutableList<ImageIndex> = mutableListOf()
+  private fun selectImages(): List<CachedImage> {
+    val pages: MutableList<CachedImage> = mutableListOf()
     var margin = size.width
     var focus = index.copy
 
     do {
       margin -= focus.current.width
       if (margin < 0) break
-      pages.add(focus)
+      pages.add(focus.current)
       focus = focus + 1
     } while (
       ENV.paneled &&                     // Panelling is enabled
@@ -197,7 +178,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
       pages.size < ENV.maxImagesPerFrame // Honor upper bound
     )
 
-    geometry = constructGeometry(pages)
+    return pages
   }
 
 
@@ -323,7 +304,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
         !it.path.startsWith(target.absolutePath)
       }.toTypedArray()
 
-      geometry = arrayOf()
+      geometry = listOf()
 
       operation(target)
     } catch (err: Exception) {
