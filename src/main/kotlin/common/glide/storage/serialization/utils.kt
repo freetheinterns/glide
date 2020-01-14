@@ -1,5 +1,7 @@
 package common.glide.storage.serialization
 
+import common.glide.Mutator
+import common.glide.Operation
 import kotlinx.serialization.CompositeDecoder
 import kotlinx.serialization.CompositeEncoder
 import kotlinx.serialization.Decoder
@@ -14,7 +16,7 @@ val JSON by lazy {
 
 fun <T : Any> KSerializer<*>.decodeStructure(
   decoder: Decoder,
-  block: (CompositeDecoder) -> T
+  block: Mutator<CompositeDecoder, T>
 ): T {
   lateinit var ret: T
   decoder.beginStructure(descriptor).also { ret = block(it) }.endStructure(descriptor)
@@ -23,7 +25,7 @@ fun <T : Any> KSerializer<*>.decodeStructure(
 
 fun KSerializer<*>.encodeStructure(
   encoder: Encoder,
-  block: (CompositeEncoder) -> Unit
+  block: Operation<CompositeEncoder>
 ) {
   encoder.beginStructure(descriptor).also(block).endStructure(descriptor)
 }

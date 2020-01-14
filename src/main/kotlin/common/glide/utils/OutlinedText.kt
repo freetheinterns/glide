@@ -1,5 +1,6 @@
 package common.glide.utils
 
+import common.glide.ExtOperation
 import java.awt.BasicStroke
 import java.awt.BasicStroke.CAP_ROUND
 import java.awt.BasicStroke.JOIN_ROUND
@@ -13,14 +14,12 @@ import java.awt.RenderingHints.VALUE_ANTIALIAS_ON
 import java.awt.Stroke
 import java.awt.font.FontRenderContext
 
-typealias TypeSetter = Graphics2D.(String) -> Unit
-
 private fun outlinedTypeSetter(
   font: Font,
   context: FontRenderContext,
   textColor: Color,
   outlineColor: Color
-): TypeSetter = {
+): ExtOperation<Graphics2D, String> = {
   val outline = font.createGlyphVector(context, it).outline
   color = outlineColor
   draw(outline)
@@ -40,7 +39,7 @@ fun Graphics2D.createOutlinedTypeSetter(
   strokeColor: Color = BLACK,
   textColor: Color = WHITE,
   context: FontRenderContext = fontRenderContext
-): TypeSetter {
+): ExtOperation<Graphics2D, String> {
   setRenderingHint(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON)
   this.stroke = stroke
 

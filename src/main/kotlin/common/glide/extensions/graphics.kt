@@ -1,6 +1,7 @@
 package common.glide.extensions
 
 import common.glide.BEST_DISPLAY_MODES
+import common.glide.Operation
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
@@ -42,7 +43,7 @@ fun GraphicsDevice.chooseBestDisplayMode() {
   }
 }
 
-fun Graphics2D.use(block: (Graphics2D) -> Unit) {
+fun Graphics2D.use(block: Operation<Graphics2D>) {
   block(this)
   dispose()
 }

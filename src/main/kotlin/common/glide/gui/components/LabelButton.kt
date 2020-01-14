@@ -1,6 +1,7 @@
 package common.glide.gui.components
 
 import common.glide.ENV
+import common.glide.Operation
 import common.glide.extensions.sizeTo
 import java.awt.Color
 import java.awt.Component
@@ -26,7 +27,7 @@ class LabelButton(
   width: Int = HARD_WIDTH,
   height: Int = HARD_HEIGHT,
   borderObj: Border = EmptyBorder(0, 20, 0, 0),
-  private val artist: (Graphics2D) -> Unit = {}
+  private val artist: Operation<Graphics2D> = {}
 ) : JPanel(), MouseListener, MouseMotionListener {
   private val label = JLabel(title)
 

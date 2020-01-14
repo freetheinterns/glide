@@ -14,14 +14,13 @@ import java.nio.file.attribute.BasicFileAttributes
 // File Extensions
 ///////////////////////////////////////
 
-val File.catalogs: Array<Catalog>
+val File.catalogs: List<Catalog>
   get() =
     listFiles(CatalogFilter)
       ?.toList()
       ?.map(::Catalog)
       ?.sorted()
-      ?.toTypedArray()
-    ?: arrayOf()
+    ?: listOf()
 
 fun File.listImages(): List<File> =
   listFiles(ImageFilter)?.toList() ?: listOf()

@@ -6,7 +6,7 @@ import common.glide.utils.TriggeringProperty
 import kotlin.math.abs
 
 class ImageIndex(
-  private val library: Array<Catalog>,
+  private val library: List<Catalog>,
   playlistIndex: Int = 0,
   slideIndex: Int = 0
 ) : ListIterator<CachedImage>, Comparable<ImageIndex> {

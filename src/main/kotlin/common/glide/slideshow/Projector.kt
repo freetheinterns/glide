@@ -1,7 +1,9 @@
 package common.glide.slideshow
 
 import common.glide.ENV
+import common.glide.Extension
 import common.glide.KEY_BINDINGS
+import common.glide.Operation
 import common.glide.enums.CacheStrategy
 import common.glide.extensions.catalogs
 import common.glide.extensions.chooseBestDisplayMode
@@ -36,7 +38,7 @@ import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 
 
-class Projector : FullScreenFrame(), Iterable<CachedImage> {
+class Projector : FullScreenFrame() {
   companion object {
     private val log by logger()
   }
@@ -46,12 +48,12 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
 
   var geometry by TriggeringProperty(listOf<Geometry>(), ::render)
+  var library: List<Catalog> by cache { File(ENV.root).catalogs }
   val index: ImageIndex by cache { ImageIndex(library) }
-  var library: Array<Catalog> by cache { File(ENV.root).catalogs }
 
+  private var timer = Timer(ENV.speed) { KEY_BINDINGS.trigger("pageForward") }
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
-  private var timer = Timer(ENV.speed) { KEY_BINDINGS.trigger("pageForward") }
 
   init {
     if (!device.isFullScreenSupported)
@@ -106,10 +108,6 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     exitProcess(status)
   }
 
-  override fun iterator() = ImageIndex(library)
-
-  override fun toString(): String = "<Projector: ${hashCode()}>"
-
   ///////////////////////////////////////
   // Draw Logic Helpers
   ///////////////////////////////////////
@@ -133,7 +131,7 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
     wipeScreen(g)
   }
 
-  private fun drawPage(painter: ((Graphics2D) -> Unit)? = null) {
+  private fun drawPage(painter: Operation<Graphics2D>? = null) {
     val drawTime = measureTimeMillis {
       (bufferStrategy.drawGraphics as Graphics2D).use {
         wipeScreen(it)
@@ -271,15 +269,8 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   }
 
   private fun softJump(target: Int) {
-    when (index.maxPrimary) {
-      0            -> exit()
-      in 0..target -> {
-        index.primary = index.maxPrimary - 1
-      }
-      else         -> {
-        index.primary = target
-      }
-    }
+    if (index.maxPrimary == 0) exit()
+    index.primary = target.coerceAtMost(index.maxPrimary - 1)
     project()
   }
 
@@ -288,49 +279,38 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
   ///////////////////////////////////////
 
 
-  private inline fun purgeCatalog(
-    targetPosition: Int,
-    jumpPosition: Int = targetPosition,
-    crossinline operation: (File) -> Unit
+  private fun modifyCatalogFolder(
+    target: Int,
+    jumpTo: Int = target,
+    operation: Extension<File>
   ) {
-
     drawPage()
+    val targetFile = library[target].file
 
-    try {
-      val target = library[targetPosition].file
+    invalidateCache(::index)
+    library = library.filter { !it.path.startsWith(targetFile.absolutePath) }
+    geometry = listOf()
 
-      invalidateCache(::index)
-      library = library.filter {
-        !it.path.startsWith(target.absolutePath)
-      }.toTypedArray()
-
-      geometry = listOf()
-
-      operation(target)
-    } catch (err: Exception) {
-      throw err
-    }
-
+    targetFile.operation()
     System.gc()
-
-    softJump(jumpPosition)
+    softJump(jumpTo)
   }
 
   fun deleteCurrentDirectory() {
-    purgeCatalog(index.primary) {
-      log.warning("Deleting Folder: ${it.absolutePath}")
-      it.deleteRecursively()
+    modifyCatalogFolder(index.primary) {
+      log.warning("Deleting Folder: $absolutePath")
+      deleteRecursively()
     }
   }
 
   fun archiveCurrentDirectory() {
-    purgeCatalog(index.primary) {
-      val newPath = File("${ENV.archive}\\${it.name}").toPath()
-      log.warning("Moving Folder: ${it.absolutePath} --> $newPath")
+    modifyCatalogFolder(index.primary) {
+      val newPath = File("${ENV.archive}\\$name").toPath()
+      log.warning("Moving Folder: $absolutePath --> $newPath")
       if (Files.exists(newPath, LinkOption.NOFOLLOW_LINKS))
         log.severe("Target Path already exists! No action taken!")
       else
-        Files.move(it.toPath(), newPath)
+        Files.move(toPath(), newPath)
     }
   }
 }
