@@ -17,27 +17,25 @@ object EventHandler : KeyEventDispatcher, MouseListener {
 
   fun register() {
     if (isRegistered) return
-    try {
+    isRegistered = try {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this)
-      isRegistered = true
-      log.info("EventHandler successfully registered")
+      true
     } catch (err: RuntimeException) {
       log.warning("Error registering EventHandler")
       err.printStackTrace()
-      isRegistered = false
+      false
     }
   }
 
   fun deregister() {
     if (!isRegistered) return
-    try {
+    isRegistered = try {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
-      isRegistered = true
-      log.info("EventHandler successfully de-registered")
+      false
     } catch (err: RuntimeException) {
       log.warning("Error de-registering EventHandler")
       err.printStackTrace()
-      isRegistered = false
+      true
     }
   }
 

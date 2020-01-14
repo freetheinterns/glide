@@ -23,7 +23,7 @@ class Slider(
     paintTicks = true
     paintLabels = true
     paintTrack = true
-    preferredSize = Dimension(300, 45)
+    preferredSize = Dimension(300, 50)
     font = font.deriveFont(font.size2D - 6L)
     alignmentX = Component.LEFT_ALIGNMENT
     addChangeListener(this)

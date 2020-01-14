@@ -1,13 +1,16 @@
 package common.glide.extensions
 
+import com.sun.image.codec.jpeg.JPEGCodec
 import common.glide.ENV
 import common.glide.FILE_CREATED_ATS
 import common.glide.FILE_UPDATED_ATS
 import common.glide.slideshow.Catalog
+import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileFilter
 import java.nio.file.Files
 import java.nio.file.attribute.BasicFileAttributes
+import javax.imageio.ImageIO
 
 
 ///////////////////////////////////////
@@ -24,6 +27,14 @@ val File.catalogs: List<Catalog>
 
 fun File.listImages(): List<File> =
   listFiles(ImageFilter)?.toList() ?: listOf()
+
+val File.bufferedImage: BufferedImage
+  get() = try {
+    ImageIO.read(this)
+  } catch (exc: Exception) {
+    println("Failed to load $absolutePath as buffered image.")
+    JPEGCodec.createJPEGDecoder(inputStream()).decodeAsBufferedImage()
+  }
 
 ///////////////////////////////////////
 // File Filters

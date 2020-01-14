@@ -38,9 +38,9 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   }
 
   private val saveTab =
-    LabelButton("Save Settings", this, defaultBackground = ENV.darkHighlight)
+    LabelButton("Save Settings", this, defaultBackground = ENV.darkHighlight, foreground = ENV.foreground)
   private val launchTab =
-    LabelButton("Launch", this, defaultBackground = ENV.darkHighlight)
+    LabelButton("Launch", this, defaultBackground = ENV.darkHighlight, foreground = ENV.foreground)
   private val closeWindow = LabelButton(
     "X",
     ActionListener { exitProcess(0) },

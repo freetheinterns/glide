@@ -22,6 +22,7 @@ import javax.swing.UIManager
 data class SlideshowSettings(
   var background: Color = Color(15, 15, 15),
   var foreground: Color = Color(0, 0, 0),
+  var lightForeground: Color = Color(200, 200, 200),
   var dark: Color = Color(27, 28, 27),
   var darkSelected: Color = Color(70, 71, 71),
   var darkHighlight: Color = Color(103, 102, 100),

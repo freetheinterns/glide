@@ -3,6 +3,8 @@ package common.glide.slideshow
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidateCache
 import common.glide.utils.TriggeringProperty
+import java.util.*
+import kotlin.NoSuchElementException
 import kotlin.math.abs
 
 class ImageIndex(
@@ -10,6 +12,7 @@ class ImageIndex(
   playlistIndex: Int = 0,
   slideIndex: Int = 0
 ) : ListIterator<CachedImage>, Comparable<ImageIndex> {
+  private val uuid: Int = UUID.randomUUID().hashCode()
   val current: CachedImage by cache { library[primary][secondary] }
   var primary: Int by TriggeringProperty(playlistIndex) {
     invalidateCache(::maxSecondary)
@@ -17,7 +20,7 @@ class ImageIndex(
     secondary = 0
   }
   var secondary: Int by TriggeringProperty(slideIndex) { invalidateCache(::current) }
-  var maxPrimary: Int by cache { library.size }
+  val maxPrimary: Int by lazy { library.size }
   val maxSecondary: Int by cache { library[primary].size }
   val copy
     get() = ImageIndex(library, primary, secondary)
@@ -76,8 +79,8 @@ class ImageIndex(
   override fun hasPrevious() = primary > 0 || secondary > 0
   override fun nextIndex() = primary + 1
   override fun previousIndex() = primary - 1
-  override fun hashCode() = toString().hashCode()
-  override fun toString() = "$primary-$secondary-${library.hashCode()}"
+  override fun hashCode(): Int = uuid
+  override fun toString() = "ImageIndex: primary= $primary/$maxPrimary secondary= $secondary/$maxSecondary"
 
   operator fun plusAssign(inc: Int) {
     walk(inc)

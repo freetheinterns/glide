@@ -6,6 +6,7 @@ import common.glide.enums.CacheStrategy
 import common.glide.enums.CacheStrategy.CLEAR
 import common.glide.enums.CacheStrategy.ORIGINAL
 import common.glide.enums.CacheStrategy.SCALED
+import common.glide.extensions.bufferedImage
 import common.glide.extensions.scaleToFit
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidateCache
@@ -15,12 +16,11 @@ import java.awt.Dimension
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
 import java.io.File
-import javax.imageio.ImageIO
 
 class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   override var position: Dimension by TriggeringProperty(Dimension()) { updateCache(SCALED) }
 
-  private val image: BufferedImage by cache { ImageIO.read(file) }
+  private val image: BufferedImage by cache { file.bufferedImage }
   private val sizedImage: BufferedImage by cache {
     ENV.projector?.size?.let { image.scaleToFit(it) } ?: image
   }

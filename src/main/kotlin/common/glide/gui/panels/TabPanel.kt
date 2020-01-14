@@ -7,6 +7,7 @@ import common.glide.gui.Launcher
 import common.glide.gui.components.DirectoryChooser
 import common.glide.gui.components.LabelButton
 import common.glide.gui.components.Slider
+import common.glide.utils.CachedProperty.Companion.cache
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Component
@@ -33,13 +34,14 @@ open class TabPanel(
 ) : JPanel() {
   var highlighted = false
   val label = LabelButton(title, listener)
-  var header = JLabel(title)
-  var spring = SpringLayout()
-  var memory: Component = header
+
+  private var memory: Component by cache { header }
+  private val header = JLabel(title)
+  private val spring = SpringLayout()
   private val closeButton = LabelButton(
     "",
     ActionListener { exitProcess(0) },
-    defaultBackground = ENV.background,
+    defaultBackground = ENV.darkSelected,
     defaultSelected = ENV.exitRed,
     width = 56,
     height = 38,
@@ -61,14 +63,14 @@ open class TabPanel(
 
     // Build Header
     header.font = header.font.deriveFont(header.font.size2D + 15)
-    header.foreground = ENV.foreground
+    header.foreground = ENV.lightForeground
 
     // Add components
     super.add(closeButton)
     super.add(header)
 
     // Constrain components
-    spring.glue(HORIZONTAL_CENTER, header, this, PADDING)
+    spring.glue(HORIZONTAL_CENTER, header, this, -28)
     spring.glue(NORTH, closeButton, this)
     spring.glue(EAST, closeButton, this)
   }

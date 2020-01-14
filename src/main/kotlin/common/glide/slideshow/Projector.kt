@@ -11,6 +11,7 @@ import common.glide.extensions.dimension
 import common.glide.extensions.fitCentered
 import common.glide.extensions.imageCount
 import common.glide.extensions.logger
+import common.glide.extensions.times
 import common.glide.extensions.use
 import common.glide.gui.listeners.EventHandler
 import common.glide.gui.panels.FullScreenFrame
@@ -23,7 +24,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.awt.Color
-import java.awt.Dimension
 import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment
 import java.awt.event.WindowAdapter
@@ -123,7 +123,7 @@ class Projector : FullScreenFrame() {
     val focus = index + geometry.imageCount
 
     repeat(ENV.maxImagesPerFrame) {
-      focus.current.position = Dimension(size.width * 2, size.height * 2)
+      focus.current.position = size * 2
       focus.current.render(g)
       focus.inc()
     }
@@ -240,6 +240,7 @@ class Projector : FullScreenFrame() {
     if (ENV.paneled) {
       var realestate = width - index.current.width
       var lookahead = index - 1
+
       while (realestate >= lookahead.current.width && lookahead.primary == index.primary) {
         index -= 1
         realestate -= index.current.width

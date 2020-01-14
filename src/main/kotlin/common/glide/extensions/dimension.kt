@@ -16,9 +16,11 @@ operator fun Dimension.div(other: Dimension): Float {
   return min(this.width / other.width.toFloat(), this.height / other.height.toFloat())
 }
 
-operator fun Dimension.times(scalar: Float): Dimension {
-  return Dimension((this.width * scalar).toInt(), (this.height * scalar).toInt())
-}
+operator fun Dimension.times(scalar: Float): Dimension =
+  Dimension((this.width * scalar).toInt(), (this.height * scalar).toInt())
+
+operator fun Dimension.times(scalar: Int): Dimension =
+  Dimension(this.width * scalar, this.height * scalar)
 
 fun Dimension?.equals(other: Any?): Boolean {
   if (other is Dimension) {

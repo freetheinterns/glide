@@ -23,7 +23,7 @@ class LabelButton(
   private val listener: ActionListener,
   private val defaultBackground: Color = ENV.dark,
   private val defaultSelected: Color = ENV.darkSelected,
-  foreground: Color = ENV.foreground,
+  foreground: Color = ENV.lightForeground,
   width: Int = HARD_WIDTH,
   height: Int = HARD_HEIGHT,
   borderObj: Border = EmptyBorder(0, 20, 0, 0),

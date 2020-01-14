@@ -21,7 +21,7 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
   implementation("org.openjdk.jmh:jmh-core:1.22")
-
+  implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.4.3")
   // Use the Kotlin test library
   testImplementation("junit:junit:4.11")
   testImplementation(kotlin("test-junit"))
