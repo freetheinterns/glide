@@ -20,6 +20,7 @@ dependencies {
   implementation(kotlin("reflect"))
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
   implementation("org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.14.0")
+  implementation("org.openjdk.jmh:jmh-core:1.22")
 
   // Use the Kotlin test library
   testImplementation("junit:junit:4.11")

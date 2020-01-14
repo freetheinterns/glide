@@ -13,31 +13,31 @@ import java.nio.file.attribute.BasicFileAttributes
 ///////////////////////////////////////
 
 val File.catalogs: Array<Catalog>
-  get() = this.listMatchingDirectories().map(::Catalog).sorted().toTypedArray()
-
-fun File.listMatchingDirectories(): List<File> =
-  listFiles(DirectoryFilter())?.toList() ?: listOf()
+  get() =
+    listFiles(CatalogFilter)
+      ?.toList()
+      ?.map(::Catalog)
+      ?.sorted()
+      ?.toTypedArray()
+    ?: arrayOf()
 
 fun File.listImages(): List<File> =
-  listFiles(ImagesFilter())?.toList() ?: listOf()
+  listFiles(ImageFilter)?.toList() ?: listOf()
 
 ///////////////////////////////////////
 // File Filters
 ///////////////////////////////////////
 
-class DirectoryFilter : FileFilter {
-  override fun accept(path: File) =
-    try {
-      path.isDirectory && path.absolutePath != ENV.archive && File(path.absolutePath).listImages().isNotEmpty()
-    } catch (ex: Exception) {
-      false
-    }
+val CatalogFilter = FileFilter {
+  try {
+    it.isDirectory && it.absolutePath != ENV.archive && File(it.absolutePath).listImages().isNotEmpty()
+  } catch (ex: Exception) {
+    false
+  }
 }
 
-class ImagesFilter : FileFilter {
-  override fun accept(path: File): Boolean {
-    return !path.isDirectory && ENV.imagePattern matches path.name
-  }
+val ImageFilter = FileFilter {
+  !it.isDirectory && ENV.imagePattern matches it.name
 }
 
 
@@ -46,7 +46,7 @@ class ImagesFilter : FileFilter {
 ///////////////////////////////////////
 
 val File.basicAttributes: BasicFileAttributes
-  get() = Files.readAttributes(this.toPath(), BasicFileAttributes::class.java)
+  get() = Files.readAttributes(toPath(), BasicFileAttributes::class.java)
 
 val File.createdAt: Long
   get() = this.basicAttributes.creationTime().toMillis()

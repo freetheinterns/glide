@@ -1,11 +1,11 @@
 package common.glide.slideshow
 
+import common.glide.storage.BLACKHOLE
 import common.glide.storage.ENV
 import common.glide.utils.extensions.CACHED_FILE
 import common.glide.utils.extensions.CACHED_PATH
 import common.glide.utils.extensions.CACHE_FULL_IMAGE
 import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
-import common.glide.utils.extensions.logger
 import common.glide.utils.extensions.scaleToFit
 import common.glide.utils.properties.CachedProperty.Companion.cache
 import common.glide.utils.properties.CachedProperty.Companion.invalidateCache
@@ -35,15 +35,11 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
           invalidateCache(::image)
           invalidateCache(::sizedImage)
         }
-        CACHE_FULL_IMAGE    -> image
-        CACHE_RESIZED_IMAGE -> log.info("Ensure cache of $name width=$width")
+        CACHE_FULL_IMAGE    -> BLACKHOLE.consume(image)
+        CACHE_RESIZED_IMAGE -> BLACKHOLE.consume(width)
       }
       field = next
     }
-
-  companion object {
-    private val log by logger()
-  }
 
   override fun paint(g: Graphics2D) {
     g.translate(drawPosition.width, drawPosition.height)
