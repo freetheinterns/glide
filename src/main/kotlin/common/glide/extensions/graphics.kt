@@ -1,5 +1,6 @@
 package common.glide.extensions
 
+import common.glide.BEST_DISPLAY_MODES
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension

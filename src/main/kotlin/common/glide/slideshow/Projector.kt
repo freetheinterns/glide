@@ -2,9 +2,7 @@ package common.glide.slideshow
 
 import common.glide.ENV
 import common.glide.KEY_BINDINGS
-import common.glide.extensions.CACHED_FILE
-import common.glide.extensions.CACHE_FULL_IMAGE
-import common.glide.extensions.CACHE_RESIZED_IMAGE
+import common.glide.enums.CacheStrategy
 import common.glide.extensions.blindObserver
 import common.glide.extensions.catalogs
 import common.glide.extensions.chooseBestDisplayMode
@@ -229,12 +227,9 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
       GlobalScope.launch(Dispatchers.IO) {
         when {
-          offset < ENV.maxImagesPerFrame * 2 -> cacheFront.current.cacheLevel =
-            CACHE_RESIZED_IMAGE
-          offset < ENV.maxImagesPerFrame * 3 -> cacheFront.current.cacheLevel =
-            CACHE_FULL_IMAGE
-          else                               -> cacheFront.current.cacheLevel =
-            CACHED_FILE
+          offset < ENV.maxImagesPerFrame * 2 -> cacheFront.current.updateCache(CacheStrategy.SCALED)
+          offset < ENV.maxImagesPerFrame * 3 -> cacheFront.current.updateCache(CacheStrategy.ORIGINAL)
+          else                               -> cacheFront.current.updateCache(CacheStrategy.CLEAR)
         }
       }
       cacheFront.next()

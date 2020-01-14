@@ -2,7 +2,6 @@ package common.glide.extensions
 
 import common.glide.Block
 import common.glide.Loader
-import java.awt.DisplayMode
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.logging.*
@@ -18,15 +17,6 @@ import kotlin.reflect.full.findAnnotation
 // Global Variables
 ///////////////////////////////////////
 
-const val CACHED_PATH = 0
-const val CACHED_FILE = 1
-const val CACHE_FULL_IMAGE = 2
-const val CACHE_RESIZED_IMAGE = 3
-val BEST_DISPLAY_MODES = arrayOf(
-  DisplayMode(2560, 1440, 32, 0),
-  DisplayMode(2560, 1440, 16, 0),
-  DisplayMode(2560, 1440, 8, 0)
-)
 
 
 ///////////////////////////////////////

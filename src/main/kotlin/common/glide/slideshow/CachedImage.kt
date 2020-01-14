@@ -2,10 +2,10 @@ package common.glide.slideshow
 
 import common.glide.BLACKHOLE
 import common.glide.ENV
-import common.glide.extensions.CACHED_FILE
-import common.glide.extensions.CACHED_PATH
-import common.glide.extensions.CACHE_FULL_IMAGE
-import common.glide.extensions.CACHE_RESIZED_IMAGE
+import common.glide.enums.CacheStrategy
+import common.glide.enums.CacheStrategy.CLEAR
+import common.glide.enums.CacheStrategy.ORIGINAL
+import common.glide.enums.CacheStrategy.SCALED
 import common.glide.extensions.scaleToFit
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidateCache
@@ -29,19 +29,14 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   val height: Int by lazy { sizedImage.height }
   val name: String by lazy { file.name }
 
-  var cacheLevel: Int = CACHED_FILE
-    set(next) {
-      when (next) {
-        CACHED_PATH         -> Unit
-        CACHED_FILE         -> {
-          invalidateCache(::image)
-          invalidateCache(::sizedImage)
-        }
-        CACHE_FULL_IMAGE    -> BLACKHOLE.consume(image)
-        CACHE_RESIZED_IMAGE -> BLACKHOLE.consume(width)
-      }
-      field = next
+  fun updateCache(strategy: CacheStrategy) = when (strategy) {
+    CLEAR    -> {
+      invalidateCache(::image)
+      invalidateCache(::sizedImage)
     }
+    ORIGINAL -> BLACKHOLE.consume(image)
+    SCALED   -> BLACKHOLE.consume(width)
+  }
 
   override fun paint(g: Graphics2D) {
     g.translate(drawPosition.width, drawPosition.height)
@@ -56,7 +51,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
 
   override fun build(xOffset: Int, yOffset: Int): Geometry = apply {
     drawPosition = Dimension(xOffset, yOffset)
-    cacheLevel = CACHE_RESIZED_IMAGE
+    updateCache(SCALED)
   }
 
   override fun compareTo(other: CachedImage) =

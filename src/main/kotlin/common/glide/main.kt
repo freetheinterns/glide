@@ -8,6 +8,7 @@ import common.glide.storage.KeyBindings
 import common.glide.storage.SlideshowSettings
 import common.glide.storage.memoization.FileSizeMemoizer
 import org.openjdk.jmh.infra.Blackhole
+import java.awt.DisplayMode
 import java.awt.GraphicsEnvironment
 import java.util.logging.*
 
@@ -18,12 +19,16 @@ val LAST_VERSION: Int? by lazy { GlideVersion().load().value }
 val ENV by lazy { SlideshowSettings().load() }
 val KEY_BINDINGS by lazy { KeyBindings().load() }
 val FILE_SIZES by lazy { FileSizeMemoizer().load().apply { sanitize() } }
+val BLACKHOLE = Blackhole("Today's password is swordfish. I understand instantiating Blackholes directly is dangerous.")
+
 val FONT_FAMILIES: Array<String> by lazy {
   GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
 }
-
-val BLACKHOLE = Blackhole("Today's password is swordfish. I understand instantiating Blackholes directly is dangerous.")
-
+val BEST_DISPLAY_MODES = arrayOf(
+  DisplayMode(2560, 1440, 32, 0),
+  DisplayMode(2560, 1440, 16, 0),
+  DisplayMode(2560, 1440, 8, 0)
+)
 
 internal fun defineLogger() {
   val baseLogger = Logger.getLogger("")
