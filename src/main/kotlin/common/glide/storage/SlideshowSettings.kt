@@ -5,6 +5,7 @@
 
 package common.glide.storage
 
+import common.glide.USER_HOME
 import common.glide.enums.FolderSortStrategy
 import common.glide.gui.Launcher
 import common.glide.slideshow.Projector
@@ -42,8 +43,8 @@ data class SlideshowSettings(
   var debounce: Long = 200L,
 
   var ordering: FolderSortStrategy = FolderSortStrategy.NumberOfFiles,
-  var root: String = File("~\\Pictures").absolutePath,
-  var archive: String = File("~\\Pictures\\archive").absolutePath,
+  var root: String = File("$USER_HOME\\Pictures").absolutePath,
+  var archive: String = File("$USER_HOME\\Pictures\\archive").absolutePath,
   var fontName: String = UIManager.getFont("Button.font").fontName,
 
   @Transient var scope: String = "",
