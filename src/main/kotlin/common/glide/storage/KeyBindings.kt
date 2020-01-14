@@ -1,7 +1,8 @@
 package common.glide.storage
 
-import common.glide.utils.extensions.Scope
-import common.glide.utils.extensions.scopes
+import common.glide.ENV
+import common.glide.extensions.Scope
+import common.glide.extensions.scopes
 import kotlinx.serialization.Serializable
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess

@@ -1,6 +1,6 @@
 package common.glide.gui.components
 
-import common.glide.utils.extensions.sizeTo
+import common.glide.extensions.sizeTo
 import java.awt.event.ActionListener
 import javax.swing.JButton
 

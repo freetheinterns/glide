@@ -1,4 +1,4 @@
-package common.glide.utils.extensions
+package common.glide.extensions
 
 import java.awt.Dimension
 import java.awt.DisplayMode

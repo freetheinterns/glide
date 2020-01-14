@@ -1,16 +1,29 @@
 package common.glide
 
+import common.glide.extensions.throwable
 import common.glide.gui.Launcher
 import common.glide.scripts.defineLookAndFeel
-import common.glide.slideshow.GlideVersion
-import common.glide.storage.FileSizeMemoizer
+import common.glide.storage.GlideVersion
 import common.glide.storage.KeyBindings
-import common.glide.storage.LAST_VERSION
 import common.glide.storage.SlideshowSettings
-import common.glide.storage.VERSION
-import common.glide.utils.extensions.throwable
+import common.glide.storage.memoization.FileSizeMemoizer
+import org.openjdk.jmh.infra.Blackhole
 import java.awt.GraphicsEnvironment
 import java.util.logging.*
+
+const val VERSION: Int = 1
+var USE_REFLECTIVE_CACHE_VALIDATION: Boolean = false
+
+val LAST_VERSION: Int? by lazy { GlideVersion().load().value }
+val ENV by lazy { SlideshowSettings().load() }
+val KEY_BINDINGS by lazy { KeyBindings().load() }
+val FILE_SIZES by lazy { FileSizeMemoizer().load().apply { sanitize() } }
+val FONT_FAMILIES: Array<String> by lazy {
+  GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
+}
+
+val BLACKHOLE = Blackhole("Today's password is swordfish. I understand instantiating Blackholes directly is dangerous.")
+
 
 internal fun defineLogger() {
   val baseLogger = Logger.getLogger("")

@@ -8,7 +8,7 @@ import java.io.FileNotFoundException
 import java.nio.file.Paths
 
 
-abstract class Persistable<T : Persistable<T>> constructor() {
+abstract class Persistable<T : Persistable<T>>() {
   private val filename: String by lazy {
     Paths.get("").toAbsolutePath().resolve("${this::class.simpleName}.json").toString()
   }

@@ -1,4 +1,4 @@
-package common.glide.utils.extensions
+package common.glide.extensions
 
 import common.glide.Block
 import common.glide.Loader

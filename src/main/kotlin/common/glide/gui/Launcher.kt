@@ -1,19 +1,19 @@
 package common.glide.gui
 
+import common.glide.ENV
+import common.glide.enums.FolderSortStrategy
+import common.glide.extensions.glue
+import common.glide.extensions.logger
+import common.glide.extensions.sizeTo
 import common.glide.gui.components.Button
 import common.glide.gui.components.LabelButton
+import common.glide.gui.listeners.EventHandler
 import common.glide.gui.listeners.FrameDragListener
 import common.glide.gui.panels.AdvancedOptionsTabPanel
 import common.glide.gui.panels.DisplayOptionsTabPanel
 import common.glide.gui.panels.FileOptionsTabPanel
 import common.glide.gui.panels.TabPanel
-import common.glide.slideshow.EventHandler
-import common.glide.slideshow.FolderSortStrategy
 import common.glide.slideshow.Projector
-import common.glide.storage.ENV
-import common.glide.utils.extensions.glue
-import common.glide.utils.extensions.logger
-import common.glide.utils.extensions.sizeTo
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color
@@ -127,7 +127,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     displayOptionsTab.label  -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
-    else -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
+    else                     -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
   }
 
   private fun save() {

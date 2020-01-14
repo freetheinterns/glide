@@ -1,12 +1,12 @@
 package common.glide.gui.panels
 
+import common.glide.ENV
+import common.glide.extensions.glue
+import common.glide.extensions.sizeTo
 import common.glide.gui.Launcher
 import common.glide.gui.components.DirectoryChooser
 import common.glide.gui.components.LabelButton
 import common.glide.gui.components.Slider
-import common.glide.storage.ENV
-import common.glide.utils.extensions.glue
-import common.glide.utils.extensions.sizeTo
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Component

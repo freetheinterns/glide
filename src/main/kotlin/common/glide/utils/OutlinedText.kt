@@ -1,4 +1,4 @@
-package common.glide.slideshow
+package common.glide.utils
 
 import java.awt.BasicStroke
 import java.awt.BasicStroke.CAP_ROUND

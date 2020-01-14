@@ -1,20 +1,21 @@
 package common.glide.slideshow
 
+import common.glide.ENV
+import common.glide.KEY_BINDINGS
+import common.glide.extensions.CACHED_FILE
+import common.glide.extensions.CACHE_FULL_IMAGE
+import common.glide.extensions.CACHE_RESIZED_IMAGE
+import common.glide.extensions.blindObserver
+import common.glide.extensions.catalogs
+import common.glide.extensions.chooseBestDisplayMode
+import common.glide.extensions.dimension
+import common.glide.extensions.imageCount
+import common.glide.extensions.logger
+import common.glide.extensions.use
+import common.glide.gui.listeners.EventHandler
 import common.glide.gui.panels.FullScreenFrame
-import common.glide.storage.ENV
-import common.glide.storage.KEY_BINDINGS
-import common.glide.utils.extensions.CACHED_FILE
-import common.glide.utils.extensions.CACHE_FULL_IMAGE
-import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
-import common.glide.utils.extensions.blindObserver
-import common.glide.utils.extensions.catalogs
-import common.glide.utils.extensions.chooseBestDisplayMode
-import common.glide.utils.extensions.dimension
-import common.glide.utils.extensions.imageCount
-import common.glide.utils.extensions.logger
-import common.glide.utils.extensions.use
-import common.glide.utils.properties.CachedProperty.Companion.cache
-import common.glide.utils.properties.CachedProperty.Companion.invalidateCache
+import common.glide.utils.CachedProperty.Companion.cache
+import common.glide.utils.CachedProperty.Companion.invalidateCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -228,9 +229,12 @@ class Projector : FullScreenFrame(), Iterable<CachedImage> {
 
       GlobalScope.launch(Dispatchers.IO) {
         when {
-          offset < ENV.maxImagesPerFrame * 2 -> cacheFront.current.cacheLevel = CACHE_RESIZED_IMAGE
-          offset < ENV.maxImagesPerFrame * 3 -> cacheFront.current.cacheLevel = CACHE_FULL_IMAGE
-          else                               -> cacheFront.current.cacheLevel = CACHED_FILE
+          offset < ENV.maxImagesPerFrame * 2 -> cacheFront.current.cacheLevel =
+            CACHE_RESIZED_IMAGE
+          offset < ENV.maxImagesPerFrame * 3 -> cacheFront.current.cacheLevel =
+            CACHE_FULL_IMAGE
+          else                               -> cacheFront.current.cacheLevel =
+            CACHED_FILE
         }
       }
       cacheFront.next()

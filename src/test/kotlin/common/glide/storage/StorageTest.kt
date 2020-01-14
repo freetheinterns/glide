@@ -1,5 +1,6 @@
 package common.glide.storage
 
+import common.glide.FILE_SIZES
 import common.glide.storage.serialization.JSON
 import kotlinx.serialization.Serializable
 import org.junit.Test

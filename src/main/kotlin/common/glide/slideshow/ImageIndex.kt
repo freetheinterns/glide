@@ -1,9 +1,9 @@
 package common.glide.slideshow
 
-import common.glide.utils.extensions.blindObserver
-import common.glide.utils.extensions.string
-import common.glide.utils.properties.CachedProperty.Companion.cache
-import common.glide.utils.properties.CachedProperty.Companion.invalidateCache
+import common.glide.extensions.blindObserver
+import common.glide.extensions.string
+import common.glide.utils.CachedProperty.Companion.cache
+import common.glide.utils.CachedProperty.Companion.invalidateCache
 import kotlin.math.abs
 
 class ImageIndex(

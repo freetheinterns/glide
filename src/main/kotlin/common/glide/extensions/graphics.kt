@@ -1,4 +1,4 @@
-package common.glide.utils.extensions
+package common.glide.extensions
 
 import java.awt.Color
 import java.awt.Component

@@ -5,8 +5,8 @@
 
 package common.glide.storage
 
+import common.glide.enums.FolderSortStrategy
 import common.glide.gui.Launcher
-import common.glide.slideshow.FolderSortStrategy
 import common.glide.slideshow.Projector
 import common.glide.storage.serialization.ColorSerializer
 import common.glide.storage.serialization.RegexSerializer

@@ -1,7 +1,7 @@
 package common.glide.gui.components
 
-import common.glide.storage.ENV
-import common.glide.utils.extensions.sizeTo
+import common.glide.ENV
+import common.glide.extensions.sizeTo
 import java.awt.Color
 import java.awt.Component
 import java.awt.Graphics

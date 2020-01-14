@@ -1,7 +1,7 @@
-package common.glide.utils.extensions
+package common.glide.extensions
 
+import common.glide.ENV
 import common.glide.slideshow.Catalog
-import common.glide.storage.ENV
 import java.io.File
 import java.io.FileFilter
 import java.nio.file.Files

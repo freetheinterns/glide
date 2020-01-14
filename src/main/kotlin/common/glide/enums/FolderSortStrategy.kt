@@ -1,4 +1,4 @@
-package common.glide.slideshow
+package common.glide.enums
 
 enum class FolderSortStrategy {
   Alphabetical,

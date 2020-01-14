@@ -1,4 +1,4 @@
-package common.glide.utils.extensions
+package common.glide.extensions
 
 import common.glide.slideshow.CachedImage
 import common.glide.slideshow.Geometry
@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent.BUTTON1
 import java.awt.event.MouseEvent.BUTTON2
 import java.awt.event.MouseEvent.BUTTON3
 import java.text.DecimalFormat
+import kotlin.math.log10
+import kotlin.math.pow
 
 
 ///////////////////////////////////////
@@ -26,8 +28,8 @@ val Long.formattedFileSize: String
   get() {
     if (this <= 0) return "0"
     val units = arrayOf("B", "kB", "MB", "GB", "TB")
-    val digitGroups = (Math.log10(this.toDouble()) / Math.log10(1024.00)).toInt()
-    return DecimalFormat("#,##0.##").format(this / Math.pow(1024.00, digitGroups.toDouble())) + " " + units[digitGroups]
+    val digitGroups = (log10(this.toDouble()) / log10(1024.00)).toInt()
+    return DecimalFormat("#,##0.##").format(this / 1024.00.pow(digitGroups.toDouble())) + " " + units[digitGroups]
   }
 
 

@@ -1,8 +1,8 @@
 package common.glide.gui.panels
 
+import common.glide.ENV
+import common.glide.FONT_FAMILIES
 import common.glide.gui.Launcher
-import common.glide.storage.ENV
-import common.glide.storage.FONT_FAMILIES
 import common.glide.utils.FontNameRenderer
 import java.awt.Font
 import javax.swing.JCheckBox

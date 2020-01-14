@@ -1,7 +1,7 @@
-package common.glide.async
+package common.glide.gui.listeners
 
 import common.glide.Block
-import common.glide.utils.extensions.coerceMaximum
+import common.glide.extensions.coerceMaximum
 
 data class Lock(private val key: Any) {
   private class Signature {

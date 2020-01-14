@@ -1,9 +1,9 @@
 package common.glide.gui.panels
 
+import common.glide.ENV
+import common.glide.enums.FolderSortStrategy
 import common.glide.gui.Launcher
 import common.glide.gui.components.DirectoryChooser
-import common.glide.slideshow.FolderSortStrategy
-import common.glide.storage.ENV
 import javax.swing.JComboBox
 
 class FileOptionsTabPanel(

@@ -1,14 +1,18 @@
 package common.glide.slideshow
 
-import common.glide.storage.ENV
-import common.glide.utils.extensions.createdAt
-import common.glide.utils.extensions.formattedFileSize
-import common.glide.utils.extensions.imageCount
+import common.glide.ENV
+import common.glide.extensions.createdAt
+import common.glide.extensions.formattedFileSize
+import common.glide.extensions.imageCount
+import common.glide.utils.createOutlinedTypeSetter
 import java.awt.Graphics2D
 import java.text.SimpleDateFormat
 
 class MarginPanel(private val app: Projector) : Geometry {
-  private val formatter = SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss")
+  companion object {
+    private val DATE_FORMAT = SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss")
+  }
+
   override fun build(xOffset: Int, yOffset: Int): Geometry = this
 
   override fun paint(g: Graphics2D) {
@@ -66,7 +70,7 @@ class MarginPanel(private val app: Projector) : Geometry {
       folderName?.let(lines::add)
 
       lines.add(currentPlaylist.folderSize.formattedFileSize)
-      lines.add(formatter.format(currentPlaylist.file.createdAt))
+      lines.add(DATE_FORMAT.format(currentPlaylist.file.createdAt))
       lines.add("")
 
       fileName?.let(lines::add)

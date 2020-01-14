@@ -1,6 +1,5 @@
-package common.glide.slideshow
+package common.glide.storage
 
-import common.glide.storage.Persistable
 import kotlinx.serialization.Serializable
 
 @Serializable

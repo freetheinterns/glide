@@ -1,14 +1,15 @@
 package common.glide.slideshow
 
-import common.glide.storage.BLACKHOLE
-import common.glide.storage.ENV
-import common.glide.utils.extensions.CACHED_FILE
-import common.glide.utils.extensions.CACHED_PATH
-import common.glide.utils.extensions.CACHE_FULL_IMAGE
-import common.glide.utils.extensions.CACHE_RESIZED_IMAGE
-import common.glide.utils.extensions.scaleToFit
-import common.glide.utils.properties.CachedProperty.Companion.cache
-import common.glide.utils.properties.CachedProperty.Companion.invalidateCache
+import common.glide.BLACKHOLE
+import common.glide.ENV
+import common.glide.extensions.CACHED_FILE
+import common.glide.extensions.CACHED_PATH
+import common.glide.extensions.CACHE_FULL_IMAGE
+import common.glide.extensions.CACHE_RESIZED_IMAGE
+import common.glide.extensions.scaleToFit
+import common.glide.utils.CachedProperty.Companion.cache
+import common.glide.utils.CachedProperty.Companion.invalidateCache
+import common.glide.utils.createOutlinedTypeSetter
 import java.awt.Dimension
 import java.awt.Graphics2D
 import java.awt.image.BufferedImage
@@ -17,16 +18,17 @@ import javax.imageio.ImageIO
 
 class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   private var drawPosition = Dimension(0, 0)
+
   private val image: BufferedImage by cache { ImageIO.read(file) }
   private val sizedImage: BufferedImage by cache {
     ENV.projector?.size?.let { image.scaleToFit(it) } ?: image
   }
 
-  val rawBytes: Long by cache { file.length() }
+  val rawBytes: Long by lazy { file.length() }
   val width: Int by lazy { sizedImage.width }
   val height: Int by lazy { sizedImage.height }
-  val name: String
-    get() = file.name
+  val name: String by lazy { file.name }
+
   var cacheLevel: Int = CACHED_FILE
     set(next) {
       when (next) {

@@ -1,7 +1,7 @@
 package common.glide.gui.panels
 
+import common.glide.ENV
 import common.glide.gui.Launcher
-import common.glide.storage.ENV
 import javax.swing.JCheckBox
 import javax.swing.JSlider
 

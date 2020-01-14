@@ -1,11 +1,10 @@
-package common.glide.slideshow
+package common.glide.gui.listeners
 
-import common.glide.async.Lock
-import common.glide.storage.ENV
-import common.glide.storage.KEY_BINDINGS
-import common.glide.utils.extensions.buttonString
-import common.glide.utils.extensions.logger
-import common.glide.utils.extensions.string
+import common.glide.ENV
+import common.glide.KEY_BINDINGS
+import common.glide.extensions.buttonString
+import common.glide.extensions.logger
+import common.glide.extensions.string
 import java.awt.KeyEventDispatcher
 import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent

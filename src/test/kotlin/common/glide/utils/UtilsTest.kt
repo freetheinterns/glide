@@ -1,6 +1,6 @@
 package common.glide.utils
 
-import common.glide.utils.extensions.coerceMaximum
+import common.glide.extensions.coerceMaximum
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.test.assertEquals
