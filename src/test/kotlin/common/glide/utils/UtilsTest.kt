@@ -1,7 +1,7 @@
 package common.glide.utils
 
 import common.glide.utils.CachedProperty.Companion.cache
-import common.glide.utils.CachedProperty.Companion.invalidateCache
+import common.glide.utils.CachedProperty.Companion.invalidate
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -33,7 +33,7 @@ class UtilsTest {
       }
 
       fun clear() {
-        invalidateCache(::bat)
+        ::bat.invalidate(this)
       }
     }
 

@@ -16,7 +16,7 @@ import common.glide.extensions.use
 import common.glide.gui.listeners.EventHandler
 import common.glide.gui.panels.FullScreenFrame
 import common.glide.utils.CachedProperty.Companion.cache
-import common.glide.utils.CachedProperty.Companion.invalidateCache
+import common.glide.utils.CachedProperty.Companion.invalidate
 import common.glide.utils.TriggeringProperty
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -288,7 +288,7 @@ class Projector : FullScreenFrame() {
     drawPage()
     val targetFile = library[target].file
 
-    invalidateCache(::index)
+    ::index.invalidate(this)
     library = library.filter { !it.path.startsWith(targetFile.absolutePath) }
     geometry = listOf()
 

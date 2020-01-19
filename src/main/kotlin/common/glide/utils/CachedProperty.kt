@@ -24,8 +24,8 @@ class CachedProperty<T>(private val cacheMiss: Loader<T>) : ReadWriteProperty<An
   companion object {
     fun <T> cache(cacheMiss: Loader<T>) = CachedProperty(cacheMiss)
 
-    fun Any?.invalidateCache(property: KProperty<*>) {
-      property.getCacheDelegate(this)?.value = null
+    fun KProperty<*>.invalidate(ref: Any?) {
+      getCacheDelegate(ref)?.value = null
     }
 
     private val CACHE_MAP: MutableMap<Declaration, CachedProperty<*>> = hashMapOf()

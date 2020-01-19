@@ -9,7 +9,7 @@ import common.glide.enums.CacheStrategy.SCALED
 import common.glide.extensions.bufferedImage
 import common.glide.extensions.scaleToFit
 import common.glide.utils.CachedProperty.Companion.cache
-import common.glide.utils.CachedProperty.Companion.invalidateCache
+import common.glide.utils.CachedProperty.Companion.invalidate
 import common.glide.utils.TriggeringProperty
 import common.glide.utils.createOutlinedTypeSetter
 import java.awt.Dimension
@@ -32,8 +32,8 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
 
   fun updateCache(strategy: CacheStrategy) = when (strategy) {
     CLEAR    -> {
-      invalidateCache(::image)
-      invalidateCache(::sizedImage)
+      ::image.invalidate(this)
+      ::sizedImage.invalidate(this)
     }
     ORIGINAL -> BLACKHOLE.consume(image)
     SCALED   -> BLACKHOLE.consume(width)
