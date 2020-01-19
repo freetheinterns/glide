@@ -1,14 +1,14 @@
 package common.glide.storage.memoization
 
 import common.glide.Loader
+import common.glide.storage.Persistable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-interface Memoizer<K, V> {
+interface Memoizer<K, V, T : Persistable<T>> : Persistable<T> {
   val data: HashMap<String, Pair<V, Long>>
   val timeToLive: Long
-  fun save()
 
   fun get(key: K, cacheMiss: Loader<V>): V =
     this[key] ?: set(key, cacheMiss())

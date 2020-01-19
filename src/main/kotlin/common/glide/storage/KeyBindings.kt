@@ -4,12 +4,12 @@ import common.glide.ENV
 import common.glide.extensions.Scope
 import common.glide.extensions.scopes
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.concurrent.thread
 import kotlin.system.exitProcess
 
 
-@Serializable
-data class KeyBindings(
+@Serializable data class KeyBindings(
   val keyMap: Map<String, Map<Int, String>> = hashMapOf(
     "Projector" to hashMapOf(
       8 to "inchBackward",
@@ -31,7 +31,9 @@ data class KeyBindings(
       39 to "pageForward"
     )
   )
-) : Persistable<KeyBindings>(serializer()) {
+) : Persistable<KeyBindings> {
+  override val version: Int = 0
+  @Transient override var serializer = serializer()
 
   fun trigger(name: String) =
     thread(

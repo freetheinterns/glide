@@ -3,7 +3,6 @@ package common.glide
 import common.glide.extensions.throwable
 import common.glide.gui.Launcher
 import common.glide.scripts.defineLookAndFeel
-import common.glide.storage.GlideVersion
 import common.glide.storage.KeyBindings
 import common.glide.storage.SlideshowSettings
 import common.glide.storage.memoization.FileCreatedAtMemoizer
@@ -14,10 +13,7 @@ import java.awt.DisplayMode
 import java.awt.GraphicsEnvironment
 import java.util.logging.*
 
-const val VERSION: Int = 1
-var USE_REFLECTIVE_CACHE_VALIDATION: Boolean = false
 
-val LAST_VERSION: Int? by lazy { GlideVersion().load().value }
 val ENV by lazy { SlideshowSettings().load() }
 val KEY_BINDINGS by lazy { KeyBindings().load() }
 
@@ -50,19 +46,7 @@ internal fun defineLogger() {
   }
 }
 
-fun sanitizeSavedFiles() {
-  if (VERSION == LAST_VERSION) return
-  println("Version miss-match between $LAST_VERSION (old) and $VERSION")
-  FileSizeMemoizer().save()
-  FileUpdatedAtMemoizer().save()
-  FileCreatedAtMemoizer().save()
-  SlideshowSettings().save()
-  GlideVersion(VERSION).save()
-  KeyBindings().save()
-}
-
 fun main(args: Array<String>) {
-  sanitizeSavedFiles()
   defineLookAndFeel()
   defineLogger()
 

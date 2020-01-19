@@ -2,39 +2,37 @@ package common.glide.storage
 
 import common.glide.storage.serialization.JSON
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Paths
 
 
-abstract class Persistable<T : Persistable<T>>() {
-  private val filename: String by lazy {
-    Paths.get("").toAbsolutePath().resolve("${this::class.simpleName}.json").toString()
+interface Persistable<T : Persistable<T>> {
+  companion object {
+    private val FILENAMES = mutableMapOf<Any, String>()
   }
-  private lateinit var serializer: KSerializer<T>
-  private lateinit var json: Json
+
+  private val filename: String
+    get() = FILENAMES.getOrPut(this, ::generateFilename)
 
   // Only safe if T is the implementing class of [this]
   // EG: class Example() : Persistable<Example>()
   private val thisT: T
     @Suppress("UNCHECKED_CAST") get() = this as T
 
-  constructor(
-    serializer: KSerializer<T>,
-    json: Json = JSON
-  ) : this() {
-    this.serializer = serializer
-    this.json = json
-  }
+  var serializer: KSerializer<T>
+  val version: Int
 
   val jsonString: String
-    get() = json.stringify(serializer, thisT)
+    get() = JSON.stringify(serializer, thisT)
 
   fun load(): T = try {
-    json.parse(serializer, File(filename).readText()).also {
-      it.json = this.json
+    JSON.parse(serializer, File(filename).readText()).also {
       it.serializer = this.serializer
+      if (it.version != this.version) {
+        save()
+        return thisT
+      }
     }
   } catch (exc: FileNotFoundException) {
     println("File $filename not found. Creating it now")
@@ -52,6 +50,9 @@ abstract class Persistable<T : Persistable<T>>() {
   }
 
   fun save() {
-    File(filename).writeText(json.stringify(serializer, thisT))
+    File(filename).writeText(JSON.stringify(serializer, thisT))
   }
+
+  fun generateFilename(): String =
+    Paths.get("").toAbsolutePath().resolve("${this::class.simpleName}.json").toString()
 }

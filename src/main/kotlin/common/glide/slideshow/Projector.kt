@@ -213,7 +213,6 @@ class Projector : FullScreenFrame() {
       }
       cacheFront.next()
     }
-
   }
 
   ///////////////////////////////////////
