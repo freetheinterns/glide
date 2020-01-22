@@ -2,8 +2,10 @@ package common.glide
 
 import common.glide.extensions.throwable
 import common.glide.gui.Launcher
+import common.glide.gui.listeners.EventHandler
+import common.glide.gui.listeners.LauncherBindings
+import common.glide.gui.listeners.ProjectorBindings
 import common.glide.scripts.defineLookAndFeel
-import common.glide.storage.KeyBindings
 import common.glide.storage.SlideshowSettings
 import common.glide.storage.memoization.FileCreatedAtMemoizer
 import common.glide.storage.memoization.FileSizeMemoizer
@@ -12,10 +14,12 @@ import org.openjdk.jmh.infra.Blackhole
 import java.awt.DisplayMode
 import java.awt.GraphicsEnvironment
 import java.util.logging.*
+import kotlin.system.exitProcess
 
 
 val ENV by lazy { SlideshowSettings().load() }
-val KEY_BINDINGS by lazy { KeyBindings().load() }
+val PROJECTOR_BINDINGS by lazy { ProjectorBindings().load() }
+val LAUNCHER_BINDINGS by lazy { LauncherBindings().load() }
 
 val FILE_SIZES by lazy { FileSizeMemoizer().load().apply { sanitize() } }
 val FILE_UPDATED_ATS by lazy { FileCreatedAtMemoizer().load().apply { sanitize() } }
@@ -46,11 +50,20 @@ internal fun defineLogger() {
   }
 }
 
+fun quit(status: Int) {
+  GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.fullScreenWindow = null
+  EventHandler.deRegister()
+  ENV.projector = null
+  ENV.launcher = null
+  exitProcess(status)
+}
+
 fun main(args: Array<String>) {
   defineLookAndFeel()
   defineLogger()
 
   try {
+    EventHandler.register()
     Launcher()
   } catch (e: Throwable) {
     e.printStackTrace()

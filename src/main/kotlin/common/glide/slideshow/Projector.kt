@@ -2,7 +2,6 @@ package common.glide.slideshow
 
 import common.glide.ENV
 import common.glide.Extension
-import common.glide.KEY_BINDINGS
 import common.glide.Operation
 import common.glide.enums.CacheStrategy
 import common.glide.extensions.catalogs
@@ -15,6 +14,7 @@ import common.glide.extensions.times
 import common.glide.extensions.use
 import common.glide.gui.listeners.EventHandler
 import common.glide.gui.panels.FullScreenFrame
+import common.glide.quit
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidate
 import common.glide.utils.TriggeringProperty
@@ -34,7 +34,6 @@ import java.nio.file.LinkOption
 import javax.swing.Timer
 import kotlin.math.abs
 import kotlin.math.max
-import kotlin.system.exitProcess
 import kotlin.system.measureTimeMillis
 
 
@@ -51,7 +50,7 @@ class Projector : FullScreenFrame() {
   var library: List<Catalog> by cache { File(ENV.root).catalogs }
   val index: ImageIndex by cache { ImageIndex(library) }
 
-  private var timer = Timer(ENV.speed) { KEY_BINDINGS.trigger("pageForward") }
+  private var timer = Timer(ENV.speed) { next() }
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
 
@@ -64,11 +63,10 @@ class Projector : FullScreenFrame() {
     addWindowListener(object : WindowAdapter() {
       override fun windowClosed(e: WindowEvent?) {
         super.windowClosed(e)
-        exit()
+        quit(0)
       }
     })
     addMouseListener(EventHandler)
-    EventHandler.register()
     timer.initialDelay = ENV.speed
 
     // Set up JFrame
@@ -90,22 +88,14 @@ class Projector : FullScreenFrame() {
 
     // IMPORTANT!! Register the screen globally
     ENV.projector = this
-    ENV.scope = "Projector"
 
     // Short-circuit if playlist is empty or if full screen is not possible
     if (library.map { it.size }.sum() == 0) {
       log.severe("No images found to display!")
-      exit(1)
+      quit(1)
     }
 
     project()
-  }
-
-  fun exit(status: Int = 0) {
-    EventHandler.deregister()
-    ENV.projector = null
-    device.fullScreenWindow = null
-    exitProcess(status)
   }
 
   ///////////////////////////////////////
@@ -178,7 +168,6 @@ class Projector : FullScreenFrame() {
 
     return pages
   }
-
 
   private fun render() {
     drawPage { g -> geometry.forEach { it.render(g) } }
@@ -269,7 +258,7 @@ class Projector : FullScreenFrame() {
   }
 
   private fun softJump(target: Int) {
-    if (index.maxPrimary == 0) exit()
+    if (index.maxPrimary == 0) quit(0)
     index.primary = target.coerceAtMost(index.maxPrimary - 1)
     project()
   }

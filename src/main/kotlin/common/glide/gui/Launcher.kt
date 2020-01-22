@@ -6,7 +6,6 @@ import common.glide.extensions.glue
 import common.glide.extensions.logger
 import common.glide.extensions.sizeTo
 import common.glide.gui.components.LabelButton
-import common.glide.gui.listeners.EventHandler
 import common.glide.gui.listeners.FrameDragListener
 import common.glide.gui.panels.AdvancedOptionsTabPanel
 import common.glide.gui.panels.DisplayOptionsTabPanel
@@ -101,7 +100,6 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
   init {
     ENV.launcher = this
-    ENV.scope = "Launcher"
     defaultCloseOperation = EXIT_ON_CLOSE
     isUndecorated = true
     isResizable = false
@@ -114,12 +112,11 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
     isVisible = true
     requestFocusInWindow()
-    EventHandler.register()
   }
 
   override fun actionPerformed(e: ActionEvent) = when (e.source) {
     saveTab                  -> save()
-    launchTab                -> launch()
+    launchTab                -> launchProjector()
     closeWindow              -> exitProcess(0)
 
     fileOptionsTab.label     -> changeCard(fileOptionsTab)
@@ -148,7 +145,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     ENV.save()
   }
 
-  fun launch() {
+  fun launchProjector() {
     save()
     ENV.launcher = null
     Projector()

@@ -1,10 +1,9 @@
 package common.glide.gui.listeners
 
 import common.glide.ENV
-import common.glide.KEY_BINDINGS
-import common.glide.extensions.buttonString
+import common.glide.LAUNCHER_BINDINGS
+import common.glide.PROJECTOR_BINDINGS
 import common.glide.extensions.logger
-import common.glide.extensions.string
 import java.awt.KeyEventDispatcher
 import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent
@@ -27,7 +26,7 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     }
   }
 
-  fun deregister() {
+  fun deRegister() {
     if (!isRegistered) return
     isRegistered = try {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
@@ -40,17 +39,15 @@ object EventHandler : KeyEventDispatcher, MouseListener {
   }
 
   private fun handleKey(code: KeyEvent) {
-    Lock(code.string).throttle(ENV.debounce) {
-      log.info(code.string)
-      KEY_BINDINGS.trigger(code.keyCode)
+    Lock(code.keyCode).throttle(ENV.debounce) {
+      ENV.projector?.let { PROJECTOR_BINDINGS.trigger(it, code.keyCode) }
+      ENV.launcher?.let { LAUNCHER_BINDINGS.trigger(it, code.keyCode) }
     }
   }
 
   override fun mousePressed(e: MouseEvent) {
-    log.info(e.string)
-    when (e.buttonString) {
-      "Left" -> KEY_BINDINGS.trigger("pageForward")
-    }
+    ENV.projector?.let { PROJECTOR_BINDINGS.trigger(it, -e.button) }
+    ENV.launcher?.let { LAUNCHER_BINDINGS.trigger(it, -e.button) }
   }
 
   override fun dispatchKeyEvent(e: KeyEvent) = false.also {

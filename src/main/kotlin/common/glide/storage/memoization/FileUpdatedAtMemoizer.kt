@@ -6,9 +6,9 @@ import java.time.temporal.ChronoUnit
 
 
 @Serializable class FileUpdatedAtMemoizer(
-  override val data: HashMap<String, Pair<Long, Long>> = hashMapOf()
-) : Memoizer<String, Long, FileUpdatedAtMemoizer> {
-  override val version: Int = 0
+  override val version: Int = 0,
+  override val data: HashMap<String, Pair<Long, Long>> = hashMapOf(),
   @Transient override val timeToLive: Long = ChronoUnit.DAYS.duration.toMillis()
+) : Memoizer<String, Long, FileUpdatedAtMemoizer> {
   @Transient override var serializer = serializer()
 }
