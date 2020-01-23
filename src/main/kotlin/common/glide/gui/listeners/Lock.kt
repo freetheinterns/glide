@@ -1,6 +1,7 @@
 package common.glide.gui.listeners
 
 import common.glide.Block
+import common.glide.extensions.logger
 import common.glide.utils.MaximizingProperty
 
 data class Lock(private val key: Any) {
@@ -13,6 +14,7 @@ data class Lock(private val key: Any) {
     get() = GLOBAL_LOCKS.getValue(key).also { GLOBAL_LOCKS[key] = it }
 
   fun throttle(millis: Long, block: Block) = context.let {
+    log.info("Throttling $context")
     if (NOW - it.invokedAt >= millis) {
       it.invokedAt = NOW
       try {
@@ -24,6 +26,7 @@ data class Lock(private val key: Any) {
   }
 
   companion object {
+    private val log by logger()
     private val GLOBAL_LOCKS = hashMapOf<Any, Signature>().withDefault { Signature() }
     private val NOW: Long
       get() = System.currentTimeMillis()

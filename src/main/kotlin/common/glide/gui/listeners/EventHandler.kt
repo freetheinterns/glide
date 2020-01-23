@@ -4,6 +4,8 @@ import common.glide.ENV
 import common.glide.LAUNCHER_BINDINGS
 import common.glide.PROJECTOR_BINDINGS
 import common.glide.extensions.logger
+import common.glide.gui.Launcher
+import common.glide.slideshow.Projector
 import java.awt.KeyEventDispatcher
 import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent
@@ -40,14 +42,14 @@ object EventHandler : KeyEventDispatcher, MouseListener {
 
   private fun handleKey(code: KeyEvent) {
     Lock(code.keyCode).throttle(ENV.debounce) {
-      ENV.projector?.let { PROJECTOR_BINDINGS.trigger(it, code.keyCode) }
-      ENV.launcher?.let { LAUNCHER_BINDINGS.trigger(it, code.keyCode) }
+      Projector.singleton?.let { PROJECTOR_BINDINGS.trigger(it, code.keyCode) }
+      Launcher.singleton?.let { LAUNCHER_BINDINGS.trigger(it, code.keyCode) }
     }
   }
 
   override fun mousePressed(e: MouseEvent) {
-    ENV.projector?.let { PROJECTOR_BINDINGS.trigger(it, -e.button) }
-    ENV.launcher?.let { LAUNCHER_BINDINGS.trigger(it, -e.button) }
+    Projector.singleton?.let { PROJECTOR_BINDINGS.trigger(it, -e.button) }
+    Launcher.singleton?.let { LAUNCHER_BINDINGS.trigger(it, -e.button) }
   }
 
   override fun dispatchKeyEvent(e: KeyEvent) = false.also {

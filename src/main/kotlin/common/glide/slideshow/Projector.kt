@@ -3,7 +3,6 @@ package common.glide.slideshow
 import common.glide.ENV
 import common.glide.Extension
 import common.glide.Operation
-import common.glide.enums.CacheStrategy
 import common.glide.extensions.catalogs
 import common.glide.extensions.chooseBestDisplayMode
 import common.glide.extensions.dimension
@@ -18,10 +17,7 @@ import common.glide.quit
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidate
 import common.glide.utils.TriggeringProperty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.awt.Color
 import java.awt.Graphics2D
@@ -32,13 +28,12 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import javax.swing.Timer
-import kotlin.math.abs
-import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
 
 class Projector : FullScreenFrame() {
   companion object {
+    var singleton: Projector? = null
     private val log by logger()
   }
 
@@ -49,6 +44,7 @@ class Projector : FullScreenFrame() {
   var geometry by TriggeringProperty(listOf<Geometry>(), ::render)
   var library: List<Catalog> by cache { File(ENV.root).catalogs }
   val index: ImageIndex by cache { ImageIndex(library) }
+  var frameCount: Int = 0
 
   private var timer = Timer(ENV.speed) { next() }
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
@@ -87,7 +83,7 @@ class Projector : FullScreenFrame() {
     drawPage()
 
     // IMPORTANT!! Register the screen globally
-    ENV.projector = this
+    singleton = this
 
     // Short-circuit if playlist is empty or if full screen is not possible
     if (library.map { it.size }.sum() == 0) {
@@ -112,7 +108,7 @@ class Projector : FullScreenFrame() {
   private fun preRender(g: Graphics2D) {
     val focus = index + geometry.imageCount
 
-    repeat(ENV.maxImagesPerFrame) {
+    repeat(ENV.maxImagesPerFrame * 2) {
       focus.current.position = size * 2
       focus.current.render(g)
       focus.inc()
@@ -130,7 +126,7 @@ class Projector : FullScreenFrame() {
       bufferStrategy.show()
     }
 
-    log.info("Spent $drawTime ms drawing")
+    log.info("Spent $drawTime ms drawing frame #$frameCount")
   }
 
   ///////////////////////////////////////
@@ -180,28 +176,10 @@ class Projector : FullScreenFrame() {
         preRender(g)
         geometry.forEach { it.render(g) }
       }
-
-      updateCaching()
     }
-  }
 
-  private fun updateCaching() {
-    if (geometry.isEmpty()) return
-    val cacheFront = index - max(0, index.secondary - ENV.maxImagesPerFrame * 4)
-    while (cacheFront.hasNext()) {
-      val offset = abs(cacheFront.compareTo(index))
-      if (offset > ENV.maxImagesPerFrame * 4)
-        return
-
-      GlobalScope.launch(Dispatchers.IO) {
-        when {
-          offset < ENV.maxImagesPerFrame * 2 -> cacheFront.current.updateCache(CacheStrategy.SCALED)
-          offset < ENV.maxImagesPerFrame * 3 -> cacheFront.current.updateCache(CacheStrategy.ORIGINAL)
-          else                               -> cacheFront.current.updateCache(CacheStrategy.CLEAR)
-        }
-      }
-      cacheFront.next()
-    }
+    frameCount++
+    CachedImage.trimCache()
   }
 
   ///////////////////////////////////////

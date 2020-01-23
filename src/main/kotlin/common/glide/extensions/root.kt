@@ -2,11 +2,10 @@ package common.glide.extensions
 
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.logging.*
-import kotlin.reflect.KCallable
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
-import kotlin.reflect.full.findAnnotation
 
 
 ///////////////////////////////////////
@@ -39,15 +38,3 @@ val LogRecord.throwable: String
     pw.close()
     return sw.toString()
   }
-
-///////////////////////////////////////
-// Reflection Extensions
-///////////////////////////////////////
-
-
-@Target(AnnotationTarget.FUNCTION)
-@Retention(AnnotationRetention.RUNTIME)
-annotation class Scope(vararg val scopeKeys: String)
-
-val <T : KCallable<*>> T.scopes: Array<out String>
-  get() = this.findAnnotation<Scope>()?.scopeKeys ?: arrayOf()

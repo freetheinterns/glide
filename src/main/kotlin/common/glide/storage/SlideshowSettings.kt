@@ -7,8 +7,6 @@ package common.glide.storage
 
 import common.glide.USER_HOME
 import common.glide.enums.FolderSortStrategy
-import common.glide.gui.Launcher
-import common.glide.slideshow.Projector
 import common.glide.storage.serialization.ColorSerializer
 import common.glide.storage.serialization.RegexSerializer
 import kotlinx.serialization.Serializable
@@ -42,6 +40,7 @@ import javax.swing.UIManager
   var maxImagesPerFrame: Int = 3,
   var speed: Int = 2500,
   var debounce: Long = 200L,
+  var cacheSizeBytes: Int = 1024 * 1024 * 8 * 2, // ~2GB
 
   var ordering: FolderSortStrategy = FolderSortStrategy.NumberOfFiles,
   var root: String = File("$USER_HOME\\Pictures").absolutePath,
@@ -49,6 +48,4 @@ import javax.swing.UIManager
   var fontName: String = UIManager.getFont("Button.font").fontName
 ) : Persistable<SlideshowSettings> {
   @Transient override var serializer = serializer()
-  @Transient var projector: Projector? = null
-  @Transient var launcher: Launcher? = null
 }

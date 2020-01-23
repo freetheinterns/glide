@@ -13,7 +13,10 @@ import common.glide.storage.memoization.FileUpdatedAtMemoizer
 import org.openjdk.jmh.infra.Blackhole
 import java.awt.DisplayMode
 import java.awt.GraphicsEnvironment
-import java.util.logging.*
+import java.util.logging.Formatter
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import kotlin.system.exitProcess
 
 
@@ -53,8 +56,6 @@ internal fun defineLogger() {
 fun quit(status: Int) {
   GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.fullScreenWindow = null
   EventHandler.deRegister()
-  ENV.projector = null
-  ENV.launcher = null
   exitProcess(status)
 }
 

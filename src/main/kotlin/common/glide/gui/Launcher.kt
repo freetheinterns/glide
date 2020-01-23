@@ -29,6 +29,7 @@ import kotlin.system.exitProcess
 
 class Launcher : JFrame("Projector: Settings"), ActionListener {
   companion object {
+    var singleton: Launcher? = null
     private val log by logger()
     private const val HARD_HEIGHT = 900
 
@@ -99,7 +100,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   }
 
   init {
-    ENV.launcher = this
+    singleton = this
     defaultCloseOperation = EXIT_ON_CLOSE
     isUndecorated = true
     isResizable = false
@@ -147,7 +148,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
   fun launchProjector() {
     save()
-    ENV.launcher = null
+    singleton = null
     Projector()
     dispose()
   }
