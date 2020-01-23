@@ -5,6 +5,7 @@
 
 package common.glide.storage
 
+import common.glide.GB
 import common.glide.USER_HOME
 import common.glide.enums.FolderSortStrategy
 import common.glide.storage.serialization.ColorSerializer
@@ -40,7 +41,7 @@ import javax.swing.UIManager
   var maxImagesPerFrame: Int = 3,
   var speed: Int = 2500,
   var debounce: Long = 200L,
-  var cacheSizeBytes: Int = 1024 * 1024 * 8 * 2, // ~2GB
+  @Transient var cacheSizeBytes: Int = GB * 3,
 
   var ordering: FolderSortStrategy = FolderSortStrategy.NumberOfFiles,
   var root: String = File("$USER_HOME\\Pictures").absolutePath,

@@ -20,6 +20,8 @@ import java.util.logging.Logger
 import kotlin.system.exitProcess
 
 
+const val GB = 1024 * 1024 * 8
+
 val ENV by lazy { SlideshowSettings().load() }
 val PROJECTOR_BINDINGS by lazy { ProjectorBindings().load() }
 val LAUNCHER_BINDINGS by lazy { LauncherBindings().load() }

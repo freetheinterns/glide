@@ -108,7 +108,7 @@ class Projector : FullScreenFrame() {
   private fun preRender(g: Graphics2D) {
     val focus = index + geometry.imageCount
 
-    repeat(ENV.maxImagesPerFrame * 2) {
+    repeat(ENV.maxImagesPerFrame) {
       focus.current.position = size * 2
       focus.current.render(g)
       focus.inc()

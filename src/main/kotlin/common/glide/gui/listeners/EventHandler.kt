@@ -6,15 +6,25 @@ import common.glide.PROJECTOR_BINDINGS
 import common.glide.extensions.logger
 import common.glide.gui.Launcher
 import common.glide.slideshow.Projector
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withContext
 import java.awt.KeyEventDispatcher
 import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
+import java.util.concurrent.Executors
 
 object EventHandler : KeyEventDispatcher, MouseListener {
   private val log by logger()
+  private val context = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
   private var isRegistered = false
+  private var lastLockedAt = 0L
+
+  val lock: Mutex = Mutex()
 
   fun register() {
     if (isRegistered) return
@@ -40,21 +50,38 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     }
   }
 
-  private fun handleKey(code: KeyEvent) {
-    Lock(code.keyCode).throttle(ENV.debounce) {
-      Projector.singleton?.let { PROJECTOR_BINDINGS.trigger(it, code.keyCode) }
-      Launcher.singleton?.let { LAUNCHER_BINDINGS.trigger(it, code.keyCode) }
+  private fun handleEvent(code: Int) {
+    val now = System.currentTimeMillis()
+    if (ENV.debounce > now - lastLockedAt) return
+    if (!lock.tryLock()) return
+    lastLockedAt = now
+
+    val projector = Projector.singleton
+    val launcher = Launcher.singleton
+
+    when {
+      projector != null -> PROJECTOR_BINDINGS.trigger(projector, code)
+      launcher != null  -> LAUNCHER_BINDINGS.trigger(launcher, code)
+      else              -> lock.unlock()
     }
   }
 
   override fun mousePressed(e: MouseEvent) {
-    Projector.singleton?.let { PROJECTOR_BINDINGS.trigger(it, -e.button) }
-    Launcher.singleton?.let { LAUNCHER_BINDINGS.trigger(it, -e.button) }
+    runBlocking {
+      withContext(context + CoroutineName("GlideMouseEventHandler")) {
+        handleEvent(-e.button)
+      }
+    }
   }
 
   override fun dispatchKeyEvent(e: KeyEvent) = false.also {
-    if (e.id == KeyEvent.KEY_PRESSED)
-      handleKey(e)
+    runBlocking {
+      withContext(context + CoroutineName("GlideKeyEventHandler")) {
+        if (e.id == KeyEvent.KEY_PRESSED) {
+          handleEvent(e.keyCode)
+        }
+      }
+    }
   }
 
   override fun mouseClicked(e: MouseEvent?) {}

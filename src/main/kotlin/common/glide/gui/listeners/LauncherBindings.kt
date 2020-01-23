@@ -20,5 +20,6 @@ import java.awt.event.KeyEvent.VK_ESCAPE
       source.launchProjector()
     if (exit.contains(code))
       quit(0)
+    EventHandler.lock.unlock()
   }
 }

@@ -61,6 +61,7 @@ import kotlin.concurrent.thread
         source.prevFolder()
       if (toggleSlideshow.contains(it))
         source.toggleTimer()
+      EventHandler.lock.unlock()
     }
   }
 }

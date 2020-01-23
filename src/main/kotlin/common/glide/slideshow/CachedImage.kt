@@ -2,6 +2,7 @@ package common.glide.slideshow
 
 import common.glide.BLACKHOLE
 import common.glide.ENV
+import common.glide.GB
 import common.glide.enums.CacheStrategy
 import common.glide.enums.CacheStrategy.CLEAR
 import common.glide.enums.CacheStrategy.SCALED
@@ -35,7 +36,13 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
         toRemove.add(next)
       }
 
-      log.warning("Clearing ${toRemove.size} CachedImages from global cache")
+      log.info("""
+          Current Cache: ${queueSize / GB.toFloat()} GB
+          Clearing ${toRemove.size}/${queue.size} cached images from global queue
+          Freeing Up: ${toRemove.sumBy { it.rawBytes.toInt() } / GB.toFloat()} GB
+          Target Maximum: ${ENV.cacheSizeBytes / GB.toFloat()} GB
+          """.trimIndent()
+      )
       toRemove.forEach { it.updateCache(CLEAR) }
     }
   }
@@ -48,7 +55,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
   private val sizedImage: BufferedImage by cache {
     queue.add(this)
     queueSize += rawBytes
-    log.info("Clearing $name from frame $lastFrame")
+    lastFrame = Projector.singleton?.frameCount ?: lastFrame
     Projector.singleton?.size?.let { file.bufferedImage.scaleToFit(it) } ?: file.bufferedImage
   }
 
@@ -61,6 +68,7 @@ class CachedImage(val file: File) : Geometry, Comparable<CachedImage> {
     CLEAR  -> {
       queue.remove(this)
       queueSize -= rawBytes
+      log.info("Clearing $name from frame $lastFrame")
       ::sizedImage.invalidate(this)
     }
     SCALED -> {
