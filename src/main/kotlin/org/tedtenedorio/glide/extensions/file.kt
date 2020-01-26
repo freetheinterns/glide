@@ -1,0 +1,79 @@
+package org.tedtenedorio.glide.extensions
+
+import com.sun.image.codec.jpeg.JPEGCodec
+import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.FILE_CREATED_ATS
+import org.tedtenedorio.glide.FILE_UPDATED_ATS
+import org.tedtenedorio.glide.slideshow.Catalog
+import java.awt.image.BufferedImage
+import java.io.File
+import java.io.FileFilter
+import java.nio.file.Files
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.UUID
+import javax.imageio.ImageIO
+
+
+///////////////////////////////////////
+// File Extensions
+///////////////////////////////////////
+
+val File.catalogs: List<Catalog>
+  get() =
+    listFiles(CatalogFilter)
+      ?.toList()
+      ?.map(::Catalog)
+      ?.sortedBy {
+        when (ENV.ordering) {
+          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.Alphabetical     -> it.path
+          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.NumberOfFiles    -> it.fileCount.toString()
+          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderCreatedAt  -> it.file.createdAt.toString()
+          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderAccessedAt -> it.file.accessedAt.toString()
+          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderUpdatedAt  -> it.file.updatedAt.toString()
+          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderDiskSize   -> it.folderSize.toString()
+          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.Random           -> UUID.randomUUID().toString()
+        }
+      }
+    ?: listOf()
+
+fun File.listImages(): List<File> =
+  listFiles(ImageFilter)?.toList() ?: listOf()
+
+val File.bufferedImage: BufferedImage
+  get() = try {
+    ImageIO.read(this)
+  } catch (exc: Exception) {
+    println("Failed to load $absolutePath as buffered image.")
+    JPEGCodec.createJPEGDecoder(inputStream()).decodeAsBufferedImage()
+  }
+
+///////////////////////////////////////
+// File Filters
+///////////////////////////////////////
+
+val CatalogFilter = FileFilter {
+  try {
+    it.isDirectory && it.absolutePath != ENV.archive && File(it.absolutePath).listImages().isNotEmpty()
+  } catch (ex: Exception) {
+    false
+  }
+}
+
+val ImageFilter = FileFilter {
+  !it.isDirectory && ENV.imagePattern matches it.name
+}
+
+
+///////////////////////////////////////
+// File Attributes
+///////////////////////////////////////
+
+val File.basicAttributes: BasicFileAttributes
+  get() = Files.readAttributes(toPath(), BasicFileAttributes::class.java)
+
+val File.createdAt: Long
+  get() = FILE_CREATED_ATS.get(absolutePath) { this.basicAttributes.creationTime().toMillis() }
+val File.accessedAt: Long
+  get() = this.basicAttributes.lastAccessTime().toMillis()
+val File.updatedAt: Long
+  get() = FILE_UPDATED_ATS.get(absolutePath) { this.basicAttributes.lastModifiedTime().toMillis() }
