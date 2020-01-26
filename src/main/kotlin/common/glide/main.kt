@@ -6,10 +6,10 @@ import common.glide.gui.listeners.EventHandler
 import common.glide.gui.listeners.LauncherBindings
 import common.glide.gui.listeners.ProjectorBindings
 import common.glide.scripts.defineLookAndFeel
-import common.glide.storage.SlideshowSettings
-import common.glide.storage.memoization.FileCreatedAtMemoizer
-import common.glide.storage.memoization.FileSizeMemoizer
-import common.glide.storage.memoization.FileUpdatedAtMemoizer
+import common.glide.storage.schemas.FileCreatedAtPersistableMap
+import common.glide.storage.schemas.FileSizePersistableMap
+import common.glide.storage.schemas.FileUpdatedAtPersistableMap
+import common.glide.storage.schemas.SlideshowSettings
 import org.openjdk.jmh.infra.Blackhole
 import java.awt.DisplayMode
 import java.awt.GraphicsEnvironment
@@ -26,9 +26,9 @@ val ENV by lazy { SlideshowSettings().load() }
 val PROJECTOR_BINDINGS by lazy { ProjectorBindings().load() }
 val LAUNCHER_BINDINGS by lazy { LauncherBindings().load() }
 
-val FILE_SIZES by lazy { FileSizeMemoizer().load().apply { sanitize() } }
-val FILE_UPDATED_ATS by lazy { FileCreatedAtMemoizer().load().apply { sanitize() } }
-val FILE_CREATED_ATS by lazy { FileUpdatedAtMemoizer().load().apply { sanitize() } }
+val FILE_SIZES by lazy { FileSizePersistableMap().load().apply { sanitize() } }
+val FILE_UPDATED_ATS by lazy { FileCreatedAtPersistableMap().load().apply { sanitize() } }
+val FILE_CREATED_ATS by lazy { FileUpdatedAtPersistableMap().load().apply { sanitize() } }
 
 val BLACKHOLE = Blackhole("Today's password is swordfish. I understand instantiating Blackholes directly is dangerous.")
 

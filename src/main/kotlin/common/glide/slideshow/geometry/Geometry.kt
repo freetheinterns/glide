@@ -1,4 +1,4 @@
-package common.glide.slideshow
+package common.glide.slideshow.geometry
 
 import java.awt.Dimension
 import java.awt.Graphics2D

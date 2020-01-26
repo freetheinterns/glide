@@ -1,9 +1,10 @@
-package common.glide.slideshow
+package common.glide.slideshow.geometry
 
 import common.glide.ENV
 import common.glide.extensions.createdAt
 import common.glide.extensions.formattedFileSize
 import common.glide.extensions.imageCount
+import common.glide.slideshow.Projector
 import common.glide.utils.createOutlinedTypeSetter
 import java.awt.Dimension
 import java.awt.Graphics2D

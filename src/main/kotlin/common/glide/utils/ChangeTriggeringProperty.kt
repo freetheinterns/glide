@@ -4,7 +4,7 @@ import common.glide.Block
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class TriggeringProperty<T>(
+class ChangeTriggeringProperty<T>(
   private var value: T,
   private val callBack: Block
 ) : ReadWriteProperty<Any?, T> {
@@ -13,5 +13,9 @@ class TriggeringProperty<T>(
     val trigger = this.value != value
     this.value = value
     if (trigger) callBack()
+  }
+
+  companion object {
+    fun <T> blindObserver(initial: T, block: Block) = ChangeTriggeringProperty(initial, block)
   }
 }

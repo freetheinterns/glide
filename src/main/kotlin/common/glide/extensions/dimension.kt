@@ -1,7 +1,7 @@
 package common.glide.extensions
 
 import common.glide.ENV
-import common.glide.slideshow.CachedImage
+import common.glide.slideshow.geometry.CachedImage
 import java.awt.Dimension
 import java.awt.DisplayMode
 import java.awt.image.BufferedImage

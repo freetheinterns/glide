@@ -53,6 +53,6 @@ interface Persistable<T : Persistable<T>> {
     File(filename).writeText(JSON.stringify(serializer, thisT))
   }
 
-  fun generateFilename(): String =
+  private fun generateFilename(): String =
     Paths.get("").toAbsolutePath().resolve("${this::class.simpleName}.json").toString()
 }

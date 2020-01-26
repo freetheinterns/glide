@@ -1,10 +1,10 @@
 package common.glide.slideshow
 
+import common.glide.slideshow.geometry.CachedImage
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidate
-import common.glide.utils.TriggeringProperty
-import java.util.*
-import kotlin.NoSuchElementException
+import common.glide.utils.ChangeTriggeringProperty.Companion.blindObserver
+import java.util.UUID
 import kotlin.math.abs
 
 class ImageIndex(
@@ -14,12 +14,12 @@ class ImageIndex(
 ) : ListIterator<CachedImage>, Comparable<ImageIndex> {
   private val uuid: Int = UUID.randomUUID().hashCode()
   val current: CachedImage by cache { library[primary][secondary] }
-  var primary: Int by TriggeringProperty(playlistIndex) {
+  var primary: Int by blindObserver(playlistIndex) {
     ::maxSecondary.invalidate(this)
     ::current.invalidate(this)
     secondary = 0
   }
-  var secondary: Int by TriggeringProperty(slideIndex) { ::current.invalidate(this) }
+  var secondary: Int by blindObserver(slideIndex) { ::current.invalidate(this) }
   val maxPrimary: Int by lazy { library.size }
   val maxSecondary: Int by cache { library[primary].size }
   val copy

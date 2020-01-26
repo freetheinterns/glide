@@ -3,11 +3,12 @@
   RegexSerializer::class
 )
 
-package common.glide.storage
+package common.glide.storage.schemas
 
 import common.glide.GB
 import common.glide.USER_HOME
 import common.glide.enums.FolderSortStrategy
+import common.glide.storage.Persistable
 import common.glide.storage.serialization.ColorSerializer
 import common.glide.storage.serialization.RegexSerializer
 import kotlinx.serialization.Serializable

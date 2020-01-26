@@ -14,9 +14,13 @@ import common.glide.extensions.use
 import common.glide.gui.listeners.EventHandler
 import common.glide.gui.panels.FullScreenFrame
 import common.glide.quit
+import common.glide.slideshow.geometry.CachedImage
+import common.glide.slideshow.geometry.Geometry
+import common.glide.slideshow.geometry.MarginPanel
+import common.glide.storage.Cacheable
 import common.glide.utils.CachedProperty.Companion.cache
 import common.glide.utils.CachedProperty.Companion.invalidate
-import common.glide.utils.TriggeringProperty
+import common.glide.utils.ChangeTriggeringProperty.Companion.blindObserver
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import java.awt.Color
@@ -41,7 +45,7 @@ class Projector : FullScreenFrame() {
   // Properties
   ///////////////////////////////////////
 
-  var geometry by TriggeringProperty(listOf<Geometry>(), ::render)
+  var geometry by blindObserver(listOf<Geometry>(), ::render)
   var library: List<Catalog> by cache { File(ENV.root).catalogs }
   val index: ImageIndex by cache { ImageIndex(library) }
   var frameCount: Int = 0
@@ -179,7 +183,7 @@ class Projector : FullScreenFrame() {
     }
 
     frameCount++
-    CachedImage.trimCache()
+    Cacheable.manageGlobalCache()
   }
 
   ///////////////////////////////////////

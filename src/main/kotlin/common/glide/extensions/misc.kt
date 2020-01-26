@@ -1,7 +1,7 @@
 package common.glide.extensions
 
-import common.glide.slideshow.CachedImage
-import common.glide.slideshow.Geometry
+import common.glide.slideshow.geometry.CachedImage
+import common.glide.slideshow.geometry.Geometry
 import java.text.DecimalFormat
 import kotlin.math.log10
 import kotlin.math.pow
@@ -27,3 +27,10 @@ val Long.formattedFileSize: String
     return DecimalFormat("#,##0.##").format(this / 1024.00.pow(digitGroups.toDouble())) + " " + units[digitGroups]
   }
 
+inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
+  var sum = 0L
+  for (element in this) {
+    sum += selector(element)
+  }
+  return sum
+}
