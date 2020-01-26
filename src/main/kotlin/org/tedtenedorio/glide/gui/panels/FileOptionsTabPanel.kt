@@ -1,6 +1,7 @@
 package org.tedtenedorio.glide.gui.panels
 
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.gui.Launcher
 import org.tedtenedorio.glide.gui.components.DirectoryChooser
 import javax.swing.JComboBox
@@ -20,9 +21,9 @@ class FileOptionsTabPanel(
     description = "Where to store archived playlist folders"
   )
 
-  val ordering: JComboBox<_root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy> = buildComboBox(
+  val ordering: JComboBox<FolderSortStrategy> = buildComboBox(
     name = "Folder Sort",
-    options = _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.values(),
+    options = FolderSortStrategy.values(),
     selected = ENV.ordering
   )
 }

@@ -4,6 +4,7 @@ import com.sun.image.codec.jpeg.JPEGCodec
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.FILE_CREATED_ATS
 import org.tedtenedorio.glide.FILE_UPDATED_ATS
+import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.slideshow.Catalog
 import java.awt.image.BufferedImage
 import java.io.File
@@ -25,13 +26,13 @@ val File.catalogs: List<Catalog>
       ?.map(::Catalog)
       ?.sortedBy {
         when (ENV.ordering) {
-          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.Alphabetical     -> it.path
-          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.NumberOfFiles    -> it.fileCount.toString()
-          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderCreatedAt  -> it.file.createdAt.toString()
-          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderAccessedAt -> it.file.accessedAt.toString()
-          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderUpdatedAt  -> it.file.updatedAt.toString()
-          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.FolderDiskSize   -> it.folderSize.toString()
-          _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.Random           -> UUID.randomUUID().toString()
+          FolderSortStrategy.Alphabetical     -> it.path
+          FolderSortStrategy.NumberOfFiles    -> it.fileCount.toString()
+          FolderSortStrategy.FolderCreatedAt  -> it.file.createdAt.toString()
+          FolderSortStrategy.FolderAccessedAt -> it.file.accessedAt.toString()
+          FolderSortStrategy.FolderUpdatedAt  -> it.file.updatedAt.toString()
+          FolderSortStrategy.FolderDiskSize   -> it.folderSize.toString()
+          FolderSortStrategy.Random           -> UUID.randomUUID().toString()
         }
       }
     ?: listOf()

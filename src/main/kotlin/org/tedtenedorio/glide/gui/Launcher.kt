@@ -1,6 +1,7 @@
 package org.tedtenedorio.glide.gui
 
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.extensions.glue
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.sizeTo
@@ -129,8 +130,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private fun save() {
     ENV.archive = fileOptionsTab.archive.banner.text
     ENV.root = fileOptionsTab.root.banner.text
-    ENV.ordering =
-      fileOptionsTab.ordering.selectedItem as _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy
+    ENV.ordering = fileOptionsTab.ordering.selectedItem as FolderSortStrategy
     ENV.fontName = displayOptionsTab.fontName.selectedItem as String
     ENV.speed = advancedOptionsTab.speed.value
     ENV.debounce = advancedOptionsTab.debounce.value.toLong()

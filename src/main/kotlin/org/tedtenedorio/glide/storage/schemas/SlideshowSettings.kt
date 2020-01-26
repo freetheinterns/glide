@@ -10,6 +10,7 @@ import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import org.tedtenedorio.glide.GB
 import org.tedtenedorio.glide.USER_HOME
+import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.storage.Persistable
 import org.tedtenedorio.glide.storage.serialization.ColorSerializer
 import org.tedtenedorio.glide.storage.serialization.RegexSerializer
@@ -43,7 +44,7 @@ import javax.swing.UIManager
   var debounce: Long = 200L,
   @Transient var cacheSizeBytes: Int = GB * 3,
 
-  var ordering: _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy = _root_ide_package_.org.tedtenedorio.glide.enums.FolderSortStrategy.NumberOfFiles,
+  var ordering: FolderSortStrategy = FolderSortStrategy.NumberOfFiles,
   var root: String = File("$USER_HOME\\Pictures").absolutePath,
   var archive: String = File("$USER_HOME\\Pictures\\archive").absolutePath,
   var fontName: String = UIManager.getFont("Button.font").fontName
