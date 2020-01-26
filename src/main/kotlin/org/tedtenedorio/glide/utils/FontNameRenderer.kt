@@ -15,10 +15,8 @@ internal class FontNameRenderer : DefaultListCellRenderer() {
     isSelected: Boolean,
     cellHasFocus: Boolean
   ): Component {
-    val label = super.getListCellRendererComponent(
-      list, value, index, isSelected, cellHasFocus) as JLabel
-    val font = Font(value as String?, Font.PLAIN, 20)
-    label.font = font
+    val label = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus) as JLabel
+    label.font = Font(value as String?, Font.PLAIN, 20)
     return label
   }
 }

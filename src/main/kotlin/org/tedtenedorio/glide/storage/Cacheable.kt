@@ -18,7 +18,8 @@ interface Cacheable {
 
   companion object {
     private val log by logger()
-    private var queueSize: Long = 0
+    var queueSize: Long = 0
+      private set
     private val queue = PriorityBlockingQueue<Cacheable>(
       100,
       // Lowest priority means top of queue.

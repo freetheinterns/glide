@@ -4,10 +4,10 @@ import org.tedtenedorio.glide.BLACKHOLE
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.bufferedImage
 import org.tedtenedorio.glide.extensions.scaleToFit
+import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
+import org.tedtenedorio.glide.properties.CachedProperty.Companion.invalidate
 import org.tedtenedorio.glide.slideshow.Projector
 import org.tedtenedorio.glide.storage.Cacheable
-import org.tedtenedorio.glide.utils.CachedProperty.Companion.cache
-import org.tedtenedorio.glide.utils.CachedProperty.Companion.invalidate
 import org.tedtenedorio.glide.utils.createOutlinedTypeSetter
 import java.awt.Dimension
 import java.awt.Graphics2D

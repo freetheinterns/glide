@@ -14,14 +14,14 @@ import org.tedtenedorio.glide.extensions.times
 import org.tedtenedorio.glide.extensions.use
 import org.tedtenedorio.glide.launcher.panels.FullScreenFrame
 import org.tedtenedorio.glide.listeners.EventHandler
+import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
+import org.tedtenedorio.glide.properties.CachedProperty.Companion.invalidate
+import org.tedtenedorio.glide.properties.ChangeTriggeringProperty.Companion.blindObserver
 import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.geometry.CachedImage
 import org.tedtenedorio.glide.slideshow.geometry.Geometry
 import org.tedtenedorio.glide.slideshow.geometry.MarginPanel
 import org.tedtenedorio.glide.storage.Cacheable
-import org.tedtenedorio.glide.utils.CachedProperty.Companion.cache
-import org.tedtenedorio.glide.utils.CachedProperty.Companion.invalidate
-import org.tedtenedorio.glide.utils.ChangeTriggeringProperty.Companion.blindObserver
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment

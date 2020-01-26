@@ -1,9 +1,9 @@
 package org.tedtenedorio.glide.slideshow
 
+import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
+import org.tedtenedorio.glide.properties.CachedProperty.Companion.invalidate
+import org.tedtenedorio.glide.properties.ChangeTriggeringProperty.Companion.blindObserver
 import org.tedtenedorio.glide.slideshow.geometry.CachedImage
-import org.tedtenedorio.glide.utils.CachedProperty.Companion.cache
-import org.tedtenedorio.glide.utils.CachedProperty.Companion.invalidate
-import org.tedtenedorio.glide.utils.ChangeTriggeringProperty.Companion.blindObserver
 import java.util.UUID
 import kotlin.math.abs
 

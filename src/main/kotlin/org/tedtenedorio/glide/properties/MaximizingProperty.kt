@@ -1,4 +1,4 @@
-package org.tedtenedorio.glide.utils
+package org.tedtenedorio.glide.properties
 
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty

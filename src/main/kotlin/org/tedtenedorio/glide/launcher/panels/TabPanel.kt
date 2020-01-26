@@ -7,7 +7,7 @@ import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.launcher.components.DirectoryChooser
 import org.tedtenedorio.glide.launcher.components.LabelButton
 import org.tedtenedorio.glide.launcher.components.Slider
-import org.tedtenedorio.glide.utils.CachedProperty.Companion.cache
+import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Component

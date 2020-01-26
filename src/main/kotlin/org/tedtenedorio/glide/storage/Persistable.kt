@@ -12,7 +12,7 @@ interface Persistable<T : Persistable<T>> {
     private val FILENAMES = mutableMapOf<Any, String>()
   }
 
-  private val filename: String
+  val filename: String
     get() = FILENAMES.getOrPut(this, ::generateFilename)
 
   // Only safe if T is the implementing class of [this]
@@ -53,6 +53,6 @@ interface Persistable<T : Persistable<T>> {
     File(filename).writeText(JSON.stringify(serializer, thisT))
   }
 
-  private fun generateFilename(): String =
+  fun generateFilename(): String =
     Paths.get("").toAbsolutePath().resolve("${this::class.simpleName}.json").toString()
 }

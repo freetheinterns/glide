@@ -1,4 +1,4 @@
-package org.tedtenedorio.glide.utils
+package org.tedtenedorio.glide.properties
 
 import org.tedtenedorio.glide.Loader
 import kotlin.properties.ReadWriteProperty
