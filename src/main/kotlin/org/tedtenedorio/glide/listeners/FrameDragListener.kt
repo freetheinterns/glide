@@ -1,4 +1,4 @@
-package org.tedtenedorio.glide.gui.listeners
+package org.tedtenedorio.glide.listeners
 
 import org.tedtenedorio.glide.Operation
 import org.tedtenedorio.glide.extensions.minus

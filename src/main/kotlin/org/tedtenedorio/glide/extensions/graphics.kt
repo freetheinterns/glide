@@ -1,14 +1,11 @@
 package org.tedtenedorio.glide.extensions
 
-import org.tedtenedorio.glide.BEST_DISPLAY_MODES
 import org.tedtenedorio.glide.Operation
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
-import java.awt.DisplayMode
 import java.awt.Font
 import java.awt.Graphics2D
-import java.awt.GraphicsDevice
 import java.awt.Point
 import java.awt.RenderingHints.KEY_INTERPOLATION
 import java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR
@@ -21,28 +18,6 @@ import javax.swing.SpringLayout
 ///////////////////////////////////////
 // GraphicsDevice Extensions
 ///////////////////////////////////////
-
-val GraphicsDevice.bestDisplayMode: DisplayMode?
-  get() {
-    for (x in BEST_DISPLAY_MODES.indices) {
-      for (i in displayModes.indices) {
-        if (displayModes[i].width == BEST_DISPLAY_MODES[x].width
-            && displayModes[i].height == BEST_DISPLAY_MODES[x].height
-            && displayModes[i].bitDepth == BEST_DISPLAY_MODES[x].bitDepth
-        ) {
-          return BEST_DISPLAY_MODES[x]
-        }
-      }
-    }
-    return null
-  }
-
-fun GraphicsDevice.chooseBestDisplayMode() {
-  val nextMode = bestDisplayMode
-  if (nextMode != null) {
-    displayMode = nextMode
-  }
-}
 
 fun Graphics2D.use(block: Operation<Graphics2D>) {
   block(this)

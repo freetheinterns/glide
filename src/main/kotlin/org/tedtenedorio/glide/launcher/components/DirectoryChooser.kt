@@ -1,6 +1,6 @@
-package org.tedtenedorio.glide.gui.components
+package org.tedtenedorio.glide.launcher.components
 
-import org.tedtenedorio.glide.gui.panels.TabPanel
+import org.tedtenedorio.glide.launcher.panels.TabPanel
 import java.awt.Component
 import javax.swing.JButton
 import javax.swing.JFileChooser

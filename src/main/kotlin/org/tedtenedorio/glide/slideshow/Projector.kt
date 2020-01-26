@@ -6,15 +6,14 @@ import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.Extension
 import org.tedtenedorio.glide.Operation
 import org.tedtenedorio.glide.extensions.catalogs
-import org.tedtenedorio.glide.extensions.chooseBestDisplayMode
 import org.tedtenedorio.glide.extensions.dimension
 import org.tedtenedorio.glide.extensions.fitCentered
 import org.tedtenedorio.glide.extensions.imageCount
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.times
 import org.tedtenedorio.glide.extensions.use
-import org.tedtenedorio.glide.gui.listeners.EventHandler
-import org.tedtenedorio.glide.gui.panels.FullScreenFrame
+import org.tedtenedorio.glide.launcher.panels.FullScreenFrame
+import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.geometry.CachedImage
 import org.tedtenedorio.glide.slideshow.geometry.Geometry
@@ -26,11 +25,10 @@ import org.tedtenedorio.glide.utils.ChangeTriggeringProperty.Companion.blindObse
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment
+import java.awt.event.ActionListener
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.LinkOption
 import javax.swing.Timer
 import kotlin.system.measureTimeMillis
 
@@ -49,8 +47,8 @@ class Projector : FullScreenFrame() {
   var library: List<Catalog> by cache { File(ENV.root).catalogs }
   val index: ImageIndex by cache { ImageIndex(library) }
   var frameCount: Int = 0
+  val timer = Timer(ENV.speed, ::next as ActionListener)
 
-  private var timer = Timer(ENV.speed) { next() }
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
 
@@ -61,7 +59,7 @@ class Projector : FullScreenFrame() {
     // Set up Listeners
     defaultCloseOperation = DO_NOTHING_ON_CLOSE
     addWindowListener(object : WindowAdapter() {
-      override fun windowClosed(e: WindowEvent?) {
+      override fun windowClosed(e: WindowEvent) {
         super.windowClosed(e)
         quit(0)
       }
@@ -77,7 +75,7 @@ class Projector : FullScreenFrame() {
 
     // Set JFrame to full screen
     device.fullScreenWindow = this
-    device.chooseBestDisplayMode()
+    device.displayMode = ENV.displayMode
     size = device.displayMode.dimension
 
     // Use a dual imageBufferCapacity strategy for Graphics control
@@ -90,7 +88,7 @@ class Projector : FullScreenFrame() {
     singleton = this
 
     // Short-circuit if playlist is empty or if full screen is not possible
-    if (library.map { it.size }.sum() == 0) {
+    if (library.sumBy(Catalog::size) == 0) {
       log.severe("No images found to display!")
       quit(1)
     }
@@ -142,10 +140,10 @@ class Projector : FullScreenFrame() {
   // - render() draws all geometry to a screen after the field is updated
   // - 10ms delay to allow UI thread to kick in
   // - preRender() immediately draws the optimistic next images to get them cached on the UI thread.
-  // - updateCaching() which re-evaluates the caching states of buffered images after rendering
+  // - Cacheable.manageGlobalCache() which re-evaluates the caching states of cached images
   ///////////////////////////////////////
 
-  private fun project() {
+  fun project() {
     val pages = selectImages()
     geometry = size.fitCentered(pages).plus(marginPanel)
   }
@@ -190,19 +188,8 @@ class Projector : FullScreenFrame() {
   // Image Iterator Helpers
   ///////////////////////////////////////
 
-  fun dumbNext() {
-    index += 1
-    project()
-  }
-
-  fun previous() {
-    index -= 1
-    project()
-  }
-
   fun next() {
     index += geometry.imageCount
-    project()
   }
 
   fun prev() {
@@ -217,32 +204,6 @@ class Projector : FullScreenFrame() {
         lookahead = index - 1
       }
     }
-    project()
-  }
-
-  fun nextFolder() {
-    index.jump(1)
-    project()
-  }
-
-  fun prevFolder() {
-    index.jump(-1)
-    project()
-  }
-
-  fun toggleTimer() {
-    if (timer.isRunning) {
-      timer.stop()
-    } else {
-      timer.start()
-      next()
-    }
-  }
-
-  private fun softJump(target: Int) {
-    if (index.maxPrimary == 0) quit(0)
-    index.primary = target.coerceAtMost(index.maxPrimary - 1)
-    project()
   }
 
   ///////////////////////////////////////
@@ -250,7 +211,7 @@ class Projector : FullScreenFrame() {
   ///////////////////////////////////////
 
 
-  private fun modifyCatalogFolder(
+  fun modifyCatalogFolder(
     target: Int,
     jumpTo: Int = target,
     operation: Extension<File>
@@ -264,24 +225,7 @@ class Projector : FullScreenFrame() {
 
     targetFile.operation()
     System.gc()
-    softJump(jumpTo)
-  }
-
-  fun deleteCurrentDirectory() {
-    modifyCatalogFolder(index.primary) {
-      log.warning("Deleting Folder: $absolutePath")
-      deleteRecursively()
-    }
-  }
-
-  fun archiveCurrentDirectory() {
-    modifyCatalogFolder(index.primary) {
-      val newPath = File("${ENV.archive}\\$name").toPath()
-      log.warning("Moving Folder: $absolutePath --> $newPath")
-      if (Files.exists(newPath, LinkOption.NOFOLLOW_LINKS))
-        log.severe("Target Path already exists! No action taken!")
-      else
-        Files.move(toPath(), newPath)
-    }
+    if (index.maxPrimary == 0) quit(0)
+    index.primary = jumpTo.coerceAtMost(index.maxPrimary - 1)
   }
 }

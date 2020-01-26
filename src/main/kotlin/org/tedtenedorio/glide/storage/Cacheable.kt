@@ -21,7 +21,9 @@ interface Cacheable {
     private var queueSize: Long = 0
     private val queue = PriorityBlockingQueue<Cacheable>(
       100,
-      compareBy(Cacheable::priority).thenBy(Cacheable::byteSize)
+      // Lowest priority means top of queue.
+      // Top of queue means removed from cache next.
+      compareBy(Cacheable::priority).thenBy { -it.byteSize }
     )
 
     private fun remove(obj: Cacheable) {

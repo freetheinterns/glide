@@ -1,4 +1,4 @@
-package org.tedtenedorio.glide.gui.listeners
+package org.tedtenedorio.glide.listeners
 
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -9,7 +9,7 @@ import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.LAUNCHER_BINDINGS
 import org.tedtenedorio.glide.PROJECTOR_BINDINGS
 import org.tedtenedorio.glide.extensions.logger
-import org.tedtenedorio.glide.gui.Launcher
+import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.slideshow.Projector
 import java.awt.KeyEventDispatcher
 import java.awt.KeyboardFocusManager

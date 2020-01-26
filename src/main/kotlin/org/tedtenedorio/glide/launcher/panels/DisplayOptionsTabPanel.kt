@@ -1,8 +1,8 @@
-package org.tedtenedorio.glide.gui.panels
+package org.tedtenedorio.glide.launcher.panels
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.FONT_FAMILIES
-import org.tedtenedorio.glide.gui.Launcher
+import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.utils.FontNameRenderer
 import java.awt.Font
 import javax.swing.JCheckBox

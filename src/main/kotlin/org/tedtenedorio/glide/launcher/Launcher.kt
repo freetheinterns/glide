@@ -1,16 +1,16 @@
-package org.tedtenedorio.glide.gui
+package org.tedtenedorio.glide.launcher
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.extensions.glue
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.sizeTo
-import org.tedtenedorio.glide.gui.components.LabelButton
-import org.tedtenedorio.glide.gui.listeners.FrameDragListener
-import org.tedtenedorio.glide.gui.panels.AdvancedOptionsTabPanel
-import org.tedtenedorio.glide.gui.panels.DisplayOptionsTabPanel
-import org.tedtenedorio.glide.gui.panels.FileOptionsTabPanel
-import org.tedtenedorio.glide.gui.panels.TabPanel
+import org.tedtenedorio.glide.launcher.components.LabelButton
+import org.tedtenedorio.glide.launcher.panels.AdvancedOptionsTabPanel
+import org.tedtenedorio.glide.launcher.panels.DisplayOptionsTabPanel
+import org.tedtenedorio.glide.launcher.panels.FileOptionsTabPanel
+import org.tedtenedorio.glide.launcher.panels.TabPanel
+import org.tedtenedorio.glide.listeners.FrameDragListener
 import org.tedtenedorio.glide.slideshow.Projector
 import java.awt.BorderLayout
 import java.awt.CardLayout

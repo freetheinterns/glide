@@ -1,6 +1,7 @@
 @file:UseSerializers(
   ColorSerializer::class,
-  RegexSerializer::class
+  RegexSerializer::class,
+  DisplayModeSerializer::class
 )
 
 package org.tedtenedorio.glide.storage.schemas
@@ -13,8 +14,10 @@ import org.tedtenedorio.glide.USER_HOME
 import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.storage.Persistable
 import org.tedtenedorio.glide.storage.serialization.ColorSerializer
+import org.tedtenedorio.glide.storage.serialization.DisplayModeSerializer
 import org.tedtenedorio.glide.storage.serialization.RegexSerializer
 import java.awt.Color
+import java.awt.DisplayMode
 import java.io.File
 import javax.swing.UIManager
 
@@ -43,6 +46,7 @@ import javax.swing.UIManager
   var speed: Int = 2500,
   var debounce: Long = 200L,
   @Transient var cacheSizeBytes: Int = GB * 3,
+  var displayMode: DisplayMode = DisplayMode(2560, 1440, 32, 0),
 
   var ordering: FolderSortStrategy = FolderSortStrategy.NumberOfFiles,
   var root: String = File("$USER_HOME\\Pictures").absolutePath,

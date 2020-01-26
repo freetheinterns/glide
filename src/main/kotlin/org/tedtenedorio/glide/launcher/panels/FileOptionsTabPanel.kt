@@ -1,9 +1,9 @@
-package org.tedtenedorio.glide.gui.panels
+package org.tedtenedorio.glide.launcher.panels
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.enums.FolderSortStrategy
-import org.tedtenedorio.glide.gui.Launcher
-import org.tedtenedorio.glide.gui.components.DirectoryChooser
+import org.tedtenedorio.glide.launcher.Launcher
+import org.tedtenedorio.glide.launcher.components.DirectoryChooser
 import javax.swing.JComboBox
 
 class FileOptionsTabPanel(

@@ -2,16 +2,15 @@ package org.tedtenedorio.glide
 
 import org.openjdk.jmh.infra.Blackhole
 import org.tedtenedorio.glide.extensions.throwable
-import org.tedtenedorio.glide.gui.Launcher
-import org.tedtenedorio.glide.gui.listeners.EventHandler
-import org.tedtenedorio.glide.gui.listeners.LauncherBindings
-import org.tedtenedorio.glide.gui.listeners.ProjectorBindings
+import org.tedtenedorio.glide.launcher.Launcher
+import org.tedtenedorio.glide.listeners.EventHandler
+import org.tedtenedorio.glide.listeners.LauncherBindings
+import org.tedtenedorio.glide.listeners.ProjectorBindings
 import org.tedtenedorio.glide.scripts.defineLookAndFeel
 import org.tedtenedorio.glide.storage.schemas.FileCreatedAtPersistableMap
 import org.tedtenedorio.glide.storage.schemas.FileSizePersistableMap
 import org.tedtenedorio.glide.storage.schemas.FileUpdatedAtPersistableMap
 import org.tedtenedorio.glide.storage.schemas.SlideshowSettings
-import java.awt.DisplayMode
 import java.awt.GraphicsEnvironment
 import java.util.logging.Formatter
 import java.util.logging.Level
@@ -36,11 +35,6 @@ val USER_HOME: String by lazy { System.getProperty("user.home") }
 val FONT_FAMILIES: Array<String> by lazy {
   GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
 }
-val BEST_DISPLAY_MODES = arrayOf(
-  DisplayMode(2560, 1440, 32, 0),
-  DisplayMode(2560, 1440, 16, 0),
-  DisplayMode(2560, 1440, 8, 0)
-)
 
 internal fun defineLogger() {
   val baseLogger = Logger.getLogger("")

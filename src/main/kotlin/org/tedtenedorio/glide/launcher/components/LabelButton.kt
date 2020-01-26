@@ -1,4 +1,4 @@
-package org.tedtenedorio.glide.gui.components
+package org.tedtenedorio.glide.launcher.components
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.Operation

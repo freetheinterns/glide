@@ -1,4 +1,4 @@
-package org.tedtenedorio.glide.gui.panels
+package org.tedtenedorio.glide.launcher.panels
 
 import java.awt.GraphicsEnvironment
 import javax.swing.JFrame

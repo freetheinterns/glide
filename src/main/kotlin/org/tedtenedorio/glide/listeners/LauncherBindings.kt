@@ -1,8 +1,8 @@
-package org.tedtenedorio.glide.gui.listeners
+package org.tedtenedorio.glide.listeners
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.tedtenedorio.glide.gui.Launcher
+import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.storage.Persistable
 import java.awt.event.KeyEvent.VK_ENTER

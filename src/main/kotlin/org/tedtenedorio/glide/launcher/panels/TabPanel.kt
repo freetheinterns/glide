@@ -1,12 +1,12 @@
-package org.tedtenedorio.glide.gui.panels
+package org.tedtenedorio.glide.launcher.panels
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.glue
 import org.tedtenedorio.glide.extensions.sizeTo
-import org.tedtenedorio.glide.gui.Launcher
-import org.tedtenedorio.glide.gui.components.DirectoryChooser
-import org.tedtenedorio.glide.gui.components.LabelButton
-import org.tedtenedorio.glide.gui.components.Slider
+import org.tedtenedorio.glide.launcher.Launcher
+import org.tedtenedorio.glide.launcher.components.DirectoryChooser
+import org.tedtenedorio.glide.launcher.components.LabelButton
+import org.tedtenedorio.glide.launcher.components.Slider
 import org.tedtenedorio.glide.utils.CachedProperty.Companion.cache
 import java.awt.BasicStroke
 import java.awt.Color

@@ -1,7 +1,7 @@
-package org.tedtenedorio.glide.gui.panels
+package org.tedtenedorio.glide.launcher.panels
 
 import org.tedtenedorio.glide.ENV
-import org.tedtenedorio.glide.gui.Launcher
+import org.tedtenedorio.glide.launcher.Launcher
 import javax.swing.JCheckBox
 import javax.swing.JSlider
 
