@@ -27,7 +27,7 @@ val File.catalogs: List<Catalog>
       ?.sortedBy {
         when (ENV.ordering) {
           FolderSortStrategy.Alphabetical     -> it.path
-          FolderSortStrategy.NumberOfFiles    -> it.fileCount.toString()
+          FolderSortStrategy.NumberOfFiles    -> it.size.toString()
           FolderSortStrategy.FolderCreatedAt  -> it.file.createdAt.toString()
           FolderSortStrategy.FolderAccessedAt -> it.file.accessedAt.toString()
           FolderSortStrategy.FolderUpdatedAt  -> it.file.updatedAt.toString()
@@ -73,8 +73,8 @@ val File.basicAttributes: BasicFileAttributes
   get() = Files.readAttributes(toPath(), BasicFileAttributes::class.java)
 
 val File.createdAt: Long
-  get() = FILE_CREATED_ATS.get(absolutePath) { this.basicAttributes.creationTime().toMillis() }
+  get() = FILE_CREATED_ATS.get(absolutePath, basicAttributes.creationTime()::toMillis)
 val File.accessedAt: Long
-  get() = this.basicAttributes.lastAccessTime().toMillis()
+  get() = basicAttributes.lastAccessTime().toMillis()
 val File.updatedAt: Long
-  get() = FILE_UPDATED_ATS.get(absolutePath) { this.basicAttributes.lastModifiedTime().toMillis() }
+  get() = FILE_UPDATED_ATS.get(absolutePath, basicAttributes.creationTime()::toMillis)

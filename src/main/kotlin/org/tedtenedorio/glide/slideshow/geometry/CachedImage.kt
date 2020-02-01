@@ -16,7 +16,7 @@ import java.io.File
 import kotlin.properties.Delegates.observable
 
 class CachedImage(val file: File) : Geometry, Cacheable {
-  override val byteSize: Long by lazy { file.length() }
+  override val byteSize: Long by lazy(file::length)
   override var position: Dimension by observable(Dimension()) { _, _, _ ->
     priority = Projector.singleton?.frameCount ?: priority
     BLACKHOLE.consume(width)
@@ -27,13 +27,13 @@ class CachedImage(val file: File) : Geometry, Cacheable {
   private val sizedImage: BufferedImage by cache {
     memoize()
     priority = Projector.singleton?.frameCount ?: priority
-    Projector.singleton?.size?.let { file.bufferedImage.scaleToFit(it) } ?: file.bufferedImage
+    Projector.singleton?.size?.let(file.bufferedImage::scaleToFit) ?: file.bufferedImage
   }
 
-  val path: String by lazy { file.absolutePath }
-  val width: Int by lazy { sizedImage.width }
-  val height: Int by lazy { sizedImage.height }
-  val name: String by lazy { file.name }
+  val path: String by lazy(file::getAbsolutePath)
+  val width: Int by lazy(sizedImage::getWidth)
+  val height: Int by lazy(sizedImage::getHeight)
+  val name: String by lazy(file::getName)
 
   override fun clear() {
     ::sizedImage.invalidate(this)

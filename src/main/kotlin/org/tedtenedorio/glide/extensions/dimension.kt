@@ -35,7 +35,7 @@ fun Dimension?.equals(other: Any?): Boolean {
 ///////////////////////////////////////
 
 fun Dimension.fitCentered(pages: List<CachedImage>): List<CachedImage> {
-  var margin = (size.width - pages.sumBy { it.width }) / 2
+  var margin = (size.width - pages.sumBy(CachedImage::width)) / 2
 
   return pages
     .run { if (ENV.direction) reversed() else this }

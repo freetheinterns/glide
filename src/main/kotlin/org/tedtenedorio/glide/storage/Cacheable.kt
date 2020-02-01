@@ -3,6 +3,7 @@ package org.tedtenedorio.glide.storage
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.GB
 import org.tedtenedorio.glide.extensions.logger
+import org.tedtenedorio.glide.extensions.sumByLong
 import java.util.concurrent.PriorityBlockingQueue
 
 
@@ -20,7 +21,7 @@ interface Cacheable {
     private val log by logger()
     var queueSize: Long = 0
       private set
-    private val queue = PriorityBlockingQueue<Cacheable>(
+    private val queue = PriorityBlockingQueue(
       100,
       // Lowest priority means top of queue.
       // Top of queue means removed from cache next.
@@ -47,7 +48,7 @@ interface Cacheable {
       log.info("""
           Current Cache: ${queueSize / GB.toFloat()} GB
           Clearing ${toRemove.size}/${queue.size} cached images from global queue
-          Freeing Up: ${toRemove.sumBy { it.byteSize.toInt() } / GB.toFloat()} GB
+          Freeing Up: ${toRemove.sumByLong(Cacheable::byteSize) / GB.toFloat()} GB
           Target Maximum: ${maxBytes / GB.toFloat()} GB
           """.trimIndent()
       )

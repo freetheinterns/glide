@@ -26,8 +26,6 @@ import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment
 import java.awt.event.ActionListener
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
 import java.io.File
 import javax.swing.Timer
 import kotlin.system.measureTimeMillis
@@ -44,10 +42,10 @@ class Projector : FullScreenFrame() {
   ///////////////////////////////////////
 
   var geometry by blindObserver(listOf<Geometry>(), ::render)
-  var library: List<Catalog> by cache { File(ENV.root).catalogs }
+  var library: List<Catalog> by cache(File(ENV.root)::catalogs)
   val index: ImageIndex by cache { ImageIndex(library) }
   var frameCount: Int = 0
-  val timer = Timer(ENV.speed, ::next as ActionListener)
+  val timer = Timer(ENV.speed, ActionListener { next() })
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
@@ -58,12 +56,6 @@ class Projector : FullScreenFrame() {
 
     // Set up Listeners
     defaultCloseOperation = DO_NOTHING_ON_CLOSE
-    addWindowListener(object : WindowAdapter() {
-      override fun windowClosed(e: WindowEvent) {
-        super.windowClosed(e)
-        quit(0)
-      }
-    })
     addMouseListener(EventHandler)
     timer.initialDelay = ENV.speed
 

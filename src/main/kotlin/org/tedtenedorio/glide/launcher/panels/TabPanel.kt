@@ -35,7 +35,7 @@ open class TabPanel(
   var highlighted = false
   val label = LabelButton(title, listener)
 
-  private var memory: Component by cache { header }
+  private var memory: Component by cache(::header)
   private val header = JLabel(title)
   private val spring = SpringLayout()
   private val closeButton = LabelButton(
