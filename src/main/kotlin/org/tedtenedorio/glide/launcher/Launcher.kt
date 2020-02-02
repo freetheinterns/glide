@@ -11,7 +11,6 @@ import org.tedtenedorio.glide.launcher.panels.DisplayOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.FileOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.TabPanel
 import org.tedtenedorio.glide.listeners.FrameDragListener
-import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.Projector
 import java.awt.BorderLayout
 import java.awt.CardLayout
@@ -19,8 +18,6 @@ import java.awt.Color.RED
 import java.awt.Rectangle
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
-import java.awt.event.WindowEvent
-import java.awt.event.WindowEvent.WINDOW_CLOSED
 import javax.swing.JFrame
 import javax.swing.JPanel
 import javax.swing.SpringLayout
@@ -28,7 +25,6 @@ import javax.swing.SpringLayout.NORTH
 import javax.swing.SpringLayout.SOUTH
 import javax.swing.SpringLayout.WEST
 import javax.swing.UIManager
-import javax.swing.WindowConstants
 import kotlin.system.exitProcess
 
 class Launcher : JFrame("Projector: Settings"), ActionListener {
@@ -102,7 +98,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
   init {
     singleton = this
-    defaultCloseOperation = WindowConstants.DO_NOTHING_ON_CLOSE
+    defaultCloseOperation = EXIT_ON_CLOSE
     isUndecorated = true
     isResizable = false
     isFocusable = true
@@ -129,11 +125,6 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
     else -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
-  }
-
-  override fun processWindowEvent(e: WindowEvent) {
-    super.processWindowEvent(e)
-    if (e.id == WINDOW_CLOSED) quit(0)
   }
 
   private fun save() {
