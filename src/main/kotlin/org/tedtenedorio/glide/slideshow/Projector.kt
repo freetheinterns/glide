@@ -42,7 +42,7 @@ class Projector : FullScreenFrame() {
   ///////////////////////////////////////
 
   var geometry by blindObserver(listOf<Geometry>(), ::render)
-  var library: List<Catalog> by cache(File(ENV.root)::catalogs)
+  var library: List<Catalog> by cache { File(ENV.root).catalogs }
   val index: ImageIndex by cache { ImageIndex(library) }
   var frameCount: Int = 0
   val timer = Timer(ENV.speed, ActionListener { next() })

@@ -20,8 +20,8 @@ class ImageIndex(
     secondary = 0
   }
   var secondary: Int by blindObserver(slideIndex) { ::current.invalidate(this) }
-  val maxPrimary: Int by lazy(library::size)
-  val maxSecondary: Int by cache(library[primary]::size)
+  val maxPrimary: Int by lazy { library.size }
+  val maxSecondary: Int by cache { library[primary].size }
   val copy
     get() = ImageIndex(library, primary, secondary)
 
