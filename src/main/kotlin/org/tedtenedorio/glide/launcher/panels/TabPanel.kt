@@ -100,12 +100,12 @@ open class TabPanel(
 
   override fun add(item: Component): Component {
     val verticalPad = when (item) {
-      is Label       -> (PADDING * 1.25).toInt()
+      is Label -> (PADDING * 1.25).toInt()
       is Description -> PADDING / 4
       is ComboBox<*> -> PADDING / 4
-      is JSlider     -> PADDING / 16
-      is CheckBox    -> PADDING / 4
-      else           -> PADDING / 8
+      is JSlider -> PADDING / 16
+      is CheckBox -> PADDING / 4
+      else -> PADDING / 8
     }
 
     val ret = super.add(item)

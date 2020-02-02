@@ -120,15 +120,15 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   }
 
   override fun actionPerformed(e: ActionEvent) = when (e.source) {
-    saveTab                  -> save()
-    launchTab                -> launchProjector()
-    closeWindow              -> exitProcess(0)
+    saveTab -> save()
+    launchTab -> launchProjector()
+    closeWindow -> exitProcess(0)
 
-    fileOptionsTab.label     -> changeCard(fileOptionsTab)
-    displayOptionsTab.label  -> changeCard(displayOptionsTab)
+    fileOptionsTab.label -> changeCard(fileOptionsTab)
+    displayOptionsTab.label -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
-    else                     -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
+    else -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
   }
 
   override fun processWindowEvent(e: WindowEvent) {

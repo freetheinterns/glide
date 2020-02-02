@@ -25,7 +25,8 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import kotlin.concurrent.thread
 
-@Serializable data class ProjectorBindings(
+@Serializable
+data class ProjectorBindings(
   var archiveCatalog: List<Int> = listOf(VK_F5),
   var deleteCatalog: List<Int> = listOf(VK_DELETE),
   var exit: List<Int> = listOf(VK_ESCAPE),
@@ -42,7 +43,9 @@ import kotlin.concurrent.thread
   }
 
   override val version: Int = 0
-  @Transient override var serializer = serializer()
+
+  @Transient
+  override var serializer = serializer()
 
   fun trigger(source: Projector, it: Int) {
     thread(

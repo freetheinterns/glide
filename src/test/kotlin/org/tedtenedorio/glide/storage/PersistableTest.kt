@@ -11,11 +11,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class PersistableTest {
-  @Serializable private data class TestingClass(
+  @Serializable
+  private data class TestingClass(
     val value: String = "test",
     override val version: Int = 1
   ) : Persistable<TestingClass> {
-    @Transient override var serializer = serializer()
+    @Transient
+    override var serializer = serializer()
   }
 
   private lateinit var obj: TestingClass

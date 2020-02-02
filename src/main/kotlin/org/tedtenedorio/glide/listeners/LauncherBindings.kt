@@ -8,12 +8,14 @@ import org.tedtenedorio.glide.storage.Persistable
 import java.awt.event.KeyEvent.VK_ENTER
 import java.awt.event.KeyEvent.VK_ESCAPE
 
-@Serializable data class LauncherBindings(
+@Serializable
+data class LauncherBindings(
   var launch: List<Int> = listOf(VK_ENTER),
   var exit: List<Int> = listOf(VK_ESCAPE),
   override val version: Int = 0
 ) : Persistable<LauncherBindings> {
-  @Transient override var serializer = serializer()
+  @Transient
+  override var serializer = serializer()
 
   fun trigger(source: Launcher, code: Int) {
     if (launch.contains(code))

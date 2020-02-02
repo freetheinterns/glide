@@ -16,12 +16,12 @@ interface PersistableMap<K, V, T : Persistable<T>> : Persistable<T> {
     val entry = data[key.hashCode().toString()]
 
     return when {
-      entry == null                             -> null
+      entry == null -> null
       entry.second < System.currentTimeMillis() -> {
         data.remove(key.hashCode().toString())
         null
       }
-      else                                      -> entry.first
+      else -> entry.first
     }
   }
 

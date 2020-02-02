@@ -21,7 +21,8 @@ import java.awt.DisplayMode
 import java.io.File
 import javax.swing.UIManager
 
-@Serializable data class SlideshowSettings(
+@Serializable
+data class SlideshowSettings(
   override val version: Int = 0,
   var background: Color = Color(15, 15, 15),
   var foreground: Color = Color(0, 0, 0),
@@ -53,5 +54,6 @@ import javax.swing.UIManager
   var archive: String = File("$USER_HOME\\Pictures\\archive").absolutePath,
   var fontName: String = UIManager.getFont("Button.font").fontName
 ) : Persistable<SlideshowSettings> {
-  @Transient override var serializer = serializer()
+  @Transient
+  override var serializer = serializer()
 }

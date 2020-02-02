@@ -93,12 +93,12 @@ class ImageIndex(
   override fun compareTo(other: ImageIndex) =
     when (primary) {
       other.primary -> secondary - other.secondary
-      else          -> (primary - other.primary) * 1000
+      else -> (primary - other.primary) * 1000
     }
 
   override fun equals(other: Any?) =
     when (other) {
       is ImageIndex -> primary == other.primary && secondary == other.secondary
-      else          -> super.equals(other)
+      else -> super.equals(other)
     }
 }

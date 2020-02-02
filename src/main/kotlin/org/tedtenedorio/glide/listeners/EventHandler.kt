@@ -61,8 +61,8 @@ object EventHandler : KeyEventDispatcher, MouseListener {
 
     when {
       projector != null -> PROJECTOR_BINDINGS.trigger(projector, code)
-      launcher != null  -> LAUNCHER_BINDINGS.trigger(launcher, code)
-      else              -> lock.unlock()
+      launcher != null -> LAUNCHER_BINDINGS.trigger(launcher, code)
+      else -> lock.unlock()
     }
   }
 

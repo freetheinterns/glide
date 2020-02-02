@@ -12,12 +12,18 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class PersistableMapTest {
-  @Serializable private data class TestingClass(
+  @Serializable
+  private data class TestingClass(
     override val data: HashMap<String, Pair<Int, Long>> = hashMapOf()
   ) : PersistableMap<String, Int, TestingClass> {
-    @Transient override val timeToLive: Long = 50
-    @Transient override val version: Int = 1
-    @Transient override var serializer = serializer()
+    @Transient
+    override val timeToLive: Long = 50
+
+    @Transient
+    override val version: Int = 1
+
+    @Transient
+    override var serializer = serializer()
   }
 
   companion object {
