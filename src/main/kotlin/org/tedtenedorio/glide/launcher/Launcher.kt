@@ -14,7 +14,6 @@ import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.listeners.FrameDragListener
 import org.tedtenedorio.glide.slideshow.Projector
 import org.tedtenedorio.glide.storage.Persist.save
-import org.tedtenedorio.glide.storage.schemas.SlideshowSettings
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color.RED
@@ -47,7 +46,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     foreground = ENV.foreground
   }
   private val launchTab = LabelButton {
-    title = "Launcher"
+    title = "Launch"
     listener = this@Launcher
     background = ENV.darkHighlight
     foreground = ENV.foreground
@@ -152,7 +151,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     ENV.showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
     ENV.showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
     ENV.verbose = advancedOptionsTab.verboseInput.isSelected
-    ENV.save(SlideshowSettings.serializer())
+    ENV.save()
   }
 
   fun launchProjector() {

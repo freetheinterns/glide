@@ -13,6 +13,6 @@ class FileUpdatedAtPersistableMap(
   @Transient override val timeToLive: Long = ChronoUnit.DAYS.duration.toMillis()
 ) : PersistableMap<String, Long> {
   override fun write() {
-    save(serializer())
+    save()
   }
 }

@@ -14,8 +14,8 @@ class PersistTest {
   @Serializable
   private data class TestingClass(
     val value: String = "test",
-    val version: Int = 1
-  )
+    override val version: Int = 1
+  ) : Versionable
 
   private lateinit var obj: TestingClass
 
@@ -26,7 +26,7 @@ class PersistTest {
 
   @Test
   fun testPersistableIO() {
-    obj.save(TestingClass.serializer())
+    save(obj, TestingClass.serializer())
     val other = load(TestingClass(), TestingClass.serializer())
 
     assertEquals(obj, other)
@@ -35,13 +35,13 @@ class PersistTest {
 
   @Test
   fun testPersistableVersionEnforcement() {
-    JSON.parse(
+    save(JSON.parse(
       TestingClass.serializer(),
       obj.jsonString(TestingClass.serializer()).replace(
         "\"version\": ${obj.version}",
         "\"version\": ${obj.version + 1}"
       )
-    ).save(TestingClass.serializer())
+    ), TestingClass.serializer())
 
     val other = load(TestingClass(), TestingClass.serializer())
 

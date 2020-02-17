@@ -27,11 +27,11 @@ object EventHandler : KeyEventDispatcher, MouseListener {
 
   private val PROJECTOR_BINDINGS by lazy {
     println("LOADING PROJECTOR BINDINGS")
-    load(ProjectorBindings(), ProjectorBindings.serializer())
+    ProjectorBindings().load()
   }
   private val LAUNCHER_BINDINGS by lazy {
     println("LOADING LAUNCHER BINDINGS")
-    load(LauncherBindings(), LauncherBindings.serializer())
+    LauncherBindings().load()
   }
 
   val lock: Mutex = Mutex()

@@ -1,7 +1,7 @@
 plugins {
   // Apply the Kotlin JVM & serialization plugins
-  kotlin("jvm").version("1.3.61")
-  id("kotlinx-serialization").version("1.3.61")
+  kotlin("jvm").version("1.3.60")
+  id("kotlinx-serialization").version("1.3.60")
 
   // Apply the application to add support for building a CLI application
   application

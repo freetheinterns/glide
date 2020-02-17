@@ -21,19 +21,16 @@ import kotlin.system.exitProcess
 
 const val GB = 1024 * 1024 * 8
 
-val ENV by lazy { load(SlideshowSettings(), SlideshowSettings.serializer()) }
+val ENV by lazy { SlideshowSettings().load() }
 
 val FILE_SIZES by lazy {
-  load(FileSizePersistableMap(), FileSizePersistableMap.serializer())
-    .apply(PersistableMap<String, Long>::sanitize)
+  FileSizePersistableMap().load().apply(PersistableMap<String, Long>::sanitize)
 }
 val FILE_UPDATED_ATS by lazy {
-  load(FileCreatedAtPersistableMap(), FileCreatedAtPersistableMap.serializer())
-    .apply(PersistableMap<String, Long>::sanitize)
+  FileCreatedAtPersistableMap().load().apply(PersistableMap<String, Long>::sanitize)
 }
 val FILE_CREATED_ATS by lazy {
-  load(FileUpdatedAtPersistableMap(), FileUpdatedAtPersistableMap.serializer())
-    .apply(PersistableMap<String, Long>::sanitize)
+  FileUpdatedAtPersistableMap().load().apply(PersistableMap<String, Long>::sanitize)
 }
 
 val BLACKHOLE = Blackhole("Today's password is swordfish. I understand instantiating Blackholes directly is dangerous.")
