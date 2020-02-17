@@ -9,16 +9,22 @@ import kotlinx.serialization.SerialDescriptor
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.internal.SerialClassDescImpl
 import kotlin.reflect.KCallable
+import kotlin.reflect.jvm.javaType
+import kotlin.reflect.jvm.reflect
 
 @UseExperimental(InternalSerializationApi::class)
 abstract class ClassPropertySerializer<T : Any> : KSerializer<T> {
-  abstract val className: String
   abstract val properties: List<KCallable<*>>
 
   open val classConstructor: KCallable<T>? = null
   open val classBuilder: ((Array<Any?>) -> T)? = null
   open val classAnnotations: List<Annotation> = listOf()
   open val propertySerializers: Map<String, KSerializer<*>> = mapOf()
+  open val className: String by lazy {
+    classBuilder?.reflect()?.returnType?.javaType?.typeName
+      ?: classConstructor?.returnType?.javaType?.typeName
+      ?: throw NotImplementedError("Class name cannot be inferred by constructor return and must be provided.")
+  }
 
   final override val descriptor: SerialDescriptor by lazy(::buildDescriptor)
 
