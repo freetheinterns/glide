@@ -78,6 +78,7 @@ class Projector : FullScreenFrame() {
 
     // IMPORTANT!! Register the screen globally
     singleton = this
+    EventHandler.target = this
 
     // Short-circuit if playlist is empty or if full screen is not possible
     if (library.sumBy(Catalog::size) == 0) {

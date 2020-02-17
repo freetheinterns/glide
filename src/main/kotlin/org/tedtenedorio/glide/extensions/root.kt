@@ -38,3 +38,15 @@ val LogRecord.throwable: String
     pw.close()
     return sw.toString()
   }
+
+fun <T> retry(times: Int = 3, block: () -> T): T {
+  repeat(times - 1) {
+    try {
+      return block()
+    } catch (exc: Exception) {
+      println("Exception thrown in repeat block #$it")
+      exc.printStackTrace()
+    }
+  }
+  return block()
+}

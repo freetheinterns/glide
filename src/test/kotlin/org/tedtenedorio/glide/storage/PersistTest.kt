@@ -1,24 +1,21 @@
 package org.tedtenedorio.glide.storage
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.tedtenedorio.glide.storage.Persist.jsonString
+import org.tedtenedorio.glide.storage.Persist.load
+import org.tedtenedorio.glide.storage.Persist.save
 import org.tedtenedorio.glide.storage.serialization.JSON
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
-class PersistableTest {
+class PersistTest {
   @Serializable
   private data class TestingClass(
     val value: String = "test",
-    override val version: Int = 1
-  ) : Persistable<TestingClass> {
-    @Transient
-    override var serializer = serializer()
-  }
+    val version: Int = 1
+  )
 
   private lateinit var obj: TestingClass
 
@@ -27,15 +24,10 @@ class PersistableTest {
     obj = TestingClass(value = "example")
   }
 
-  @After
-  fun tearDown() {
-    File(obj.filename).deleteRecursively()
-  }
-
   @Test
   fun testPersistableIO() {
-    obj.save()
-    val other = TestingClass().load()
+    obj.save(TestingClass.serializer())
+    val other = load(TestingClass(), TestingClass.serializer())
 
     assertEquals(obj, other)
     assertNotEquals(TestingClass(), other)
@@ -44,14 +36,14 @@ class PersistableTest {
   @Test
   fun testPersistableVersionEnforcement() {
     JSON.parse(
-      obj.serializer,
-      obj.jsonString.replace(
+      TestingClass.serializer(),
+      obj.jsonString(TestingClass.serializer()).replace(
         "\"version\": ${obj.version}",
         "\"version\": ${obj.version + 1}"
       )
-    ).save()
+    ).save(TestingClass.serializer())
 
-    val other = TestingClass().load()
+    val other = load(TestingClass(), TestingClass.serializer())
 
     assertNotEquals(obj, other)
     assertEquals(TestingClass(), other)

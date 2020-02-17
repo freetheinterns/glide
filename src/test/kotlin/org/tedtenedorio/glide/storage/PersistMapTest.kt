@@ -4,26 +4,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class PersistableMapTest {
+class PersistMapTest {
   @Serializable
   private data class TestingClass(
     override val data: HashMap<String, Pair<Int, Long>> = hashMapOf()
-  ) : PersistableMap<String, Int, TestingClass> {
+  ) : PersistableMap<String, Int> {
     @Transient
     override val timeToLive: Long = 50
 
-    @Transient
-    override val version: Int = 1
-
-    @Transient
-    override var serializer = serializer()
+    override fun write() {}
   }
 
   companion object {
@@ -36,11 +30,6 @@ class PersistableMapTest {
   @Before
   fun setUp() {
     obj = TestingClass()
-  }
-
-  @After
-  fun tearDown() {
-    File(obj.filename).deleteRecursively()
   }
 
   @Test

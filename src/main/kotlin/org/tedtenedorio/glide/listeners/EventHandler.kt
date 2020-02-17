@@ -6,47 +6,57 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import org.tedtenedorio.glide.ENV
-import org.tedtenedorio.glide.LAUNCHER_BINDINGS
-import org.tedtenedorio.glide.PROJECTOR_BINDINGS
 import org.tedtenedorio.glide.extensions.logger
+import org.tedtenedorio.glide.extensions.retry
 import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.slideshow.Projector
+import org.tedtenedorio.glide.storage.Persist.load
 import java.awt.KeyEventDispatcher
 import java.awt.KeyboardFocusManager
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.util.concurrent.Executors
+import kotlin.system.exitProcess
 
 object EventHandler : KeyEventDispatcher, MouseListener {
   private val log by logger()
   private val context = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-  private var isRegistered = false
   private var lastLockedAt = 0L
+  var target: Any? = null
+
+  private val PROJECTOR_BINDINGS by lazy {
+    println("LOADING PROJECTOR BINDINGS")
+    load(ProjectorBindings(), ProjectorBindings.serializer())
+  }
+  private val LAUNCHER_BINDINGS by lazy {
+    println("LOADING LAUNCHER BINDINGS")
+    load(LauncherBindings(), LauncherBindings.serializer())
+  }
 
   val lock: Mutex = Mutex()
 
   fun register() {
-    if (isRegistered) return
-    isRegistered = try {
-      KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this)
-      true
+    try {
+      retry {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this)
+      }
     } catch (err: RuntimeException) {
-      log.warning("Error registering EventHandler")
+      log.severe("Error registering EventHandler")
       err.printStackTrace()
-      false
+      exitProcess(1)
     }
   }
 
   fun deRegister() {
-    if (!isRegistered) return
-    isRegistered = try {
-      KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
-      false
+    try {
+      retry {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
+      }
     } catch (err: RuntimeException) {
-      log.warning("Error de-registering EventHandler")
+      log.severe("Error de-registering EventHandler")
       err.printStackTrace()
-      true
+      exitProcess(1)
     }
   }
 
@@ -56,12 +66,9 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     if (!lock.tryLock()) return
     lastLockedAt = now
 
-    val projector = Projector.singleton
-    val launcher = Launcher.singleton
-
-    when {
-      projector != null -> PROJECTOR_BINDINGS.trigger(projector, code)
-      launcher != null -> LAUNCHER_BINDINGS.trigger(launcher, code)
+    when (target) {
+      is Projector -> PROJECTOR_BINDINGS.trigger(target as Projector, code)
+      is Launcher -> LAUNCHER_BINDINGS.trigger(target as Launcher, code)
       else -> lock.unlock()
     }
   }

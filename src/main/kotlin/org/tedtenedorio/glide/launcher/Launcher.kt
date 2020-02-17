@@ -10,11 +10,15 @@ import org.tedtenedorio.glide.launcher.panels.AdvancedOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.DisplayOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.FileOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.TabPanel
+import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.listeners.FrameDragListener
 import org.tedtenedorio.glide.slideshow.Projector
+import org.tedtenedorio.glide.storage.Persist.save
+import org.tedtenedorio.glide.storage.schemas.SlideshowSettings
 import java.awt.BorderLayout
 import java.awt.CardLayout
 import java.awt.Color.RED
+import java.awt.Dimension
 import java.awt.Rectangle
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
@@ -29,7 +33,6 @@ import kotlin.system.exitProcess
 
 class Launcher : JFrame("Projector: Settings"), ActionListener {
   companion object {
-    var singleton: Launcher? = null
     private val log by logger()
     private const val HARD_HEIGHT = 900
 
@@ -37,18 +40,25 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     const val RIGHT_TO_LEFT_TEXT = ":RtL (EN)"
   }
 
-  private val saveTab =
-    LabelButton("Save Settings", this, defaultBackground = ENV.darkHighlight, foreground = ENV.foreground)
-  private val launchTab =
-    LabelButton("Launch", this, defaultBackground = ENV.darkHighlight, foreground = ENV.foreground)
-  private val closeWindow = LabelButton(
-    "X",
-    ActionListener { exitProcess(0) },
-    defaultBackground = UIManager.getColor("Panel.background"),
-    defaultSelected = RED,
-    width = 57,
-    height = 39
-  )
+  private val saveTab = LabelButton {
+    title = "Save Settings"
+    listener = this@Launcher
+    background = ENV.darkHighlight
+    foreground = ENV.foreground
+  }
+  private val launchTab = LabelButton {
+    title = "Launcher"
+    listener = this@Launcher
+    background = ENV.darkHighlight
+    foreground = ENV.foreground
+  }
+  private val closeWindow = LabelButton {
+    title = "X"
+    listener = ActionListener { exitProcess(0) }
+    background = UIManager.getColor("Panel.background")
+    hoverColor = RED
+    size = Dimension(57, 39)
+  }
 
   private val fileOptionsTab =
     FileOptionsTabPanel(HARD_HEIGHT - LabelButton.HARD_HEIGHT, this)
@@ -60,33 +70,32 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private val cardLayout = CardLayout()
   private val cards = JPanel(cardLayout).apply {
     sizeTo(TabPanel.HARD_WIDTH, HARD_HEIGHT)
-    add(fileOptionsTab, fileOptionsTab.label.title)
-    add(displayOptionsTab, displayOptionsTab.label.title)
-    add(advancedOptionsTab, advancedOptionsTab.label.title)
+    add(fileOptionsTab, fileOptionsTab.label.settings.title)
+    add(displayOptionsTab, displayOptionsTab.label.settings.title)
+    add(advancedOptionsTab, advancedOptionsTab.label.settings.title)
   }
 
-  private val selectorLayout = SpringLayout()
-  private val selector = JPanel().apply constructSelector@{
-    layout = selectorLayout.also {
-      it.glue(NORTH, fileOptionsTab.label, this@constructSelector)
+  private val selector = JPanel().also { builder ->
+    builder.layout = SpringLayout().also {
+      it.glue(NORTH, fileOptionsTab.label, builder)
       it.putConstraint(NORTH, displayOptionsTab.label, 0, SOUTH, fileOptionsTab.label)
       it.putConstraint(NORTH, advancedOptionsTab.label, 0, SOUTH, displayOptionsTab.label)
-      it.glue(WEST, fileOptionsTab.label, this@constructSelector)
-      it.glue(WEST, displayOptionsTab.label, this@constructSelector)
-      it.glue(WEST, advancedOptionsTab.label, this@constructSelector)
-      it.glue(SOUTH, launchTab, this@constructSelector)
+      it.glue(WEST, fileOptionsTab.label, builder)
+      it.glue(WEST, displayOptionsTab.label, builder)
+      it.glue(WEST, advancedOptionsTab.label, builder)
+      it.glue(SOUTH, launchTab, builder)
       // Float action button tabs on the bottom
       it.putConstraint(SOUTH, saveTab, 0, NORTH, launchTab)
-      it.glue(WEST, launchTab, this@constructSelector)
-      it.glue(WEST, saveTab, this@constructSelector)
+      it.glue(WEST, launchTab, builder)
+      it.glue(WEST, saveTab, builder)
     }
-    background = ENV.dark
-    sizeTo(LabelButton.HARD_WIDTH, HARD_HEIGHT)
-    add(fileOptionsTab.label)
-    add(displayOptionsTab.label)
-    add(advancedOptionsTab.label)
-    add(saveTab)
-    add(launchTab)
+    builder.background = ENV.dark
+    builder.sizeTo(LabelButton.HARD_WIDTH, HARD_HEIGHT)
+    builder.add(fileOptionsTab.label)
+    builder.add(displayOptionsTab.label)
+    builder.add(advancedOptionsTab.label)
+    builder.add(saveTab)
+    builder.add(launchTab)
   }
   private val tabOptions = arrayOf(
     fileOptionsTab,
@@ -97,7 +106,6 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
   private val dragListener = FrameDragListener { location = it }
 
   init {
-    singleton = this
     defaultCloseOperation = EXIT_ON_CLOSE
     isUndecorated = true
     isResizable = false
@@ -113,6 +121,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
     isVisible = true
     requestFocusInWindow()
+    EventHandler.target = this
   }
 
   override fun actionPerformed(e: ActionEvent) = when (e.source) {
@@ -143,18 +152,17 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
     ENV.showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
     ENV.showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
     ENV.verbose = advancedOptionsTab.verboseInput.isSelected
-    ENV.save()
+    ENV.save(SlideshowSettings.serializer())
   }
 
   fun launchProjector() {
     save()
-    singleton = null
     Projector()
     dispose()
   }
 
   private fun changeCard(target: TabPanel) {
-    cardLayout.show(cards, target.label.title)
+    cardLayout.show(cards, target.label.settings.title)
     tabOptions.forEach { it.highlighted = (it == target) }
   }
 

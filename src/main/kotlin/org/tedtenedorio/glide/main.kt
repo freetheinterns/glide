@@ -4,9 +4,9 @@ import org.openjdk.jmh.infra.Blackhole
 import org.tedtenedorio.glide.extensions.throwable
 import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.listeners.EventHandler
-import org.tedtenedorio.glide.listeners.LauncherBindings
-import org.tedtenedorio.glide.listeners.ProjectorBindings
 import org.tedtenedorio.glide.scripts.defineLookAndFeel
+import org.tedtenedorio.glide.storage.Persist.load
+import org.tedtenedorio.glide.storage.PersistableMap
 import org.tedtenedorio.glide.storage.schemas.FileCreatedAtPersistableMap
 import org.tedtenedorio.glide.storage.schemas.FileSizePersistableMap
 import org.tedtenedorio.glide.storage.schemas.FileUpdatedAtPersistableMap
@@ -21,13 +21,20 @@ import kotlin.system.exitProcess
 
 const val GB = 1024 * 1024 * 8
 
-val ENV by lazy { SlideshowSettings().load() }
-val PROJECTOR_BINDINGS by lazy { ProjectorBindings().load() }
-val LAUNCHER_BINDINGS by lazy { LauncherBindings().load() }
+val ENV by lazy { load(SlideshowSettings(), SlideshowSettings.serializer()) }
 
-val FILE_SIZES by lazy { FileSizePersistableMap().load().apply { sanitize() } }
-val FILE_UPDATED_ATS by lazy { FileCreatedAtPersistableMap().load().apply { sanitize() } }
-val FILE_CREATED_ATS by lazy { FileUpdatedAtPersistableMap().load().apply { sanitize() } }
+val FILE_SIZES by lazy {
+  load(FileSizePersistableMap(), FileSizePersistableMap.serializer())
+    .apply(PersistableMap<String, Long>::sanitize)
+}
+val FILE_UPDATED_ATS by lazy {
+  load(FileCreatedAtPersistableMap(), FileCreatedAtPersistableMap.serializer())
+    .apply(PersistableMap<String, Long>::sanitize)
+}
+val FILE_CREATED_ATS by lazy {
+  load(FileUpdatedAtPersistableMap(), FileUpdatedAtPersistableMap.serializer())
+    .apply(PersistableMap<String, Long>::sanitize)
+}
 
 val BLACKHOLE = Blackhole("Today's password is swordfish. I understand instantiating Blackholes directly is dangerous.")
 

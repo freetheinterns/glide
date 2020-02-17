@@ -83,8 +83,9 @@ operator fun Point.minusAssign(other: Point) {
 // Container & Component Extensions
 ///////////////////////////////////////
 
-fun JComponent.sizeTo(w: Int, h: Int) {
-  minimumSize = Dimension(w, h)
-  preferredSize = Dimension(w, h)
-  size = Dimension(w, h)
+fun JComponent.sizeTo(w: Int, h: Int) = sizeTo(Dimension(w, h))
+fun JComponent.sizeTo(d: Dimension) {
+  minimumSize = d
+  preferredSize = d
+  size = d
 }

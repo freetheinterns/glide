@@ -7,12 +7,11 @@
 package org.tedtenedorio.glide.storage.schemas
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.UseSerializers
 import org.tedtenedorio.glide.GB
 import org.tedtenedorio.glide.USER_HOME
 import org.tedtenedorio.glide.enums.FolderSortStrategy
-import org.tedtenedorio.glide.storage.Persistable
+import org.tedtenedorio.glide.storage.Versionable
 import org.tedtenedorio.glide.storage.serialization.ColorSerializer
 import org.tedtenedorio.glide.storage.serialization.DisplayModeSerializer
 import org.tedtenedorio.glide.storage.serialization.RegexSerializer
@@ -53,7 +52,4 @@ data class SlideshowSettings(
   var root: String = File("$USER_HOME\\Pictures").absolutePath,
   var archive: String = File("$USER_HOME\\Pictures\\archive").absolutePath,
   var fontName: String = UIManager.getFont("Button.font").fontName
-) : Persistable<SlideshowSettings> {
-  @Transient
-  override var serializer = serializer()
-}
+) : Versionable

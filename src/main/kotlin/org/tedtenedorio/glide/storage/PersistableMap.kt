@@ -5,9 +5,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.tedtenedorio.glide.Loader
 
-interface PersistableMap<K, V, T : Persistable<T>> : Persistable<T> {
+interface PersistableMap<K, V> {
   val data: HashMap<String, Pair<V, Long>>
   val timeToLive: Long
+
+  fun write()
 
   fun get(key: K, cacheMiss: Loader<V>): V =
     this[key] ?: set(key, cacheMiss())
@@ -27,7 +29,7 @@ interface PersistableMap<K, V, T : Persistable<T>> : Persistable<T> {
 
   operator fun set(key: K, value: V): V = value.also {
     data[key.hashCode().toString()] = it to timeToLive.plus(System.currentTimeMillis())
-    GlobalScope.launch(Dispatchers.IO) { save() }
+    GlobalScope.launch(Dispatchers.IO) { write() }
   }
 
   fun sanitize() {

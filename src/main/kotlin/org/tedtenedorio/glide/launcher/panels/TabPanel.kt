@@ -11,6 +11,7 @@ import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Component
+import java.awt.Dimension
 import java.awt.event.ActionListener
 import javax.swing.Box
 import javax.swing.JCheckBox
@@ -28,31 +29,32 @@ import javax.swing.SpringLayout.WEST
 import kotlin.system.exitProcess
 
 open class TabPanel(
-  title: String,
+  name: String,
   totalHeight: Int,
   private val listener: Launcher
 ) : JPanel() {
   var highlighted = false
-  val label = LabelButton(title, listener)
+  val label = LabelButton {
+    title = name
+    listener = this@TabPanel.listener
+  }
 
   private var memory: Component by cache(::header)
-  private val header = JLabel(title)
+  private val header = JLabel(name)
   private val spring = SpringLayout()
-  private val closeButton = LabelButton(
-    "",
-    ActionListener { exitProcess(0) },
-    defaultBackground = ENV.darkSelected,
-    defaultSelected = ENV.exitRed,
-    width = 56,
-    height = 38,
-    artist = { g ->
+  private val closeButton = LabelButton {
+    listener = ActionListener { exitProcess(0) }
+    background = ENV.darkSelected
+    hoverColor = ENV.exitRed
+    size = Dimension(56, 38)
+    paint = { g ->
       g.color = ENV.foreground
       g.stroke = BasicStroke(1F)
       val l = 11
       g.drawLine(22, 13, 22 + l, 13 + l)
       g.drawLine(22, 13 + l, 22 + l, 13)
     }
-  )
+  }
 
 
   init {

@@ -1,12 +1,11 @@
 package org.tedtenedorio.glide.listeners
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.Projector
-import org.tedtenedorio.glide.storage.Persistable
+import org.tedtenedorio.glide.storage.Versionable
 import java.awt.event.KeyEvent.VK_BACK_SPACE
 import java.awt.event.KeyEvent.VK_DELETE
 import java.awt.event.KeyEvent.VK_DOWN
@@ -37,39 +36,36 @@ data class ProjectorBindings(
   var pageForward: List<Int> = listOf(VK_ENTER, VK_RIGHT, -BUTTON1),
   var previousCatalog: List<Int> = listOf(VK_SHIFT),
   var toggleSlideshow: List<Int> = listOf(VK_SPACE)
-) : Persistable<ProjectorBindings> {
+) : Versionable {
   companion object {
     private val log by logger()
   }
 
   override val version: Int = 0
 
-  @Transient
-  override var serializer = serializer()
-
-  fun trigger(source: Projector, it: Int) {
+  fun trigger(source: Projector, code: Int) {
     thread(
       isDaemon = true,
       priority = 2,
-      name = "ProjectorEvent-$it"
+      name = "ProjectorEvent-$code"
     ) {
-      if (exit.contains(it))
+      if (exit.contains(code))
         quit(0)
 
-      if (inchForward.contains(it))
+      if (inchForward.contains(code))
         source.index += 1
-      if (inchBackward.contains(it))
+      if (inchBackward.contains(code))
         source.index -= 1
-      if (nextCatalog.contains(it))
+      if (nextCatalog.contains(code))
         source.index.jump(1)
-      if (previousCatalog.contains(it))
+      if (previousCatalog.contains(code))
         source.index.jump(-1)
-      if (pageForward.contains(it))
+      if (pageForward.contains(code))
         source.next()
-      if (pageBackward.contains(it))
+      if (pageBackward.contains(code))
         source.prev()
 
-      if (toggleSlideshow.contains(it)) {
+      if (toggleSlideshow.contains(code)) {
         if (source.timer.isRunning) {
           source.timer.stop()
         } else {
@@ -78,14 +74,14 @@ data class ProjectorBindings(
         }
       }
 
-      if (deleteCatalog.contains(it)) {
+      if (deleteCatalog.contains(code)) {
         source.modifyCatalogFolder(source.index.primary) {
           log.warning("Deleting Folder: $absolutePath")
           deleteRecursively()
         }
       }
 
-      if (archiveCatalog.contains(it)) {
+      if (archiveCatalog.contains(code)) {
         source.modifyCatalogFolder(source.index.primary) {
           val newPath = File("${ENV.archive}\\$name").toPath()
           log.warning("Moving Folder: $absolutePath --> $newPath")
