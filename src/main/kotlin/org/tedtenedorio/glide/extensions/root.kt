@@ -4,6 +4,8 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.logging.LogRecord
 import java.util.logging.Logger
+import kotlin.properties.Delegates.vetoable
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObject
 
@@ -49,4 +51,27 @@ fun <T> retry(times: Int = 3, block: () -> T): T {
     }
   }
   return block()
+}
+
+inline fun <T> checks(
+  value: T,
+  crossinline block: (T) -> Boolean
+): ReadWriteProperty<Any?, T> = vetoable(value) { _, _, next ->
+  block(next).also {
+    if (!it) {
+      throw IllegalStateException("Check Failed")
+    }
+  }
+}
+
+inline fun <T> checks(
+  value: T,
+  crossinline block: (T) -> Boolean,
+  noinline message: (T) -> Any
+): ReadWriteProperty<Any?, T> = vetoable(value) { _, _, next ->
+  block(next).also {
+    if (!it) {
+      throw IllegalStateException(message.invoke(next).toString())
+    }
+  }
 }

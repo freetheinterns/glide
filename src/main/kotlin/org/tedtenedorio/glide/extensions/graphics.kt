@@ -11,8 +11,9 @@ import java.awt.RenderingHints.KEY_INTERPOLATION
 import java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_INT_RGB
-import javax.swing.JComponent
-import javax.swing.SpringLayout
+import javax.swing.Box
+import javax.swing.BoxLayout
+import javax.swing.JLabel
 
 
 ///////////////////////////////////////
@@ -26,18 +27,12 @@ fun Graphics2D.use(block: Operation<Graphics2D>) {
 
 
 ///////////////////////////////////////
-// Layout Extensions
-///////////////////////////////////////
-
-fun SpringLayout.glue(face: String, root: Component, anchor: Component, padding: Int = 0) =
-  putConstraint(face, root, padding, face, anchor)
-
-///////////////////////////////////////
 // Color Extensions
 ///////////////////////////////////////
 
 val Color.invert: Color
   get() = Color(255 - red, 255 - green, 255 - blue)
+
 
 ///////////////////////////////////////
 // Image Extensions
@@ -62,6 +57,7 @@ fun BufferedImage.scaleToFit(area: Dimension): BufferedImage {
 val Font.string: String
   get() = "<Font: $fontName $size $style>"
 
+
 ///////////////////////////////////////
 // Geometric Extensions
 ///////////////////////////////////////
@@ -79,13 +75,30 @@ operator fun Point.minusAssign(other: Point) {
   y -= other.y
 }
 
+
 ///////////////////////////////////////
 // Container & Component Extensions
 ///////////////////////////////////////
 
-fun JComponent.sizeTo(w: Int, h: Int) = sizeTo(Dimension(w, h))
-fun JComponent.sizeTo(d: Dimension) {
-  minimumSize = d
-  preferredSize = d
-  size = d
+fun JLabel.derive(size: Long): JLabel = apply {
+  font = font.deriveFont(font.size2D + size)
+}
+
+fun box(
+  vertical: Boolean = true,
+  isOpaque: Boolean = true,
+  builder: Box.() -> Unit = {}
+) = Box(if (vertical) BoxLayout.Y_AXIS else BoxLayout.X_AXIS).also {
+  it.isOpaque = isOpaque
+  it.builder()
+}
+
+fun Box.spring(): Component = when ((layout as BoxLayout).axis) {
+  BoxLayout.Y_AXIS -> add(Box.createVerticalGlue())
+  else -> add(Box.createHorizontalGlue())
+}
+
+fun Box.gap(size: Int): Component = when ((layout as BoxLayout).axis) {
+  BoxLayout.Y_AXIS -> add(Box.createRigidArea(Dimension(0, size)))
+  else -> add(Box.createRigidArea(Dimension(size, 0)))
 }

@@ -2,6 +2,7 @@ package org.tedtenedorio.glide.launcher.panels
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.FONT_FAMILIES
+import org.tedtenedorio.glide.extensions.spring
 import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.utils.FontNameRenderer
 import java.awt.Font
@@ -9,64 +10,63 @@ import javax.swing.JCheckBox
 import javax.swing.JComboBox
 
 class DisplayOptionsTabPanel(
-  totalHeight: Int,
   listener: Launcher
-) : TabPanel("Display", totalHeight, listener) {
+) : TabPanel("Display", listener) {
   companion object {
     private const val LEFT_TO_RIGHT_TEXT = Launcher.LEFT_TO_RIGHT_TEXT
     private const val RIGHT_TO_LEFT_TEXT = Launcher.RIGHT_TO_LEFT_TEXT
     private const val labelFontSize = 16
   }
 
-  val directionGroup: JComboBox<String> = buildComboBox(
-    name = "Page Orientation",
-    options = arrayOf(LEFT_TO_RIGHT_TEXT, RIGHT_TO_LEFT_TEXT),
-    selected = if (ENV.direction) LEFT_TO_RIGHT_TEXT else RIGHT_TO_LEFT_TEXT,
-    description = "The direction frames are rendered when multiple frames can be rendered"
-  )
+  val fontName: JComboBox<String>
+  val directionGroup: JComboBox<String>
 
-  val paneledInput: JCheckBox = buildCheckBox(
-    name = ":Render multiple frames",
-    selected = ENV.paneled,
-    description = "This must be enabled for page orientation to be applied"
-  )
+  val paneledInput: JCheckBox
   val showFooterFileNumberInput: JCheckBox
   val showMarginFileCountInput: JCheckBox
   val showMarginFileNameInput: JCheckBox
   val showMarginFolderCountInput: JCheckBox
   val showMarginFolderNameInput: JCheckBox
 
-  val fontName: JComboBox<String>
-
   init {
-    add(Label("Contextual Display"))
-    add(Description("Controls what text is displayed in the margin"))
-    showMarginFolderCountInput = buildCheckBox(
+    label("Page Orientation")
+    description("The direction frames are rendered when multiple frames can be rendered")
+    directionGroup = comboBox(
+      arrayOf(LEFT_TO_RIGHT_TEXT, RIGHT_TO_LEFT_TEXT),
+      if (ENV.direction) LEFT_TO_RIGHT_TEXT else RIGHT_TO_LEFT_TEXT
+    )
+
+    description("This must be enabled for page orientation to be applied")
+    paneledInput = checkBox(":Render multiple frames", ENV.paneled)
+
+    label("Contextual Display")
+    description("Controls what text is displayed in the margin")
+    showMarginFolderCountInput = checkBox(
       name = ":Folder Count",
       selected = ENV.showMarginFolderCount
     )
-    showMarginFolderNameInput = buildCheckBox(
+    showMarginFolderNameInput = checkBox(
       name = ":Folder Name",
       selected = ENV.showMarginFolderName
     )
-    showMarginFileCountInput = buildCheckBox(
+    showMarginFileCountInput = checkBox(
       name = ":File Count",
       selected = ENV.showMarginFileCount
     )
-    showMarginFileNameInput = buildCheckBox(
+    showMarginFileNameInput = checkBox(
       name = ":File Name",
       selected = ENV.showMarginFileName
     )
-    showFooterFileNumberInput = buildCheckBox(
+    showFooterFileNumberInput = checkBox(
       name = ":Footer File#",
       selected = ENV.showFooterFileNumber
     )
-    fontName = buildComboBox(
-      description = "Font Family",
-      options = FONT_FAMILIES,
-      selected = ENV.fontName
-    )
-    fontName.font = Font(ENV.fontName, Font.BOLD, labelFontSize)
-    fontName.renderer = FontNameRenderer()
+    description("Font Family")
+    fontName = comboBox(FONT_FAMILIES, ENV.fontName).apply {
+      font = Font(ENV.fontName, Font.BOLD, labelFontSize)
+      renderer = FontNameRenderer()
+    }
+
+    spring()
   }
 }

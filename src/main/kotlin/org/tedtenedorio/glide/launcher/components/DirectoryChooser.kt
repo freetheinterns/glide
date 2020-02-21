@@ -1,19 +1,18 @@
 package org.tedtenedorio.glide.launcher.components
 
-import org.tedtenedorio.glide.launcher.panels.TabPanel
 import java.awt.Component
 import javax.swing.JButton
 import javax.swing.JFileChooser
+import javax.swing.JTextField
 
 class DirectoryChooser(
-  home: String,
-  private val parent: Component,
-  buttonText: String = "Select Folder"
-) : JFileChooser(home) {
-  val banner = TabPanel.TextField(home)
-  val trigger = JButton(buttonText)
+  val banner: JTextField,
+  trigger: JButton,
+  private val parent: Component
+) : JFileChooser(banner.text) {
 
   init {
+    alignmentX = Component.LEFT_ALIGNMENT
     fileSelectionMode = DIRECTORIES_ONLY
     banner.alignmentX = Component.LEFT_ALIGNMENT
     banner.isEnabled = false
