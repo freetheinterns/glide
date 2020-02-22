@@ -17,6 +17,14 @@ import javax.swing.JLabel
 
 
 ///////////////////////////////////////
+// Global Graphics context Extensions
+///////////////////////////////////////
+
+// Used to prioritize cache invalidation
+var FRAME_RENDER_PRIORITY = 0
+lateinit var PROJECTOR_WINDOW_SIZE: Dimension
+
+///////////////////////////////////////
 // GraphicsDevice Extensions
 ///////////////////////////////////////
 

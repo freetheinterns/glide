@@ -12,6 +12,7 @@ import org.tedtenedorio.glide.launcher.panels.FileOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.TabPanel
 import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.listeners.FrameDragListener
+import org.tedtenedorio.glide.slideshow.Library
 import org.tedtenedorio.glide.slideshow.Projector
 import org.tedtenedorio.glide.storage.Persist.save
 import java.awt.BorderLayout
@@ -24,17 +25,7 @@ import javax.swing.Box
 import javax.swing.JFrame
 import javax.swing.JPanel
 
-/**
- * --------------
- * | X | P X P X|
- * | X |--------|
- * | X |        |
- * | P |        |
- * | X |        |
- * | X |        |
- * --------------
- */
-class Launcher : JFrame("Projector: Settings"), ActionListener {
+class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   companion object {
     private val log by logger()
     const val HARD_HEIGHT = 900
@@ -145,7 +136,7 @@ class Launcher : JFrame("Projector: Settings"), ActionListener {
 
   fun launchProjector() {
     save()
-    Projector()
+    Projector(Library(ENV.root))
     dispose()
   }
 

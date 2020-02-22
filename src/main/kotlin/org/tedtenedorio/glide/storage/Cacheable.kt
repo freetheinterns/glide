@@ -19,6 +19,7 @@ interface Cacheable {
 
   companion object {
     private val log by logger()
+
     var queueSize: Long = 0
       private set
     private val queue = PriorityBlockingQueue(
@@ -28,18 +29,15 @@ interface Cacheable {
       compareBy(Cacheable::priority).thenBy { -it.byteSize }
     )
 
-    private fun remove(obj: Cacheable) {
-      obj.clear()
-      queue.remove(obj)
-      queueSize -= obj.byteSize
-    }
-
-    fun manageGlobalCache(maxBytes: Int = ENV.cacheSizeBytes) {
+    fun manageGlobalCache(
+      maxBytes: Int = ENV.cacheSizeBytes,
+      minimumCacheSize: Int = ENV.maxImagesPerFrame * 2
+    ) {
       val toRemove = mutableListOf<Cacheable>()
       var overflow = queueSize - maxBytes
-      if (overflow <= 0) return
+      if (overflow <= 0 || queue.size < minimumCacheSize) return
 
-      while (overflow > 0 && queue.isNotEmpty()) {
+      while (overflow > 0 && queue.size > minimumCacheSize.coerceAtLeast(0)) {
         val next = queue.poll()
         overflow -= next.byteSize
         toRemove.add(next)
@@ -53,7 +51,11 @@ interface Cacheable {
           """.trimIndent()
       )
 
-      toRemove.forEach(::remove)
+      toRemove.forEach { obj ->
+        obj.clear()
+        queue.remove(obj)
+        queueSize -= obj.byteSize
+      }
     }
   }
 }

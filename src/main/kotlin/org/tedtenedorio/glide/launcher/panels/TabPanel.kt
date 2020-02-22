@@ -25,7 +25,7 @@ import javax.swing.border.EmptyBorder
 import kotlin.system.exitProcess
 
 abstract class TabPanel(
-  val title: String,
+  private val title: String,
   private val listener: Launcher
 ) : Box(BoxLayout.Y_AXIS) {
   var highlighted = false

@@ -2,11 +2,12 @@ package org.tedtenedorio.glide.slideshow.geometry
 
 import org.tedtenedorio.glide.BLACKHOLE
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.extensions.FRAME_RENDER_PRIORITY
+import org.tedtenedorio.glide.extensions.PROJECTOR_WINDOW_SIZE
 import org.tedtenedorio.glide.extensions.bufferedImage
 import org.tedtenedorio.glide.extensions.scaleToFit
 import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
 import org.tedtenedorio.glide.properties.CachedProperty.Companion.invalidate
-import org.tedtenedorio.glide.slideshow.Projector
 import org.tedtenedorio.glide.storage.Cacheable
 import org.tedtenedorio.glide.utils.createOutlinedTypeSetter
 import java.awt.Dimension
@@ -18,16 +19,16 @@ import kotlin.properties.Delegates.observable
 class CachedImage(val file: File) : Geometry, Cacheable {
   override val byteSize: Long by lazy { file.length() }
   override var position: Dimension by observable(Dimension()) { _, _, _ ->
-    priority = Projector.singleton?.frameCount ?: priority
-    BLACKHOLE.consume(width)
+    priority = FRAME_RENDER_PRIORITY
+    BLACKHOLE.consume(width) // Ensures the buffered image has been loaded and rendered
   }
 
   override var priority: Int = 0
 
   private val sizedImage: BufferedImage by cache {
     memoize()
-    priority = Projector.singleton?.frameCount ?: priority
-    Projector.singleton?.size?.let(file.bufferedImage::scaleToFit) ?: file.bufferedImage
+    priority = FRAME_RENDER_PRIORITY
+    file.bufferedImage.scaleToFit(PROJECTOR_WINDOW_SIZE)
   }
 
   val path: String by lazy { file.absolutePath }

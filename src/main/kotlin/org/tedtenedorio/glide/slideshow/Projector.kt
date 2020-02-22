@@ -5,7 +5,8 @@ import kotlinx.coroutines.runBlocking
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.Extension
 import org.tedtenedorio.glide.Operation
-import org.tedtenedorio.glide.extensions.catalogs
+import org.tedtenedorio.glide.extensions.FRAME_RENDER_PRIORITY
+import org.tedtenedorio.glide.extensions.PROJECTOR_WINDOW_SIZE
 import org.tedtenedorio.glide.extensions.dimension
 import org.tedtenedorio.glide.extensions.fitCentered
 import org.tedtenedorio.glide.extensions.imageCount
@@ -31,9 +32,10 @@ import javax.swing.Timer
 import kotlin.system.measureTimeMillis
 
 
-class Projector : FullScreenFrame() {
+class Projector(
+  val library: Library
+) : FullScreenFrame() {
   companion object {
-    var singleton: Projector? = null
     private val log by logger()
   }
 
@@ -42,9 +44,7 @@ class Projector : FullScreenFrame() {
   ///////////////////////////////////////
 
   var geometry by blindObserver(listOf<Geometry>(), ::render)
-  var library: List<Catalog> by cache { File(ENV.root).catalogs }
-  val index: ImageIndex by cache { ImageIndex(library) }
-  var frameCount: Int = 0
+  val index: Library.Index by cache { library.Index() }
   val timer = Timer(ENV.speed, ActionListener { next() })
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
@@ -75,13 +75,13 @@ class Projector : FullScreenFrame() {
 
     // Draw initial black background
     drawPage()
+    PROJECTOR_WINDOW_SIZE = size
 
     // IMPORTANT!! Register the screen globally
-    singleton = this
     EventHandler.target = this
 
     // Short-circuit if playlist is empty or if full screen is not possible
-    if (library.sumBy(Catalog::size) == 0) {
+    if (library.isEmpty) {
       log.severe("No images found to display!")
       quit(1)
     }
@@ -100,19 +100,22 @@ class Projector : FullScreenFrame() {
     g.color = oldColor
   }
 
-  private fun preRender(g: Graphics2D) {
+  private fun preRender() {
     val focus = index + geometry.imageCount
+    val realPriority = FRAME_RENDER_PRIORITY
+    FRAME_RENDER_PRIORITY -= 2
 
     repeat(ENV.maxImagesPerFrame) {
       focus.current.position = size * 2
-      focus.current.render(g)
-      focus.inc()
+      focus += 1
     }
 
-    wipeScreen(g)
+    FRAME_RENDER_PRIORITY = realPriority
   }
 
   private fun drawPage(painter: Operation<Graphics2D>? = null) {
+    FRAME_RENDER_PRIORITY++
+
     val drawTime = measureTimeMillis {
       (bufferStrategy.drawGraphics as Graphics2D).use {
         wipeScreen(it)
@@ -121,7 +124,7 @@ class Projector : FullScreenFrame() {
       bufferStrategy.show()
     }
 
-    log.info("Spent $drawTime ms drawing frame #$frameCount")
+    log.info("Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY")
   }
 
   ///////////////////////////////////////
@@ -150,7 +153,7 @@ class Projector : FullScreenFrame() {
       margin -= focus.current.width
       if (margin < 0) break
       pages.add(focus.current)
-      focus = focus + 1
+      focus++
     } while (
       ENV.paneled &&                     // Panelling is enabled
       focus.primary == index.primary &&  // We are still in the current Catalog
@@ -164,16 +167,9 @@ class Projector : FullScreenFrame() {
     drawPage { g -> geometry.forEach { it.render(g) } }
 
     // Launch coroutine and delay to allow graphics thread to render
-    runBlocking {
-      delay(10)
+    runBlocking { delay(10) }
 
-      drawPage { g ->
-        preRender(g)
-        geometry.forEach { it.render(g) }
-      }
-    }
-
-    frameCount++
+    preRender()
     Cacheable.manageGlobalCache()
   }
 
@@ -213,7 +209,7 @@ class Projector : FullScreenFrame() {
     val targetFile = library[target].file
 
     ::index.invalidate(this)
-    library = library.filter { !it.path.startsWith(targetFile.absolutePath) }
+    library.filter { !it.path.startsWith(targetFile.absolutePath) }
     geometry = listOf()
 
     targetFile.operation()
