@@ -1,6 +1,7 @@
 package org.tedtenedorio.glide.launcher.components
 
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.extensions.spring
 import java.awt.Color
 import java.awt.Component
 import java.awt.Dimension
@@ -23,8 +24,10 @@ class LabelButton(
   var textColor: Color = ENV.lightForeground,
   var hoverColor: Color = ENV.darkSelected,
   var paint: ((Graphics2D) -> Unit)? = null,
+  var float: Boolean = false,
   builder: LabelButton.() -> Unit = {}
 ) : Box(BoxLayout.X_AXIS), MouseListener, MouseMotionListener {
+  var label: JLabel? = null
 
   init {
     preferredSize = Dimension(HARD_WIDTH, HARD_HEIGHT)
@@ -38,11 +41,14 @@ class LabelButton(
     apply(builder)
 
     title?.let {
-      add(JLabel(it).apply {
+      label = JLabel(it).apply {
         foreground = textColor
         alignmentX = Component.CENTER_ALIGNMENT
         alignmentY = Component.CENTER_ALIGNMENT
-      })
+      }
+      if (float) spring()
+      add(label)
+      spring()
     }
   }
 

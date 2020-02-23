@@ -10,14 +10,16 @@ import javax.swing.JComboBox
 class FileOptionsTabPanel(
   listener: Launcher
 ) : TabPanel("Directories", listener) {
-  val root: DirectoryChooser
-  val archive: DirectoryChooser
+  lateinit var root: DirectoryChooser
+  lateinit var archive: DirectoryChooser
   val ordering: JComboBox<FolderSortStrategy>
 
   init {
     label("Home")
     description("Where to start looking for playlist folders")
-    root = chooser(ENV.root)
+    root = chooser(ENV.root) {
+      archive.banner.text = root.banner.text + "\\archive"
+    }
 
     label("Archive")
     description("Where to store archived playlist folder")

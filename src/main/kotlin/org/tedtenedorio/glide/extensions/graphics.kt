@@ -2,7 +2,6 @@ package org.tedtenedorio.glide.extensions
 
 import org.tedtenedorio.glide.Operation
 import java.awt.Color
-import java.awt.Component
 import java.awt.Dimension
 import java.awt.Font
 import java.awt.Graphics2D
@@ -11,8 +10,6 @@ import java.awt.RenderingHints.KEY_INTERPOLATION
 import java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_INT_RGB
-import javax.swing.Box
-import javax.swing.BoxLayout
 import javax.swing.JLabel
 
 
@@ -40,6 +37,16 @@ fun Graphics2D.use(block: Operation<Graphics2D>) {
 
 val Color.invert: Color
   get() = Color(255 - red, 255 - green, 255 - blue)
+
+fun Color.mix(other: Color, r: Double = 0.5): Color {
+  val ratio = r.coerceAtLeast(0.0).coerceAtMost(1.0)
+  val otherRatio = 1 - ratio
+  return Color(
+    ((red * ratio) + (other.red * otherRatio)).toInt(),
+    ((green * ratio) + (other.green * otherRatio)).toInt(),
+    ((blue * ratio) + (other.blue * otherRatio)).toInt()
+  )
+}
 
 
 ///////////////////////////////////////
@@ -88,28 +95,6 @@ operator fun Point.minusAssign(other: Point) {
 // Container & Component Extensions
 ///////////////////////////////////////
 
-fun JLabel.derive(size: Long): JLabel = apply {
+fun JLabel.deriveFont(size: Long): JLabel = apply {
   font = font.deriveFont(font.size2D + size)
-}
-
-fun box(
-  vertical: Boolean = true,
-  isOpaque: Boolean = true,
-  builder: Box.() -> Unit = {}
-) = Box(if (vertical) BoxLayout.Y_AXIS else BoxLayout.X_AXIS).also {
-  it.isOpaque = isOpaque
-  it.builder()
-}
-
-fun Box.spring(): Component = when ((layout as BoxLayout).axis) {
-  BoxLayout.Y_AXIS -> add(Box.createVerticalGlue())
-  else -> add(Box.createHorizontalGlue())
-}
-
-fun Box.gap(size: Int) {
-  if (size <= 0) return
-  when ((layout as BoxLayout).axis) {
-    BoxLayout.Y_AXIS -> add(Box.createVerticalStrut(size))
-    else -> add(Box.createHorizontalStrut(size))
-  }
 }

@@ -9,6 +9,7 @@ import org.tedtenedorio.glide.launcher.components.LabelButton
 import org.tedtenedorio.glide.launcher.panels.AdvancedOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.DisplayOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.FileOptionsTabPanel
+import org.tedtenedorio.glide.launcher.panels.LibraryOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.TabPanel
 import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.listeners.FrameDragListener
@@ -26,13 +27,6 @@ import javax.swing.JFrame
 import javax.swing.JPanel
 
 class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
-  companion object {
-    private val log by logger()
-    const val HARD_HEIGHT = 900
-    const val LEFT_TO_RIGHT_TEXT = ":LtR (JA)"
-    const val RIGHT_TO_LEFT_TEXT = ":RtL (EN)"
-  }
-
   private val saveTab = LabelButton {
     title = "Save Settings"
     listener = this@Launcher
@@ -51,6 +45,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   private val fileOptionsTab = FileOptionsTabPanel(this)
   private val displayOptionsTab = DisplayOptionsTabPanel(this)
   private val advancedOptionsTab = AdvancedOptionsTabPanel(this)
+  val libraryOptionsTab = LibraryOptionsTabPanel(this)
 
   private val selector: Box
   private val cards: JPanel
@@ -58,7 +53,8 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   private val tabOptions = arrayOf(
     fileOptionsTab,
     displayOptionsTab,
-    advancedOptionsTab
+    advancedOptionsTab,
+    libraryOptionsTab
   )
 
   private val dragListener = FrameDragListener { location = it }
@@ -82,6 +78,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
       add(fileOptionsTab.label)
       add(displayOptionsTab.label)
       add(advancedOptionsTab.label)
+      add(libraryOptionsTab.label)
       spring()
       add(saveTab)
       add(launchTab)
@@ -94,6 +91,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
       add(fileOptionsTab, fileOptionsTab.label.title)
       add(displayOptionsTab, displayOptionsTab.label.title)
       add(advancedOptionsTab, advancedOptionsTab.label.title)
+      add(libraryOptionsTab, libraryOptionsTab.label.title)
     }
 
     add(selector, BorderLayout.WEST)
@@ -111,11 +109,16 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     fileOptionsTab.label -> changeCard(fileOptionsTab)
     displayOptionsTab.label -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
+    libraryOptionsTab.label -> {
+      if (libraryOptionsTab.safeLibrary == null)
+        libraryOptionsTab.actionPerformed(null)
+      changeCard(libraryOptionsTab)
+    }
 
     else -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
   }
 
-  private fun save() {
+  fun save() {
     ENV.archive = fileOptionsTab.archive.banner.text
     ENV.root = fileOptionsTab.root.banner.text
     ENV.ordering = fileOptionsTab.ordering.selectedItem as FolderSortStrategy
@@ -131,11 +134,12 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     ENV.showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
     ENV.showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
     ENV.save()
+    libraryOptionsTab.actionPerformed(null)
   }
 
   fun launchProjector() {
     save()
-    Projector(Library(ENV.root))
+    Projector(libraryOptionsTab.safeLibrary ?: Library(ENV.root))
     dispose()
   }
 
@@ -148,5 +152,12 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     var nextIndex = tabOptions.indexOfFirst { it.highlighted } + 1
     if (nextIndex >= tabOptions.size) nextIndex = 0
     changeCard(tabOptions[nextIndex])
+  }
+
+  companion object {
+    private val log by logger()
+    const val HARD_HEIGHT = 900
+    const val LEFT_TO_RIGHT_TEXT = ":LtR (JA)"
+    const val RIGHT_TO_LEFT_TEXT = ":RtL (EN)"
   }
 }

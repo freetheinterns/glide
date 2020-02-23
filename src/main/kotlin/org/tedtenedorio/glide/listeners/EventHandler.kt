@@ -25,14 +25,8 @@ object EventHandler : KeyEventDispatcher, MouseListener {
   private var lastLockedAt = 0L
   var target: Any? = null
 
-  private val PROJECTOR_BINDINGS by lazy {
-    println("LOADING PROJECTOR BINDINGS")
-    ProjectorBindings().load()
-  }
-  private val LAUNCHER_BINDINGS by lazy {
-    println("LOADING LAUNCHER BINDINGS")
-    LauncherBindings().load()
-  }
+  private val PROJECTOR_BINDINGS by lazy { ProjectorBindings().load() }
+  private val LAUNCHER_BINDINGS by lazy { LauncherBindings().load() }
 
   val lock: Mutex = Mutex()
 

@@ -2,9 +2,10 @@ package org.tedtenedorio.glide.launcher.panels
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.box
-import org.tedtenedorio.glide.extensions.derive
+import org.tedtenedorio.glide.extensions.deriveFont
 import org.tedtenedorio.glide.extensions.gap
 import org.tedtenedorio.glide.extensions.logger
+import org.tedtenedorio.glide.extensions.perpendicularBox
 import org.tedtenedorio.glide.extensions.spring
 import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.launcher.components.DirectoryChooser
@@ -64,7 +65,7 @@ abstract class TabPanel(
       }
     }
 
-    header = JLabel(title).derive(15).apply {
+    header = JLabel(title).deriveFont(15).apply {
       foreground = ENV.lightForeground
       alignmentY = Component.TOP_ALIGNMENT
     }
@@ -88,30 +89,33 @@ abstract class TabPanel(
     right: Int = 0
   ): Component {
     gap(top)
-    add(box(false) {
+    perpendicularBox {
       gap(left)
       add(comp)
       gap(right)
       spring()
       maximumSize = Dimension(HARD_WIDTH, comp.preferredSize.height)
-    })
+    }
     gap(bottom)
     return comp
   }
 
-  fun chooser(location: String): DirectoryChooser = DirectoryChooser(
-    textField(location),
-    listener,
-    button("Select Folder")::addActionListener
-  )
+  fun chooser(
+    location: String,
+    callback: () -> Unit = {}
+  ): DirectoryChooser {
+    val f = textField(location)
+    val b = button("Select Folder")
+    return DirectoryChooser(f, listener, b, callback)
+  }
 
   fun label(value: String, offset: Int = 40): JLabel =
-    JLabel(value).derive(5).also {
+    JLabel(value).deriveFont(5).also {
       chain(it, top = offset, left = 20)
     }
 
   fun description(value: String, offset: Int = 8): JLabel =
-    JLabel(value).derive(-5).also {
+    JLabel(value).deriveFont(-5).also {
       chain(it, top = offset, left = 20)
     }
 

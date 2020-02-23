@@ -11,7 +11,7 @@ import kotlin.math.abs
 
 class Library(
   root: String
-) {
+) : Iterable<Catalog> {
   private val catalogs: MutableList<Catalog> =
     File(root).catalogs.toMutableList()
   val isEmpty
@@ -24,6 +24,8 @@ class Library(
   fun filter(predicate: (Catalog) -> Boolean) {
     catalogs.removeIf(predicate)
   }
+
+  override fun iterator(): Iterator<Catalog> = catalogs.iterator()
 
   inner class Index(
     playlistIndex: Int = 0,

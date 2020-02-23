@@ -31,18 +31,9 @@ import java.io.File
 import javax.swing.Timer
 import kotlin.system.measureTimeMillis
 
-
 class Projector(
   val library: Library
 ) : FullScreenFrame() {
-  companion object {
-    private val log by logger()
-  }
-
-  ///////////////////////////////////////
-  // Properties
-  ///////////////////////////////////////
-
   var geometry by blindObserver(listOf<Geometry>(), ::render)
   val index: Library.Index by cache { library.Index() }
   val timer = Timer(ENV.speed, ActionListener { next() })
@@ -77,10 +68,9 @@ class Projector(
     drawPage()
     PROJECTOR_WINDOW_SIZE = size
 
-    // IMPORTANT!! Register the screen globally
+    // IMPORTANT!! Register the screen with the event manager
     EventHandler.target = this
 
-    // Short-circuit if playlist is empty or if full screen is not possible
     if (library.isEmpty) {
       log.severe("No images found to display!")
       quit(1)
@@ -124,7 +114,7 @@ class Projector(
       bufferStrategy.show()
     }
 
-    log.info("Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY")
+    // log.info("Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY")
   }
 
   ///////////////////////////////////////
@@ -135,7 +125,7 @@ class Projector(
   // - selectImages() performs lookahead operations to collect the images to be displayed
   // - render() draws all geometry to a screen after the field is updated
   // - 10ms delay to allow UI thread to kick in
-  // - preRender() immediately draws the optimistic next images to get them cached on the UI thread.
+  // - preRender() immediately tries to load the next frame into memory
   // - Cacheable.manageGlobalCache() which re-evaluates the caching states of cached images
   ///////////////////////////////////////
 
@@ -216,5 +206,9 @@ class Projector(
     System.gc()
     if (index.maxPrimary == 0) quit(0)
     index.primary = jumpTo.coerceAtMost(index.maxPrimary - 1)
+  }
+
+  companion object {
+    private val log by logger()
   }
 }
