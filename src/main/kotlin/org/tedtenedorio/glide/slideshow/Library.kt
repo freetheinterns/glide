@@ -12,7 +12,7 @@ import kotlin.math.abs
 class Library(
   root: String
 ) : Iterable<Catalog> {
-  private val catalogs: MutableList<Catalog> =
+  private var catalogs: List<Catalog> =
     File(root).catalogs.toMutableList()
   val isEmpty
     get() = catalogs.sumBy(Catalog::size) == 0
@@ -22,7 +22,7 @@ class Library(
   operator fun get(index: Int): Catalog = catalogs[index]
 
   fun filter(predicate: (Catalog) -> Boolean) {
-    catalogs.removeIf(predicate)
+    catalogs = catalogs.filter(predicate)
   }
 
   override fun iterator(): Iterator<Catalog> = catalogs.iterator()

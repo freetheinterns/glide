@@ -198,8 +198,8 @@ class Projector(
     drawPage()
     val targetFile = library[target].file
 
-    ::index.invalidate(this)
     library.filter { !it.path.startsWith(targetFile.absolutePath) }
+    ::index.invalidate(this)
     geometry = listOf()
 
     targetFile.operation()

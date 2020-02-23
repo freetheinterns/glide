@@ -48,7 +48,7 @@ data class SlideshowSettings(
   var cacheSizeBytes: Int = GB * 3,
   var displayMode: DisplayMode = DisplayMode(2560, 1440, 32, 0),
 
-  var ordering: FolderSortStrategy = FolderSortStrategy.NumberOfFiles,
+  var ordering: FolderSortStrategy = FolderSortStrategy.Random,
   var root: String = File("$USER_HOME\\Pictures").absolutePath,
   var archive: String = File("$USER_HOME\\Pictures\\archive").absolutePath,
   var fontName: String = UIManager.getFont("Button.font").fontName
