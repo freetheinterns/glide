@@ -13,7 +13,7 @@ import org.tedtenedorio.glide.extensions.imageCount
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.times
 import org.tedtenedorio.glide.extensions.use
-import org.tedtenedorio.glide.launcher.panels.FullScreenFrame
+import org.tedtenedorio.glide.launcher.components.FullScreenFrame
 import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
 import org.tedtenedorio.glide.properties.CachedProperty.Companion.invalidate

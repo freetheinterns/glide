@@ -1,4 +1,4 @@
-package org.tedtenedorio.glide.launcher.panels
+package org.tedtenedorio.glide.launcher.components
 
 import org.tedtenedorio.glide.quit
 import java.awt.GraphicsEnvironment

@@ -106,7 +106,10 @@ fun Box.spring(): Component = when ((layout as BoxLayout).axis) {
   else -> add(Box.createHorizontalGlue())
 }
 
-fun Box.gap(size: Int): Component = when ((layout as BoxLayout).axis) {
-  BoxLayout.Y_AXIS -> add(Box.createRigidArea(Dimension(0, size)))
-  else -> add(Box.createRigidArea(Dimension(size, 0)))
+fun Box.gap(size: Int) {
+  if (size <= 0) return
+  when ((layout as BoxLayout).axis) {
+    BoxLayout.Y_AXIS -> add(Box.createVerticalStrut(size))
+    else -> add(Box.createHorizontalStrut(size))
+  }
 }

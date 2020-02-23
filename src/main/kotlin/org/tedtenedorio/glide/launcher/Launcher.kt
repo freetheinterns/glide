@@ -130,7 +130,6 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     ENV.showMarginFileName = displayOptionsTab.showMarginFileNameInput.isSelected
     ENV.showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
     ENV.showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
-    ENV.verbose = advancedOptionsTab.verboseInput.isSelected
     ENV.save()
   }
 

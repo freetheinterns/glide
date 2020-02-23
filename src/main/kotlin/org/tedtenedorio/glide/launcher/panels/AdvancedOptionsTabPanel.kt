@@ -3,20 +3,16 @@ package org.tedtenedorio.glide.launcher.panels
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.spring
 import org.tedtenedorio.glide.launcher.Launcher
-import javax.swing.JCheckBox
 import javax.swing.JSlider
 
 class AdvancedOptionsTabPanel(
   listener: Launcher
 ) : TabPanel("Advanced", listener) {
-  val verboseInput: JCheckBox
   val speed: JSlider
   val debounce: JSlider
   val imageBuffer: JSlider
 
   init {
-    verboseInput = checkBox(":verbose", ENV.verbose)
-
     label("Slideshow")
     speed = slider(
       indicator = description("New frame every %dms"),
