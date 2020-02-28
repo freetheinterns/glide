@@ -45,7 +45,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   private val fileOptionsTab = FileOptionsTabPanel(this)
   private val displayOptionsTab = DisplayOptionsTabPanel(this)
   private val advancedOptionsTab = AdvancedOptionsTabPanel(this)
-  val libraryOptionsTab = LibraryOptionsTabPanel(this)
+  private val libraryOptionsTab = LibraryOptionsTabPanel(this)
 
   private val selector: Box
   private val cards: JPanel

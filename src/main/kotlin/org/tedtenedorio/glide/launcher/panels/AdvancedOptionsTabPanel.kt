@@ -23,18 +23,18 @@ class AdvancedOptionsTabPanel(
 
     label("Debounce")
     debounce = slider(
-      indicator = description("<html>Affects Rendering<br/>Will display at most %d images per frame</html>"),
-      min = 1,
-      max = 10,
-      value = ENV.maxImagesPerFrame
-    )
-
-    label("Lookahead")
-    imageBuffer = slider(
       indicator = description("One keystroke may register every %dms"),
       min = 20,
       max = 520,
       value = ENV.debounce.toInt()
+    )
+
+    label("Lookahead")
+    imageBuffer = slider(
+      indicator = description("<html>Affects Rendering<br/>Will display at most %d images per frame</html>"),
+      min = 1,
+      max = 10,
+      value = ENV.maxImagesPerFrame
     )
 
     spring()

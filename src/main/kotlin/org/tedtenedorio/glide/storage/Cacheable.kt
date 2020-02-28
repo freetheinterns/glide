@@ -4,6 +4,7 @@ import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.GB
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.sumByLong
+import java.lang.System.currentTimeMillis
 import java.util.concurrent.PriorityBlockingQueue
 
 
@@ -33,6 +34,7 @@ interface Cacheable {
       maxBytes: Int = ENV.cacheSizeBytes,
       minimumCacheSize: Int = ENV.maxImagesPerFrame * 2
     ) {
+      val start = currentTimeMillis()
       val toRemove = mutableListOf<Cacheable>()
       var overflow = queueSize - maxBytes
       if (overflow <= 0 || queue.size < minimumCacheSize) return
@@ -44,6 +46,7 @@ interface Cacheable {
       }
 
       log.info("""
+          Spent ${currentTimeMillis() - start}ms Updating Global Cache
           Current Cache: ${queueSize / GB.toFloat()} GB
           Clearing ${toRemove.size}/${queue.size} cached images from global queue
           Freeing Up: ${toRemove.sumByLong(Cacheable::byteSize) / GB.toFloat()} GB
