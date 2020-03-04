@@ -9,7 +9,7 @@ import org.tedtenedorio.glide.launcher.components.LabelButton
 import org.tedtenedorio.glide.launcher.panels.AdvancedOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.DisplayOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.FileOptionsTabPanel
-import org.tedtenedorio.glide.launcher.panels.LibraryOptionsTabPanel
+import org.tedtenedorio.glide.launcher.panels.LibraryEditorPanel
 import org.tedtenedorio.glide.launcher.panels.TabPanel
 import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.listeners.FrameDragListener
@@ -45,7 +45,8 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   private val fileOptionsTab = FileOptionsTabPanel(this)
   private val displayOptionsTab = DisplayOptionsTabPanel(this)
   private val advancedOptionsTab = AdvancedOptionsTabPanel(this)
-  private val libraryOptionsTab = LibraryOptionsTabPanel(this)
+
+  private val libraryEditorPanel = LibraryEditorPanel()
 
   private val selector: Box
   private val cards: JPanel
@@ -53,8 +54,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   private val tabOptions = arrayOf(
     fileOptionsTab,
     displayOptionsTab,
-    advancedOptionsTab,
-    libraryOptionsTab
+    advancedOptionsTab
   )
 
   private val dragListener = FrameDragListener { location = it }
@@ -64,7 +64,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     isUndecorated = true
     isResizable = false
     isFocusable = true
-    bounds = Rectangle(300, 200, TabPanel.HARD_WIDTH + LabelButton.HARD_WIDTH + 6, HARD_HEIGHT)
+    bounds = Rectangle(300, 200, TabPanel.HARD_WIDTH * 2 + LabelButton.HARD_WIDTH + 6, HARD_HEIGHT)
 
     addMouseMotionListener(dragListener)
     addMouseListener(dragListener)
@@ -78,7 +78,6 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
       add(fileOptionsTab.label)
       add(displayOptionsTab.label)
       add(advancedOptionsTab.label)
-      add(libraryOptionsTab.label)
       spring()
       add(saveTab)
       add(launchTab)
@@ -91,11 +90,11 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
       add(fileOptionsTab, fileOptionsTab.label.title)
       add(displayOptionsTab, displayOptionsTab.label.title)
       add(advancedOptionsTab, advancedOptionsTab.label.title)
-      add(libraryOptionsTab, libraryOptionsTab.label.title)
     }
 
-    add(selector, BorderLayout.WEST)
-    add(cards, BorderLayout.CENTER)
+    add(libraryEditorPanel, BorderLayout.WEST)
+    add(selector, BorderLayout.CENTER)
+    add(cards, BorderLayout.EAST)
 
     isVisible = true
     requestFocusInWindow()
@@ -109,11 +108,6 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     fileOptionsTab.label -> changeCard(fileOptionsTab)
     displayOptionsTab.label -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
-    libraryOptionsTab.label -> {
-      if (libraryOptionsTab.safeLibrary == null)
-        libraryOptionsTab.actionPerformed(null)
-      changeCard(libraryOptionsTab)
-    }
 
     else -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
   }
@@ -134,12 +128,12 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     ENV.showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
     ENV.showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
     ENV.save()
-    libraryOptionsTab.actionPerformed(null)
+    libraryEditorPanel.actionPerformed(null)
   }
 
   fun launchProjector() {
     save()
-    Projector(libraryOptionsTab.safeLibrary ?: Library(ENV.root))
+    Projector(libraryEditorPanel.safeLibrary ?: Library(ENV.root))
     dispose()
   }
 

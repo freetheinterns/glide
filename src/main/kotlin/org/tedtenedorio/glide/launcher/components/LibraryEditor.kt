@@ -7,7 +7,7 @@ import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.mix
 import org.tedtenedorio.glide.extensions.perpendicularBox
 import org.tedtenedorio.glide.extensions.spring
-import org.tedtenedorio.glide.launcher.panels.LibraryOptionsTabPanel
+import org.tedtenedorio.glide.launcher.panels.LibraryEditorPanel
 import org.tedtenedorio.glide.slideshow.Catalog
 import org.tedtenedorio.glide.slideshow.Library
 import java.awt.Color
@@ -69,7 +69,7 @@ class LibraryEditor : Box(BoxLayout.Y_AXIS) {
       )
       gap(30)
 
-      maximumSize = Dimension(LibraryOptionsTabPanel.HARD_WIDTH, CATALOG_HEIGHT)
+      maximumSize = Dimension(LibraryEditorPanel.HARD_WIDTH, CATALOG_HEIGHT)
       minimumSize = Dimension(minimumSize.width, CATALOG_HEIGHT)
       preferredSize = Dimension(preferredSize.width, CATALOG_HEIGHT)
     }

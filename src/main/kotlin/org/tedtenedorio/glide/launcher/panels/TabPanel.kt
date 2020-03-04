@@ -1,10 +1,8 @@
 package org.tedtenedorio.glide.launcher.panels
 
 import org.tedtenedorio.glide.ENV
-import org.tedtenedorio.glide.extensions.box
 import org.tedtenedorio.glide.extensions.deriveFont
 import org.tedtenedorio.glide.extensions.gap
-import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.perpendicularBox
 import org.tedtenedorio.glide.extensions.spring
 import org.tedtenedorio.glide.launcher.Launcher
@@ -70,7 +68,7 @@ abstract class TabPanel(
       alignmentY = Component.TOP_ALIGNMENT
     }
 
-    chain(box(false) {
+    perpendicularBox {
       preferredSize = Dimension(HARD_WIDTH, LabelButton.HARD_HEIGHT)
       minimumSize = Dimension(HARD_WIDTH, LabelButton.HARD_HEIGHT)
       maximumSize = Dimension(HARD_WIDTH, LabelButton.HARD_HEIGHT)
@@ -78,7 +76,7 @@ abstract class TabPanel(
       add(header)
       spring()
       add(closeButton)
-    })
+    }
   }
 
   private fun chain(
@@ -116,11 +114,6 @@ abstract class TabPanel(
 
   fun description(value: String, offset: Int = 8): JLabel =
     JLabel(value).deriveFont(-5).also {
-      chain(it, top = offset, left = 20)
-    }
-
-  fun labelButton(offset: Int = 0, block: LabelButton.() -> Unit): LabelButton =
-    LabelButton(builder = block).also {
       chain(it, top = offset, left = 20)
     }
 
@@ -162,6 +155,5 @@ abstract class TabPanel(
   companion object {
     const val HARD_WIDTH = 800
     const val TEXT_COLUMNS = 38
-    private val log by logger()
   }
 }

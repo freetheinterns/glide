@@ -1,7 +1,7 @@
 plugins {
   // Apply the Kotlin JVM & serialization plugins
-  kotlin("jvm").version("1.3.61")
-  id("kotlinx-serialization").version("1.3.61")
+  kotlin("jvm").version("1.3.70")
+  id("kotlinx-serialization").version("1.3.70")
 
   // Apply the application to add support for building a CLI application
   application
@@ -29,7 +29,7 @@ dependencies {
 
 application {
   // Define the main class for the application
-  mainClassName = "common.glide.MainKt"
+  mainClassName = "org.tedtenedorio.glide.MainKt"
 }
 
 tasks {
