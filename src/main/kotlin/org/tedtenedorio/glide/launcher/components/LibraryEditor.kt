@@ -3,11 +3,11 @@ package org.tedtenedorio.glide.launcher.components
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.formattedFileSize
 import org.tedtenedorio.glide.extensions.gap
-import org.tedtenedorio.glide.extensions.info
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.mix
 import org.tedtenedorio.glide.extensions.perpendicularBox
 import org.tedtenedorio.glide.extensions.spring
+import org.tedtenedorio.glide.extensions.trace
 import org.tedtenedorio.glide.launcher.panels.LibraryEditorPanel
 import org.tedtenedorio.glide.slideshow.Catalog
 import org.tedtenedorio.glide.slideshow.Library
@@ -79,9 +79,9 @@ class LibraryEditor : Box(BoxLayout.Y_AXIS) {
   init {
     isOpaque = true
     background = ENV.dark
-    log.info { "Largest File: " + largeFileSize.toLong().formattedFileSize }
-    log.info { "Smallest File: " + smallFileSize.formattedFileSize }
-    log.info { "Library Size: ${library.size}" }
+    log.trace { "Largest File: " + largeFileSize.toLong().formattedFileSize }
+    log.trace { "Smallest File: " + smallFileSize.formattedFileSize }
+    log.trace { "Library Size: ${library.size}" }
     library.forEach {
       gap(CATALOG_INSETS.top)
       perpendicularBox {

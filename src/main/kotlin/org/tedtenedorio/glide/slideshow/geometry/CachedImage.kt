@@ -50,6 +50,11 @@ class CachedImage(val file: File) : Geometry, Cacheable {
     g.translate(5, sizedImage.height - 10)
     g.drawOutlinedText(file.nameWithoutExtension)
   }
+
+  override fun toString(): String = StringBuilder("CachedImage(").apply {
+    append("file=$name")
+    append(")")
+  }.toString()
 }
 
 

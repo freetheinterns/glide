@@ -1,7 +1,10 @@
 package org.tedtenedorio.glide.listeners
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.EVENT_DISPATCHER
 import org.tedtenedorio.glide.extensions.error
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.warn
@@ -24,7 +27,6 @@ import java.awt.event.MouseEvent.BUTTON1
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.LinkOption
-import kotlin.concurrent.thread
 
 @Serializable
 data class ProjectorBindings(
@@ -46,10 +48,7 @@ data class ProjectorBindings(
   override val version: Int = 0
 
   fun trigger(source: Projector, code: Int) {
-    thread(
-      priority = 2,
-      name = "ProjectorEvent-$code"
-    ) {
+    GlobalScope.launch(EVENT_DISPATCHER) {
       if (exit.contains(code))
         quit(0)
 

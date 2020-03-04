@@ -28,8 +28,8 @@ object EventHandler : KeyEventDispatcher, MouseListener {
   private var lastLockedAt = 0L
   var target: Any? = null
 
-  private val PROJECTOR_BINDINGS by lazy { ProjectorBindings().load() }
-  private val LAUNCHER_BINDINGS by lazy { LauncherBindings().load() }
+  val PROJECTOR_BINDINGS by lazy { ProjectorBindings().load() }
+  val LAUNCHER_BINDINGS by lazy { LauncherBindings().load() }
 
   val lock: Mutex = Mutex()
 
@@ -57,7 +57,7 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     }
   }
 
-  private fun handleEvent(code: Int) {
+  fun handleEvent(code: Int) {
     val now = System.currentTimeMillis()
     if (ENV.debounce > now - lastLockedAt) return
     if (!lock.tryLock()) return

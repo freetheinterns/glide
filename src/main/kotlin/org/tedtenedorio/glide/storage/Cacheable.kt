@@ -1,5 +1,8 @@
 package org.tedtenedorio.glide.storage
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.tedtenedorio.glide.CACHE_DISPATCHER
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.GB
 import org.tedtenedorio.glide.extensions.debug
@@ -7,7 +10,6 @@ import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.sumByLong
 import java.lang.System.currentTimeMillis
 import java.util.concurrent.PriorityBlockingQueue
-import kotlin.concurrent.thread
 
 
 interface Cacheable {
@@ -36,11 +38,11 @@ interface Cacheable {
       maxBytes: Int = ENV.cacheSizeBytes,
       minimumCacheSize: Int = ENV.maxImagesPerFrame * 2
     ) {
-      thread(name = "GlobalCacheManager") {
+      GlobalScope.launch(CACHE_DISPATCHER) {
         val start = currentTimeMillis()
         val toRemove = mutableListOf<Cacheable>()
         var overflow = queueSize - maxBytes
-        if (overflow <= 0 || queue.size < minimumCacheSize) return@thread
+        if (overflow <= 0 || queue.size < minimumCacheSize) return@launch
 
         while (overflow > 0 && queue.size > minimumCacheSize.coerceAtLeast(0)) {
           val next = queue.poll()

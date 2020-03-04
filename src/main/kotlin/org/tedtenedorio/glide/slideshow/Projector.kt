@@ -6,18 +6,20 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.tedtenedorio.glide.BACKGROUND_DISPATCHER
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.Extension
 import org.tedtenedorio.glide.Operation
 import org.tedtenedorio.glide.extensions.FRAME_RENDER_PRIORITY
 import org.tedtenedorio.glide.extensions.PROJECTOR_WINDOW_SIZE
+import org.tedtenedorio.glide.extensions.debug
 import org.tedtenedorio.glide.extensions.dimension
 import org.tedtenedorio.glide.extensions.error
 import org.tedtenedorio.glide.extensions.fitCentered
 import org.tedtenedorio.glide.extensions.imageCount
-import org.tedtenedorio.glide.extensions.info
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.times
+import org.tedtenedorio.glide.extensions.trace
 import org.tedtenedorio.glide.extensions.use
 import org.tedtenedorio.glide.launcher.components.FullScreenFrame
 import org.tedtenedorio.glide.listeners.EventHandler
@@ -44,7 +46,9 @@ class Projector(
 ) : FullScreenFrame() {
   var geometry by blindObserver(listOf<Geometry>(), ::render)
   val index: Library.Index by cache { library.Index() }
-  val timer = Timer(ENV.speed, ActionListener { next() })
+  val timer = Timer(ENV.speed, ActionListener {
+    EventHandler.handleEvent(EventHandler.PROJECTOR_BINDINGS.pageForward.first())
+  })
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
@@ -129,7 +133,7 @@ class Projector(
       bufferStrategy.show()
     }
 
-    log.info { "Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY" }
+    log.trace { "Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY" }
   }
 
   ///////////////////////////////////////
@@ -155,6 +159,7 @@ class Projector(
     val pages: MutableList<CachedImage> = mutableListOf()
     var margin = size.width
     var focus = index.copy
+    log.debug { "Projecting ${index.current}" }
 
     do {
       margin -= focus.current.width
@@ -175,7 +180,7 @@ class Projector(
 
     // Launch coroutine and delay to allow graphics thread to render
     runBlocking { delay(10) }
-    backgroundTasks.plusAssign(GlobalScope.launch { preRender() })
+    backgroundTasks.plusAssign(GlobalScope.launch(BACKGROUND_DISPATCHER) { preRender() })
   }
 
   ///////////////////////////////////////
