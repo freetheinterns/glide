@@ -1,7 +1,6 @@
 package org.tedtenedorio.glide
 
 import org.openjdk.jmh.infra.Blackhole
-import org.tedtenedorio.glide.extensions.throwable
 import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.scripts.defineLookAndFeel
@@ -12,10 +11,6 @@ import org.tedtenedorio.glide.storage.schemas.FileSizePersistableMap
 import org.tedtenedorio.glide.storage.schemas.FileUpdatedAtPersistableMap
 import org.tedtenedorio.glide.storage.schemas.SlideshowSettings
 import java.awt.GraphicsEnvironment
-import java.util.logging.Formatter
-import java.util.logging.Level
-import java.util.logging.LogRecord
-import java.util.logging.Logger
 import kotlin.system.exitProcess
 
 
@@ -40,19 +35,6 @@ val FONT_FAMILIES: Array<String> by lazy {
   GraphicsEnvironment.getLocalGraphicsEnvironment().availableFontFamilyNames
 }
 
-internal fun defineLogger() {
-  val baseLogger = Logger.getLogger("")
-  baseLogger.level = Level.INFO
-  baseLogger.handlers.forEach {
-    it.level = Level.INFO
-    it.formatter = object : Formatter() {
-      override fun format(record: LogRecord): String {
-        return "[${record.level.localizedName}]: ${formatMessage(record)}${record.throwable}\n"
-      }
-    }
-  }
-}
-
 fun quit(status: Int) {
   GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.fullScreenWindow = null
   EventHandler.deRegister()
@@ -61,7 +43,6 @@ fun quit(status: Int) {
 
 fun main(args: Array<String>) {
   defineLookAndFeel()
-  defineLogger()
 
   try {
     EventHandler.register()

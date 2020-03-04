@@ -5,6 +5,7 @@ import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.extensions.box
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.spring
+import org.tedtenedorio.glide.extensions.warn
 import org.tedtenedorio.glide.launcher.components.LabelButton
 import org.tedtenedorio.glide.launcher.panels.AdvancedOptionsTabPanel
 import org.tedtenedorio.glide.launcher.panels.DisplayOptionsTabPanel
@@ -109,7 +110,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     displayOptionsTab.label -> changeCard(displayOptionsTab)
     advancedOptionsTab.label -> changeCard(advancedOptionsTab)
 
-    else -> log.warning("Miss for ${e.source::class.simpleName}: ${e.source}")
+    else -> log.warn { "Miss for ${e.source::class.simpleName}: ${e.source}" }
   }
 
   fun save() {

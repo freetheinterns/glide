@@ -6,8 +6,11 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.extensions.debug
+import org.tedtenedorio.glide.extensions.error
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.retry
+import org.tedtenedorio.glide.extensions.warn
 import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.slideshow.Projector
 import org.tedtenedorio.glide.storage.Persist.load
@@ -36,7 +39,7 @@ object EventHandler : KeyEventDispatcher, MouseListener {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this)
       }
     } catch (err: RuntimeException) {
-      log.severe("Error registering EventHandler")
+      log.error(err) { "Error registering EventHandler" }
       err.printStackTrace()
       exitProcess(1)
     }
@@ -48,7 +51,7 @@ object EventHandler : KeyEventDispatcher, MouseListener {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this)
       }
     } catch (err: RuntimeException) {
-      log.severe("Error de-registering EventHandler")
+      log.error(err) { "Error de-registering EventHandler" }
       err.printStackTrace()
       exitProcess(1)
     }
@@ -59,11 +62,15 @@ object EventHandler : KeyEventDispatcher, MouseListener {
     if (ENV.debounce > now - lastLockedAt) return
     if (!lock.tryLock()) return
     lastLockedAt = now
+    log.debug { "Lock acquired for event code #$code" }
 
     when (target) {
       is Projector -> PROJECTOR_BINDINGS.trigger(target as Projector, code)
       is Launcher -> LAUNCHER_BINDINGS.trigger(target as Launcher, code)
-      else -> lock.unlock()
+      else -> {
+        log.warn { "EventHandler.target unbound. Relinquishing lock" }
+        lock.unlock()
+      }
     }
   }
 

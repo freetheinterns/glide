@@ -1,9 +1,7 @@
 package org.tedtenedorio.glide.extensions
 
-import java.io.PrintWriter
-import java.io.StringWriter
-import java.util.logging.LogRecord
-import java.util.logging.Logger
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates.vetoable
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KClass
@@ -27,19 +25,8 @@ fun <T : Any> unwrapCompanionClass(ofClass: KClass<T>): KClass<*> {
 }
 
 fun <T : Any> T.logger(): Lazy<Logger> = lazy {
-  Logger.getLogger(unwrapCompanionClass(this::class).simpleName)
+  LoggerFactory.getLogger(unwrapCompanionClass(this::class).simpleName)
 }
-
-val LogRecord.throwable: String
-  get() {
-    thrown ?: return ""
-    val sw = StringWriter()
-    val pw = PrintWriter(sw)
-    pw.println()
-    thrown.printStackTrace(pw)
-    pw.close()
-    return sw.toString()
-  }
 
 fun <T> retry(times: Int = 3, block: () -> T): T {
   repeat(times - 1) {

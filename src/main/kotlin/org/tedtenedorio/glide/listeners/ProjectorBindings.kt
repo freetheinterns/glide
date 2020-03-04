@@ -2,7 +2,9 @@ package org.tedtenedorio.glide.listeners
 
 import kotlinx.serialization.Serializable
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.extensions.error
 import org.tedtenedorio.glide.extensions.logger
+import org.tedtenedorio.glide.extensions.warn
 import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.Projector
 import org.tedtenedorio.glide.storage.Versionable
@@ -75,7 +77,7 @@ data class ProjectorBindings(
 
       if (deleteCatalog.contains(code)) {
         source.modifyCatalogFolder(source.index.primary) {
-          log.warning("Deleting Folder: $absolutePath")
+          log.warn { "Deleting Folder: $absolutePath" }
           deleteRecursively()
         }
       }
@@ -83,9 +85,9 @@ data class ProjectorBindings(
       if (archiveCatalog.contains(code)) {
         source.modifyCatalogFolder(source.index.primary) {
           val newPath = File("${ENV.archive}\\$name").toPath()
-          log.warning("Moving Folder: $absolutePath --> $newPath")
+          log.warn { "Moving Folder: $absolutePath --> $newPath" }
           if (Files.exists(newPath, LinkOption.NOFOLLOW_LINKS))
-            log.severe("Target Path already exists! No action taken!")
+            log.error { "Target Path already exists! No action taken!" }
           else
             Files.move(toPath(), newPath)
         }

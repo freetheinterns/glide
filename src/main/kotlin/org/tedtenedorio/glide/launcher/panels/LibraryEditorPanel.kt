@@ -4,6 +4,7 @@ import kotlinx.coroutines.sync.Mutex
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.deriveFont
 import org.tedtenedorio.glide.extensions.gap
+import org.tedtenedorio.glide.extensions.info
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.perpendicularBox
 import org.tedtenedorio.glide.extensions.spring
@@ -87,14 +88,14 @@ class LibraryEditorPanel : Box(BoxLayout.Y_AXIS), ActionListener {
 
   override fun actionPerformed(e: ActionEvent?) {
     if (!lock.tryLock()) {
-      log.info("Not Reloading Library")
+      log.info { "Not Reloading Library" }
       return
     }
-    log.info("Reloading Library...")
+    log.info { "Reloading Library..." }
 
     placeholder.label?.text = "Loading Library..."
     scrollWindow.setViewportView(placeholder)
-    thread(name = "LibraryEditorPanel-loading-library") {
+    thread(name = "reloadLibraryPanel") {
       try {
         libraryEditor = LibraryEditor()
         scrollWindow.setViewportView(libraryEditor)
@@ -112,7 +113,7 @@ class LibraryEditorPanel : Box(BoxLayout.Y_AXIS), ActionListener {
         exc.printStackTrace()
       } finally {
         lock.unlock()
-        log.info("Done Reloading Library")
+        log.info { "Done Reloading Library" }
       }
     }
   }

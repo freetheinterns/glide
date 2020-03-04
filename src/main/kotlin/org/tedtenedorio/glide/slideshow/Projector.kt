@@ -12,8 +12,10 @@ import org.tedtenedorio.glide.Operation
 import org.tedtenedorio.glide.extensions.FRAME_RENDER_PRIORITY
 import org.tedtenedorio.glide.extensions.PROJECTOR_WINDOW_SIZE
 import org.tedtenedorio.glide.extensions.dimension
+import org.tedtenedorio.glide.extensions.error
 import org.tedtenedorio.glide.extensions.fitCentered
 import org.tedtenedorio.glide.extensions.imageCount
+import org.tedtenedorio.glide.extensions.info
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.times
 import org.tedtenedorio.glide.extensions.use
@@ -27,7 +29,7 @@ import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.geometry.CachedImage
 import org.tedtenedorio.glide.slideshow.geometry.Geometry
 import org.tedtenedorio.glide.slideshow.geometry.MarginPanel
-import org.tedtenedorio.glide.storage.Cacheable
+import org.tedtenedorio.glide.storage.Cacheable.Companion.manageGlobalCache
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment
@@ -79,7 +81,7 @@ class Projector(
     EventHandler.target = this
 
     if (library.isEmpty) {
-      log.severe("No images found to display!")
+      log.error { "No images found to display!" }
       quit(1)
     }
 
@@ -113,7 +115,7 @@ class Projector(
       FRAME_RENDER_PRIORITY = realPriority
     }
 
-    Cacheable.manageGlobalCache()
+    manageGlobalCache()
   }
 
   private fun drawPage(painter: Operation<Graphics2D>? = null) {
@@ -127,7 +129,7 @@ class Projector(
       bufferStrategy.show()
     }
 
-    log.info("Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY")
+    log.info { "Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY" }
   }
 
   ///////////////////////////////////////

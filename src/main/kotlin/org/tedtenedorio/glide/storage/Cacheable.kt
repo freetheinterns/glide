@@ -2,6 +2,7 @@ package org.tedtenedorio.glide.storage
 
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.GB
+import org.tedtenedorio.glide.extensions.debug
 import org.tedtenedorio.glide.extensions.logger
 import org.tedtenedorio.glide.extensions.sumByLong
 import java.lang.System.currentTimeMillis
@@ -47,14 +48,15 @@ interface Cacheable {
           toRemove.add(next)
         }
 
-        log.info("""
-            Spent ${currentTimeMillis() - start}ms Updating Global Cache
-            Current Cache: ${queueSize / GB.toFloat()} GB
-            Clearing ${toRemove.size}/${queue.size} cached images from global queue
-            Freeing Up: ${toRemove.sumByLong(Cacheable::byteSize) / GB.toFloat()} GB
-            Target Maximum: ${maxBytes / GB.toFloat()} GB
-            """.trimIndent()
-        )
+        log.debug {
+          """
+          Spent ${currentTimeMillis() - start}ms Updating Global Cache
+          Current Cache: ${queueSize / GB.toFloat()} GB
+          Clearing ${toRemove.size}/${queue.size} cached images from global queue
+          Freeing Up: ${toRemove.sumByLong(Cacheable::byteSize) / GB.toFloat()} GB
+          Target Maximum: ${maxBytes / GB.toFloat()} GB
+          """.trimIndent()
+        }
 
         toRemove.forEach { obj ->
           obj.clear()
