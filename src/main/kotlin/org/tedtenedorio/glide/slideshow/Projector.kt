@@ -1,6 +1,10 @@
 package org.tedtenedorio.glide.slideshow
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.Extension
@@ -18,6 +22,7 @@ import org.tedtenedorio.glide.listeners.EventHandler
 import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
 import org.tedtenedorio.glide.properties.CachedProperty.Companion.invalidate
 import org.tedtenedorio.glide.properties.ChangeTriggeringProperty.Companion.blindObserver
+import org.tedtenedorio.glide.properties.lazyAwait
 import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.geometry.CachedImage
 import org.tedtenedorio.glide.slideshow.geometry.Geometry
@@ -29,6 +34,7 @@ import java.awt.GraphicsEnvironment
 import java.awt.event.ActionListener
 import java.io.File
 import javax.swing.Timer
+import kotlin.coroutines.coroutineContext
 import kotlin.system.measureTimeMillis
 
 class Projector(
@@ -40,6 +46,7 @@ class Projector(
 
   private val device = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice
   private val marginPanel = MarginPanel(this)
+  private var backgroundTasks = mutableListOf<Job>()
 
   init {
     if (!device.isFullScreenSupported)
@@ -90,17 +97,23 @@ class Projector(
     g.color = oldColor
   }
 
-  private fun preRender() {
+  private suspend fun preRender() {
     val focus = index + geometry.imageCount
     val realPriority = FRAME_RENDER_PRIORITY
-    FRAME_RENDER_PRIORITY -= 2
 
-    repeat(ENV.maxImagesPerFrame) {
-      focus.current.position = size * 2
-      focus += 1
+    try {
+      FRAME_RENDER_PRIORITY -= 2
+
+      repeat(ENV.maxImagesPerFrame) {
+        if (!coroutineContext.isActive) return
+        focus.current.position = size * 2
+        focus += 1
+      }
+    } finally {
+      FRAME_RENDER_PRIORITY = realPriority
     }
 
-    FRAME_RENDER_PRIORITY = realPriority
+    Cacheable.manageGlobalCache()
   }
 
   private fun drawPage(painter: Operation<Graphics2D>? = null) {
@@ -114,7 +127,7 @@ class Projector(
       bufferStrategy.show()
     }
 
-    // log.info("Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY")
+    log.info("Spent $drawTime ms drawing frame #$FRAME_RENDER_PRIORITY")
   }
 
   ///////////////////////////////////////
@@ -129,8 +142,10 @@ class Projector(
   // - Cacheable.manageGlobalCache() which re-evaluates the caching states of cached images
   ///////////////////////////////////////
 
-  fun project() {
-    val pages = selectImages()
+  fun project(): Unit = runBlocking {
+    val pages by lazyAwait { selectImages() }
+    backgroundTasks.forEach { it.cancel() }
+    backgroundTasks.clear()
     geometry = size.fitCentered(pages).plus(marginPanel)
   }
 
@@ -158,9 +173,7 @@ class Projector(
 
     // Launch coroutine and delay to allow graphics thread to render
     runBlocking { delay(10) }
-
-    preRender()
-    Cacheable.manageGlobalCache()
+    backgroundTasks.plusAssign(GlobalScope.launch { preRender() })
   }
 
   ///////////////////////////////////////

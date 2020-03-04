@@ -45,7 +45,6 @@ data class ProjectorBindings(
 
   fun trigger(source: Projector, code: Int) {
     thread(
-      isDaemon = true,
       priority = 2,
       name = "ProjectorEvent-$code"
     ) {

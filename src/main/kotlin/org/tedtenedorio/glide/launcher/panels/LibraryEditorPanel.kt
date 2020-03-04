@@ -94,10 +94,7 @@ class LibraryEditorPanel : Box(BoxLayout.Y_AXIS), ActionListener {
 
     placeholder.label?.text = "Loading Library..."
     scrollWindow.setViewportView(placeholder)
-    thread(
-      isDaemon = true,
-      name = "LibraryEditorPanel-loading-library"
-    ) {
+    thread(name = "LibraryEditorPanel-loading-library") {
       try {
         libraryEditor = LibraryEditor()
         scrollWindow.setViewportView(libraryEditor)
