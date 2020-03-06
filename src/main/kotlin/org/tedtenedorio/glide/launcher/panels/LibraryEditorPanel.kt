@@ -1,7 +1,9 @@
 package org.tedtenedorio.glide.launcher.panels
 
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.extensions.debug
 import org.tedtenedorio.glide.extensions.deriveFont
 import org.tedtenedorio.glide.extensions.gap
 import org.tedtenedorio.glide.extensions.info
@@ -84,6 +86,17 @@ class LibraryEditorPanel : Box(BoxLayout.Y_AXIS), ActionListener {
 
     actionPerformed(null)
     isVisible = true
+  }
+
+  fun repaintWindow() {
+    if (::libraryEditor.isInitialized) {
+      runBlocking {
+        log.debug { "Repainting Library" }
+        libraryEditor.repaintLibrary()
+        libraryEditor.revalidate()
+        libraryEditor.repaint()
+      }
+    }
   }
 
   override fun actionPerformed(e: ActionEvent?) {

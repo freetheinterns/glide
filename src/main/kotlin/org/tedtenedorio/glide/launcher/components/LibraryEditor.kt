@@ -79,6 +79,11 @@ class LibraryEditor : Box(BoxLayout.Y_AXIS) {
   init {
     isOpaque = true
     background = ENV.dark
+    repaintLibrary()
+  }
+
+  fun repaintLibrary() {
+    removeAll()
     log.trace { "Largest File: " + largeFileSize.toLong().formattedFileSize }
     log.trace { "Smallest File: " + smallFileSize.formattedFileSize }
     log.trace { "Library Size: ${library.size}" }

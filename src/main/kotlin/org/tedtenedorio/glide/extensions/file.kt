@@ -24,18 +24,17 @@ val File.catalogs: List<Catalog>
     listFiles(CatalogFilter)
       ?.toList()
       ?.map(::Catalog)
-      ?.sortedBy {
+      ?.let { unordered ->
         when (ENV.ordering) {
-          FolderSortStrategy.Alphabetical -> it.path
-          FolderSortStrategy.NumberOfFiles -> it.size.toString()
-          FolderSortStrategy.FolderCreatedAt -> it.file.createdAt.toString()
-          FolderSortStrategy.FolderAccessedAt -> it.file.accessedAt.toString()
-          FolderSortStrategy.FolderUpdatedAt -> it.file.updatedAt.toString()
-          FolderSortStrategy.FolderDiskSize -> it.folderSize.toString()
-          FolderSortStrategy.Random -> UUID.randomUUID().toString()
+          FolderSortStrategy.Alphabetical -> unordered.sortedBy { it.path }
+          FolderSortStrategy.NumberOfFiles -> unordered.sortedBy { it.size }
+          FolderSortStrategy.FolderCreatedAt -> unordered.sortedBy { it.file.createdAt }
+          FolderSortStrategy.FolderAccessedAt -> unordered.sortedBy { it.file.accessedAt }
+          FolderSortStrategy.FolderUpdatedAt -> unordered.sortedBy { it.file.updatedAt }
+          FolderSortStrategy.FolderDiskSize -> unordered.sortedBy { it.folderSize }
+          FolderSortStrategy.Random -> unordered.sortedBy { UUID.randomUUID() }
         }
-      }
-      ?: listOf()
+      } ?: listOf()
 
 fun File.listImages(): List<File> =
   listFiles(ImageFilter)?.toList() ?: listOf()

@@ -25,6 +25,10 @@ class Library(
     catalogs = catalogs.filter(predicate)
   }
 
+  fun reverse() {
+    catalogs = catalogs.reversed()
+  }
+
   override fun iterator(): Iterator<Catalog> = catalogs.iterator()
 
   inner class Index(

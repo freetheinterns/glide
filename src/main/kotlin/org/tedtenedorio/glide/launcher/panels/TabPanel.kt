@@ -8,7 +8,6 @@ import org.tedtenedorio.glide.extensions.spring
 import org.tedtenedorio.glide.launcher.Launcher
 import org.tedtenedorio.glide.launcher.components.DirectoryChooser
 import org.tedtenedorio.glide.launcher.components.LabelButton
-import org.tedtenedorio.glide.launcher.components.Slider
 import java.awt.BasicStroke
 import java.awt.Component
 import java.awt.Dimension
@@ -20,6 +19,7 @@ import javax.swing.JCheckBox
 import javax.swing.JComboBox
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JSlider
 import javax.swing.JTextField
 import javax.swing.border.EmptyBorder
 import kotlin.system.exitProcess
@@ -119,6 +119,7 @@ abstract class TabPanel(
 
   fun checkBox(name: String, selected: Boolean, offset: Int = 8): JCheckBox =
     JCheckBox(name, selected).also {
+      it.addActionListener { listener.save() }
       chain(it, top = offset, left = 35)
     }
 
@@ -127,6 +128,7 @@ abstract class TabPanel(
       preferredSize = Dimension(preferredSize.width, 40)
       maximumSize = Dimension(maximumSize.width, 40)
       selectedItem = selected ?: selectedItem
+      addActionListener { listener.save() }
       chain(this, top = offset, left = 35)
     }
 
@@ -148,8 +150,24 @@ abstract class TabPanel(
     tick: Int = 1.coerceAtLeast((max - min) / 20),
     step: Int = 1.coerceAtLeast((max - min) / 4),
     offset: Int = 2
-  ): Slider = Slider(min, max, value, tick, step, indicator.text, indicator).also {
-    chain(it, top = offset)
+  ): JSlider = JSlider(min, max, value).apply {
+    val labelFormat = indicator.text
+    background = ENV.background
+    foreground = ENV.foreground
+    minorTickSpacing = tick
+    majorTickSpacing = step
+    paintTicks = true
+    paintLabels = true
+    paintTrack = true
+    preferredSize = Dimension(300, 50)
+    font = font.deriveFont(font.size2D - 6L)
+    alignmentX = Component.LEFT_ALIGNMENT
+    addChangeListener {
+      indicator.text = labelFormat.format(value)
+      listener.save()
+    }
+    indicator.text = labelFormat.format(value)
+    chain(this, top = offset)
   }
 
   companion object {

@@ -47,7 +47,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   private val displayOptionsTab = DisplayOptionsTabPanel(this)
   private val advancedOptionsTab = AdvancedOptionsTabPanel(this)
 
-  private val libraryEditorPanel = LibraryEditorPanel()
+  val libraryEditorPanel = LibraryEditorPanel()
 
   private val selector: Box
   private val cards: JPanel
@@ -80,7 +80,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
       add(displayOptionsTab.label)
       add(advancedOptionsTab.label)
       spring()
-      add(saveTab)
+      // add(saveTab)
       add(launchTab)
     }
 
@@ -114,6 +114,7 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
   }
 
   fun save() {
+    val oldSettings = ENV.copy()
     ENV.archive = fileOptionsTab.archive.banner.text
     ENV.root = fileOptionsTab.root.banner.text
     ENV.ordering = fileOptionsTab.ordering.selectedItem as FolderSortStrategy
@@ -129,7 +130,8 @@ class Launcher : JFrame("Projector: Custom Comic Slideshows"), ActionListener {
     ENV.showMarginFolderCount = displayOptionsTab.showMarginFolderCountInput.isSelected
     ENV.showMarginFolderName = displayOptionsTab.showMarginFolderNameInput.isSelected
     ENV.save()
-    libraryEditorPanel.actionPerformed(null)
+    if (ENV.archive != oldSettings.archive || ENV.root != oldSettings.root || ENV.ordering != oldSettings.ordering)
+      libraryEditorPanel.actionPerformed(null)
   }
 
   fun launchProjector() {

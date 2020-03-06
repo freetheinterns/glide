@@ -1,6 +1,9 @@
 package org.tedtenedorio.glide.launcher.panels
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.tedtenedorio.glide.ENV
+import org.tedtenedorio.glide.EVENT_DISPATCHER
 import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.extensions.spring
 import org.tedtenedorio.glide.launcher.Launcher
@@ -27,6 +30,12 @@ class FileOptionsTabPanel(
 
     label("Folder Sort")
     ordering = comboBox(FolderSortStrategy.values(), ENV.ordering)
+    button("Reverse").addActionListener {
+      GlobalScope.launch(EVENT_DISPATCHER) {
+        listener.libraryEditorPanel.safeLibrary?.reverse()
+        listener.libraryEditorPanel.repaintWindow()
+      }
+    }
 
     spring()
   }
