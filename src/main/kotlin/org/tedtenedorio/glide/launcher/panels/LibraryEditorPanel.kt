@@ -1,10 +1,14 @@
 package org.tedtenedorio.glide.launcher.panels
 
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
+import org.tedtenedorio.glide.BACKGROUND_DISPATCHER
 import org.tedtenedorio.glide.ENV
 import org.tedtenedorio.glide.extensions.debug
 import org.tedtenedorio.glide.extensions.deriveFont
+import org.tedtenedorio.glide.extensions.error
 import org.tedtenedorio.glide.extensions.gap
 import org.tedtenedorio.glide.extensions.info
 import org.tedtenedorio.glide.extensions.logger
@@ -27,7 +31,6 @@ import javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
 import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
 import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
 import javax.swing.border.EmptyBorder
-import kotlin.concurrent.thread
 
 class LibraryEditorPanel : Box(BoxLayout.Y_AXIS), ActionListener {
   private val lock: Mutex = Mutex(false)
@@ -101,20 +104,22 @@ class LibraryEditorPanel : Box(BoxLayout.Y_AXIS), ActionListener {
 
   override fun actionPerformed(e: ActionEvent?) {
     if (!lock.tryLock()) {
-      log.info { "Not Reloading Library" }
+      log.debug { "Not Reloading Library" }
       return
     }
     log.info { "Reloading Library..." }
 
     placeholder.label?.text = "Loading Library..."
     scrollWindow.setViewportView(placeholder)
-    thread(name = "reloadLibraryPanel") {
+
+    GlobalScope.launch(BACKGROUND_DISPATCHER) {
       try {
         libraryEditor = LibraryEditor()
         scrollWindow.setViewportView(libraryEditor)
         scrollWindow.verticalScrollBarPolicy = VERTICAL_SCROLLBAR_AS_NEEDED
         revalidate()
         repaint()
+
       } catch (exc: Exception) {
         placeholder.label?.text = """
           Failed to load Library from ${ENV.root}
@@ -123,10 +128,11 @@ class LibraryEditorPanel : Box(BoxLayout.Y_AXIS), ActionListener {
         """.trimIndent()
         scrollWindow.setViewportView(placeholder)
         scrollWindow.verticalScrollBarPolicy = VERTICAL_SCROLLBAR_NEVER
-        exc.printStackTrace()
+        log.error(exc) { "Failure loading library from ${ENV.root}" }
+
       } finally {
         lock.unlock()
-        log.info { "Done Reloading Library" }
+        log.debug { "Done Reloading Library" }
       }
     }
   }
