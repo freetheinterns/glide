@@ -73,7 +73,7 @@ fun KSerializer<*>.encodeStructure(
 fun KType.argumentDescriptor(index: Int): SerialDescriptor = arguments[index].type?.serialDescriptor()!!
 
 @InternalSerializationApi
-fun KType.argumentSerializer(index: Int): KSerializer<Any> = arguments[index].type?.serializer()!! as KSerializer<Any>
+fun KType.argumentSerializer(index: Int): KSerializer<*> = arguments[index].type?.serializer()!!
 
 @InternalSerializationApi
 inline fun <reified E : Enum<E>> enumSerializer(serialName: String): CommonEnumSerializer<E> =

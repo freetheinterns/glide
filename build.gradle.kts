@@ -40,3 +40,19 @@ tasks {
     testLogging.showExceptions = true
   }
 }
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>> {
+  kotlinOptions {
+    languageVersion = "1.3"
+    apiVersion = "1.3"
+    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+  }
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompile> {
+  kotlinOptions {
+    languageVersion = "1.3"
+    apiVersion = "1.3"
+    freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
+  }
+}
