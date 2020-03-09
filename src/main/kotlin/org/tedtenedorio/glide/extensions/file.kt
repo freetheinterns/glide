@@ -2,15 +2,14 @@ package org.tedtenedorio.glide.extensions
 
 import com.sun.image.codec.jpeg.JPEGCodec
 import org.tedtenedorio.glide.ENV
-import org.tedtenedorio.glide.FILE_CREATED_ATS
-import org.tedtenedorio.glide.FILE_UPDATED_ATS
 import org.tedtenedorio.glide.enums.FolderSortStrategy
 import org.tedtenedorio.glide.slideshow.Catalog
+import org.tedtenedorio.glide.storage.cache.GlobalCaches.accessedAtCache
+import org.tedtenedorio.glide.storage.cache.GlobalCaches.createdAtCache
+import org.tedtenedorio.glide.storage.cache.GlobalCaches.updatedAtCache
 import java.awt.image.BufferedImage
 import java.io.File
 import java.io.FileFilter
-import java.nio.file.Files
-import java.nio.file.attribute.BasicFileAttributes
 import java.util.UUID
 import javax.imageio.ImageIO
 
@@ -68,12 +67,9 @@ val ImageFilter = FileFilter {
 // File Attributes
 ///////////////////////////////////////
 
-val File.basicAttributes: BasicFileAttributes
-  get() = Files.readAttributes(toPath(), BasicFileAttributes::class.java)
-
 val File.createdAt: Long
-  get() = FILE_CREATED_ATS.get(absolutePath, basicAttributes.creationTime()::toMillis)
+  get() = createdAtCache[absolutePath]!!
 val File.accessedAt: Long
-  get() = basicAttributes.lastAccessTime().toMillis()
+  get() = accessedAtCache[absolutePath]!!
 val File.updatedAt: Long
-  get() = FILE_UPDATED_ATS.get(absolutePath, basicAttributes.creationTime()::toMillis)
+  get() = updatedAtCache[absolutePath]!!

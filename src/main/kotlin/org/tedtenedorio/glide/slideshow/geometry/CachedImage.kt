@@ -7,8 +7,6 @@ import org.tedtenedorio.glide.extensions.PROJECTOR_WINDOW_SIZE
 import org.tedtenedorio.glide.extensions.bufferedImage
 import org.tedtenedorio.glide.extensions.scaleToFit
 import org.tedtenedorio.glide.properties.CachedProperty.Companion.cache
-import org.tedtenedorio.glide.properties.CachedProperty.Companion.invalidate
-import org.tedtenedorio.glide.storage.Cacheable
 import org.tedtenedorio.glide.utils.createOutlinedTypeSetter
 import java.awt.Dimension
 import java.awt.Graphics2D
@@ -16,28 +14,26 @@ import java.awt.image.BufferedImage
 import java.io.File
 import kotlin.properties.Delegates.observable
 
-class CachedImage(val file: File) : Geometry, Cacheable {
-  override val byteSize: Long by lazy { file.length() }
+class CachedImage(val file: File) : Geometry {
+  val byteSize: Long by lazy { file.length() }
   override var position: Dimension by observable(Dimension()) { _, _, _ ->
     priority = FRAME_RENDER_PRIORITY
     BLACKHOLE.consume(width) // Ensures the buffered image has been loaded and rendered
   }
 
-  override var priority: Int = 0
-
-  private val sizedImage: BufferedImage by cache {
-    memoize()
-    priority = FRAME_RENDER_PRIORITY
-    file.bufferedImage.scaleToFit(PROJECTOR_WINDOW_SIZE)
-  }
+  var priority: Int = 0
 
   val path: String by lazy { file.absolutePath }
   val width: Int by lazy { sizedImage.width }
   val height: Int by lazy { sizedImage.height }
   val name: String by lazy { file.name }
 
-  override fun clear() {
-    ::sizedImage.invalidate(this)
+  private val sizedImage: BufferedImage by path.cache({
+    weigher = { _, _ -> byteSize.toInt() }
+    maximumWeight = ENV.cacheSizeBytes
+  }) {
+    priority = FRAME_RENDER_PRIORITY
+    file.bufferedImage.scaleToFit(PROJECTOR_WINDOW_SIZE)
   }
 
   override fun paint(g: Graphics2D) {

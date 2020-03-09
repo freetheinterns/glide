@@ -24,6 +24,7 @@ dependencies {
   implementation("org.openjdk.jmh:jmh-core:1.22")
   implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.4.3")
   implementation("com.charleskorn.kaml:kaml:0.16.1")
+  implementation("com.github.ben-manes.caffeine:caffeine:2.8.1")
   // Use the Kotlin test library
   testImplementation("junit:junit:4.11")
   testImplementation(kotlin("test-junit"))

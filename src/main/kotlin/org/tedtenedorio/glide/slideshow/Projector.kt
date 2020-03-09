@@ -31,7 +31,6 @@ import org.tedtenedorio.glide.quit
 import org.tedtenedorio.glide.slideshow.geometry.CachedImage
 import org.tedtenedorio.glide.slideshow.geometry.Geometry
 import org.tedtenedorio.glide.slideshow.geometry.MarginPanel
-import org.tedtenedorio.glide.storage.Cacheable.Companion.manageGlobalCache
 import java.awt.Color
 import java.awt.Graphics2D
 import java.awt.GraphicsEnvironment
@@ -118,8 +117,6 @@ class Projector(
     } finally {
       FRAME_RENDER_PRIORITY = realPriority
     }
-
-    manageGlobalCache()
   }
 
   private fun drawPage(painter: Operation<Graphics2D>? = null) {
@@ -219,7 +216,7 @@ class Projector(
     val targetFile = library[target].file
 
     library.filter { !it.path.startsWith(targetFile.absolutePath) }
-    ::index.invalidate(this)
+    ::index invalidate this
     geometry = listOf()
 
     targetFile.operation()

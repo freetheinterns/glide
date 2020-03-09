@@ -38,11 +38,11 @@ class Library(
     private val uuid: Int = java.util.UUID.randomUUID().hashCode()
     val current: CachedImage by cache { this@Library[primary][secondary] }
     var primary: Int by blindObserver(playlistIndex) {
-      ::maxSecondary.invalidate(this)
-      ::current.invalidate(this)
+      ::maxSecondary invalidate this
+      ::current invalidate this
       secondary = 0
     }
-    var secondary: Int by blindObserver(slideIndex) { ::current.invalidate(this) }
+    var secondary: Int by blindObserver(slideIndex) { ::current invalidate this }
     val maxPrimary: Int by lazy { this@Library.size }
     val maxSecondary: Int by cache { this@Library[primary].size }
     val copy

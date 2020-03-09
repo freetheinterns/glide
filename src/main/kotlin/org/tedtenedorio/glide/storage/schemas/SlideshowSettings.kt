@@ -45,7 +45,7 @@ data class SlideshowSettings(
   var maxImagesPerFrame: Int = 3,
   var speed: Int = 2500,
   var debounce: Long = 200L,
-  var cacheSizeBytes: Int = GB * 3,
+  var cacheSizeBytes: Long = GB * 3,
   var displayMode: DisplayMode = DisplayMode(2560, 1440, 32, 0),
 
   var ordering: FolderSortStrategy = FolderSortStrategy.Random,

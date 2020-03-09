@@ -6,9 +6,6 @@ import kotlinx.serialization.json.JsonDecodingException
 import org.gradle.internal.impldep.com.google.common.annotations.VisibleForTesting
 import org.tedtenedorio.glide.listeners.LauncherBindings
 import org.tedtenedorio.glide.listeners.ProjectorBindings
-import org.tedtenedorio.glide.storage.schemas.FileCreatedAtPersistableMap
-import org.tedtenedorio.glide.storage.schemas.FileSizePersistableMap
-import org.tedtenedorio.glide.storage.schemas.FileUpdatedAtPersistableMap
 import org.tedtenedorio.glide.storage.schemas.SlideshowSettings
 import org.tedtenedorio.glide.storage.serialization.JSON
 import org.tedtenedorio.glide.storage.serialization.YAML
@@ -44,9 +41,6 @@ object Persist {
       is SlideshowSettings -> load(this as SlideshowSettings, SlideshowSettings.serializer()) as T
       is LauncherBindings -> load(this as LauncherBindings, LauncherBindings.serializer()) as T
       is ProjectorBindings -> load(this as ProjectorBindings, ProjectorBindings.serializer()) as T
-      is FileCreatedAtPersistableMap -> load(this as FileCreatedAtPersistableMap, FileCreatedAtPersistableMap.serializer()) as T
-      is FileSizePersistableMap -> load(this as FileSizePersistableMap, FileSizePersistableMap.serializer()) as T
-      is FileUpdatedAtPersistableMap -> load(this as FileUpdatedAtPersistableMap, FileUpdatedAtPersistableMap.serializer()) as T
 
       else -> throw RuntimeException("Unknown serializer for $this")
     }
@@ -85,9 +79,6 @@ object Persist {
       is SlideshowSettings -> save(this as SlideshowSettings, SlideshowSettings.serializer()) as T
       is LauncherBindings -> save(this as LauncherBindings, LauncherBindings.serializer()) as T
       is ProjectorBindings -> save(this as ProjectorBindings, ProjectorBindings.serializer()) as T
-      is FileCreatedAtPersistableMap -> save(this as FileCreatedAtPersistableMap, FileCreatedAtPersistableMap.serializer()) as T
-      is FileSizePersistableMap -> save(this as FileSizePersistableMap, FileSizePersistableMap.serializer()) as T
-      is FileUpdatedAtPersistableMap -> save(this as FileUpdatedAtPersistableMap, FileUpdatedAtPersistableMap.serializer()) as T
 
       else -> throw RuntimeException("Unknown serializer for $this")
     }
