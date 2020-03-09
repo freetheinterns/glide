@@ -3,11 +3,14 @@ package org.tedtenedorio.glide.storage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import org.tedtenedorio.glide.Loader
 
 interface PersistableMap<K, V> {
   val data: HashMap<String, Pair<V, Long>>
   val timeToLive: Long
+  val fileLock: Mutex
+  val hashLock: Mutex
 
   fun write()
 
@@ -28,8 +31,25 @@ interface PersistableMap<K, V> {
   }
 
   operator fun set(key: K, value: V): V = value.also {
-    data[key.hashCode().toString()] = it to timeToLive.plus(System.currentTimeMillis())
-    GlobalScope.launch(Dispatchers.IO) { write() }
+    GlobalScope.launch(Dispatchers.IO) {
+      launch {
+        hashLock.lock()
+        try {
+          data[key.hashCode().toString()] = it to timeToLive.plus(System.currentTimeMillis())
+        } finally {
+          hashLock.unlock()
+        }
+      }
+      launch {
+        if (fileLock.tryLock()) {
+          try {
+            write()
+          } finally {
+            fileLock.unlock()
+          }
+        }
+      }
+    }
   }
 
   fun sanitize() {

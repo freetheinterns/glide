@@ -1,6 +1,8 @@
 package org.tedtenedorio.glide.storage
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.StringFormat
+import kotlinx.serialization.json.JsonDecodingException
 import org.gradle.internal.impldep.com.google.common.annotations.VisibleForTesting
 import org.tedtenedorio.glide.listeners.LauncherBindings
 import org.tedtenedorio.glide.listeners.ProjectorBindings
@@ -9,6 +11,7 @@ import org.tedtenedorio.glide.storage.schemas.FileSizePersistableMap
 import org.tedtenedorio.glide.storage.schemas.FileUpdatedAtPersistableMap
 import org.tedtenedorio.glide.storage.schemas.SlideshowSettings
 import org.tedtenedorio.glide.storage.serialization.JSON
+import org.tedtenedorio.glide.storage.serialization.YAML
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.file.Paths
@@ -16,10 +19,24 @@ import java.nio.file.Paths
 
 object Persist {
   private val FILENAMES = mutableMapOf<Any, String>()
-  var ENABLED = false
+  val CONFIG_FOLDER: String by lazy {
+    System.getProperty("os.name").let { OS ->
+      println(OS)
+      when {
+        OS.contains("win", ignoreCase = true) -> System.getProperty("user.home") + "/AppData"
+        OS.contains("mac", ignoreCase = true) -> System.getProperty("user.home") + "/Library/Application Support"
+        else -> System.getProperty("user.home")
+      } + "/glide"
+    }
+  }
+
+  var ENABLED = true
+  var USE_JSON = false
+  val PARSER: StringFormat
+    get() = if (USE_JSON) JSON else YAML
 
   fun <T : Any> T.jsonString(kSerializer: KSerializer<T>): String =
-    JSON.stringify(kSerializer, this)
+    PARSER.stringify(kSerializer, this)
 
   inline fun <reified T : Any> T.load(): T {
     if (!ENABLED) return this
@@ -38,7 +55,8 @@ object Persist {
   @VisibleForTesting
   fun <T : Any> load(base: T, kSerializer: KSerializer<T>): T {
     return try {
-      JSON.parse(kSerializer, File(base.filename).readText()).also {
+      val fileData = File(base.filename).readText()
+      PARSER.parse(kSerializer, fileData).also {
         if (base is Versionable && it is Versionable && base.version != it.version) {
           return save(base, kSerializer)
         }
@@ -49,6 +67,10 @@ object Persist {
         it.parentFile.mkdirs()
         it.createNewFile()
       }
+      save(base, kSerializer)
+    } catch (exc: JsonDecodingException) {
+      println("Error loading ${this::class.simpleName} from file ${base.filename}")
+      exc.printStackTrace()
       save(base, kSerializer)
     } catch (exc: Exception) {
       println("Error loading ${this::class.simpleName} from file ${base.filename}")
@@ -72,11 +94,15 @@ object Persist {
   }
 
   fun <T : Any> save(base: T, kSerializer: KSerializer<T>): T = base.apply {
-    File(filename).writeText(JSON.stringify(kSerializer, this))
+    File(filename).writeText(PARSER.stringify(kSerializer, this))
   }
 
   private val <T : Any> T.filename: String
     get() = FILENAMES.getOrPut(this) {
-      Paths.get("").toAbsolutePath().resolve("${this::class.simpleName}.json").toString()
+      Paths
+        .get(CONFIG_FOLDER)
+        .toAbsolutePath()
+        .resolve("${this::class.simpleName}.${if (USE_JSON) "json" else "yml"}")
+        .toString()
     }
 }

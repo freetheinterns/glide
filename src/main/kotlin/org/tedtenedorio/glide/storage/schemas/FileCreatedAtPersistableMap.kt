@@ -1,5 +1,6 @@
 package org.tedtenedorio.glide.storage.schemas
 
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import org.tedtenedorio.glide.storage.Persist.save
@@ -14,5 +15,15 @@ data class FileCreatedAtPersistableMap(
 ) : PersistableMap<String, Long> {
   override fun write() {
     save()
+  }
+
+  @Transient
+  override val fileLock: Mutex = classLock
+
+  @Transient
+  override val hashLock: Mutex = Mutex()
+
+  companion object {
+    private val classLock = Mutex()
   }
 }
