@@ -17,6 +17,7 @@ import java.awt.event.KeyEvent.VK_DOWN
 import java.awt.event.KeyEvent.VK_ENTER
 import java.awt.event.KeyEvent.VK_ESCAPE
 import java.awt.event.KeyEvent.VK_F5
+import java.awt.event.KeyEvent.VK_F8
 import java.awt.event.KeyEvent.VK_LEFT
 import java.awt.event.KeyEvent.VK_RIGHT
 import java.awt.event.KeyEvent.VK_SHIFT
@@ -37,9 +38,9 @@ data class ProjectorBindings(
   var inchForward: List<Int> = listOf(VK_UP),
   var nextCatalog: List<Int> = listOf(VK_TAB),
   var pageBackward: List<Int> = listOf(VK_LEFT),
-  var pageForward: List<Int> = listOf(VK_ENTER, VK_RIGHT, -BUTTON1),
+  var pageForward: List<Int> = listOf(VK_ENTER, VK_SPACE, VK_RIGHT, -BUTTON1),
   var previousCatalog: List<Int> = listOf(VK_SHIFT),
-  var toggleSlideshow: List<Int> = listOf(VK_SPACE)
+  var toggleSlideshow: List<Int> = listOf(VK_F8)
 ) : Versionable {
   companion object {
     private val log by logger()

@@ -12,7 +12,7 @@ open class Catalog(val file: File) {
 
   val path: String = file.absolutePath
   val size: Int by lazy { cachedImages.size }
-  val folderSize: Long by path.cache({ gcAware = true }) {
+  val folderSize: Long by path.cache {
     cachedImages.sumByLong(CachedImage::byteSize)
   }
 
